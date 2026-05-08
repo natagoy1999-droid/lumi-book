@@ -102,7 +102,7 @@ export function DayTimeline() {
                 <div className="px-3 py-2">
                   <div className="text-[11px] font-semibold text-paper-50">{b.time}</div>
                   <div className="mt-0.5 truncate text-[11px] text-paper-50/80">
-                    {getClient(b.clientId)?.name ?? 'Клиент'}
+                    {getClient(b.clientId)?.name ?? b.clientName ?? 'Клиент'}
                   </div>
                 </div>
               </motion.div>

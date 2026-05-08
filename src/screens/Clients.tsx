@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Plus, Sparkles, Search } from 'lucide-react'
+import { Plus, Sparkles, Search, Trash2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
 import { GlassCard } from '../components/GlassCard'
@@ -13,6 +13,12 @@ import { useStore, type Client } from '../state/store'
 
 function money(n: number) {
   return new Intl.NumberFormat('ru-RU').format(n)
+}
+
+function atLocalMs(dateISO: string, time: string) {
+  const [y, m, d] = dateISO.split('-').map(Number)
+  const [hh, mm] = time.split(':').map(Number)
+  return new Date(y, m - 1, d, hh, mm, 0, 0).getTime()
 }
 
 export function Clients() {
@@ -182,6 +188,10 @@ export function Clients() {
       >
         {draft ? (
           <div className="space-y-3">
+            <div className="rounded-3xl border border-white/60 bg-white/55 p-4 text-[12px] text-ink-700/65 shadow-soft">
+              Нажмите на карточку клиента, чтобы изменить данные. Удаление безопасно — записи не сломаются.
+            </div>
+
             <div className="space-y-1">
               <div className="text-[12px] font-medium text-ink-700/70">Имя</div>
               <input
@@ -212,6 +222,57 @@ export function Clients() {
               />
             </div>
 
+            {(() => {
+              const hist = state.bookings
+                .filter((b) => b.clientId === draft.id && b.status !== 'draft')
+                .slice()
+                .sort((a, b) => atLocalMs(b.dateISO, b.time) - atLocalMs(a.dateISO, a.time))
+              const last = hist.find((b) => b.status !== 'cancelled') ?? hist[0]
+              return (
+                <div className="rounded-3xl border border-white/60 bg-white/55 p-4 shadow-soft">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="text-[12px] font-medium text-ink-700/70">Профиль</div>
+                    <div className="text-[12px] font-medium text-ink-700/60">
+                      {draft.visits} визитов • {money(draft.totalSpent)} ₽
+                    </div>
+                  </div>
+                  <div className="mt-2 grid grid-cols-2 gap-2">
+                    <div className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 shadow-soft">
+                      <div className="text-[11px] font-medium uppercase tracking-[0.10em] text-ink-700/55">
+                        Последний визит
+                      </div>
+                      <div className="mt-1 text-[13px] font-semibold text-ink-950">
+                        {last ? `${last.dateISO} • ${last.time}` : '—'}
+                      </div>
+                    </div>
+                    <div className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 shadow-soft">
+                      <div className="text-[11px] font-medium uppercase tracking-[0.10em] text-ink-700/55">
+                        История
+                      </div>
+                      <div className="mt-1 text-[13px] font-semibold text-ink-950">
+                        {hist.length ? `${hist.length} записей` : '—'}
+                      </div>
+                    </div>
+                  </div>
+                  {hist.length ? (
+                    <div className="mt-3 space-y-2">
+                      {hist.slice(0, 5).map((b) => (
+                        <div
+                          key={b.id}
+                          className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[12px] text-ink-700/70 shadow-soft"
+                        >
+                          <div className="font-semibold text-ink-950">{b.dateISO} • {b.time}</div>
+                          <div className="mt-0.5">
+                            {b.serviceName ?? 'Услуга'} • {money(b.price)} ₽
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              )
+            })()}
+
             <button
               type="button"
               onClick={() => {
@@ -235,6 +296,27 @@ export function Clients() {
             >
               Сохранить
             </button>
+
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setOpenEdit(false)}
+                className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[13px] font-semibold text-ink-950 shadow-soft"
+              >
+                Отмена
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  dispatch({ type: 'deleteClient', clientId: draft.id })
+                  setOpenEdit(false)
+                }}
+                className="inline-flex items-center justify-center gap-2 rounded-3xl border border-red-200/70 bg-white/55 px-4 py-3 text-[13px] font-semibold text-red-700 shadow-soft"
+              >
+                <Trash2 size={18} />
+                Удалить клиента
+              </button>
+            </div>
           </div>
         ) : null}
       </Sheet>

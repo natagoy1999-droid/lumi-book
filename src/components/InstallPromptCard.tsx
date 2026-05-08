@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion'
 import { Download, Sparkles } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
@@ -15,14 +14,12 @@ export function InstallPromptCard({ compact = false }: { compact?: boolean }) {
 
   return (
     <div className={cn(compact ? '' : 'px-5')}>
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ type: 'spring', stiffness: 520, damping: 44 }}
+      <div
         className={cn(
-          'mx-auto max-w-[520px] rounded-[30px] border border-white/55 bg-white/55 p-5 shadow-soft backdrop-blur-glass',
+          'mx-auto max-w-[520px] rounded-[30px] border p-5 shadow-soft',
           compact && 'p-4',
         )}
+        style={{ backgroundColor: '#FFFDF8', borderColor: 'rgba(20,20,20,0.08)' }}
       >
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -54,10 +51,8 @@ export function InstallPromptCard({ compact = false }: { compact?: boolean }) {
             </div>
           </div>
 
-          <motion.button
+          <button
             type="button"
-            whileTap={{ scale: 0.985 }}
-            transition={{ type: 'spring', stiffness: 600, damping: 40 }}
             disabled={busy}
             onClick={async () => {
               if (!deferred) return
@@ -77,9 +72,9 @@ export function InstallPromptCard({ compact = false }: { compact?: boolean }) {
           >
             <Download size={18} />
             Установить
-          </motion.button>
+          </button>
         </div>
-      </motion.div>
+      </div>
     </div>
   )
 }

@@ -97,7 +97,7 @@ export function Money() {
             Деньги
           </div>
           <div className="mt-1 text-[28px] font-semibold tracking-tightish text-ink-950">
-            Спокойная аналитика
+            Аналитика
           </div>
         </motion.div>
 

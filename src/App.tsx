@@ -220,9 +220,10 @@ function Shell() {
     <div
       className="mx-auto max-w-[520px]"
       style={{
+        background: '#FAF7EF',
         // Global reserve so content never hides under BottomTabs.
         ['--app-bottom-pad' as any]:
-          hideTabs ? '0px' : 'calc(110px + env(safe-area-inset-bottom))',
+          hideTabs ? '0px' : 'calc(120px + env(safe-area-inset-bottom))',
       }}
     >
       <GlobalMaterialSync />

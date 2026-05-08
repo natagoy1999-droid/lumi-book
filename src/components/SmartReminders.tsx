@@ -174,8 +174,8 @@ export function SmartReminders({ hideWhenEmpty = false }: { hideWhenEmpty?: bool
       .filter((b) => b.masterId === master.id && b.status === 'pending_confirm')
       .sort((a, b) => (a.dateISO + a.time).localeCompare(b.dateISO + b.time))
     for (const b of pending.slice(0, 3)) {
-      const client = getClient(b.clientId)?.name ?? 'Клиент'
-      const service = getService(b.serviceId)?.name ?? 'Услуга'
+      const client = getClient(b.clientId)?.name ?? b.clientName ?? 'Клиент'
+      const service = getService(b.serviceId)?.name ?? b.serviceName ?? 'Услуга'
       const isToday = b.dateISO === today
 
       out.push({
@@ -237,8 +237,8 @@ export function SmartReminders({ hideWhenEmpty = false }: { hideWhenEmpty?: bool
       .filter((b) => b.masterId === master.id && b.status === 'reschedule_pending' && b.reschedule)
       .sort((a, b) => (a.reschedule!.proposedAt ?? 0) - (b.reschedule!.proposedAt ?? 0))
     for (const b of resched.slice(0, 2)) {
-      const client = getClient(b.clientId)?.name ?? 'Клиент'
-      const service = getService(b.serviceId)?.name ?? 'Услуга'
+      const client = getClient(b.clientId)?.name ?? b.clientName ?? 'Клиент'
+      const service = getService(b.serviceId)?.name ?? b.serviceName ?? 'Услуга'
       const p = b.reschedule!
 
       const ageMs = now - p.proposedAt

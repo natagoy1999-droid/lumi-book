@@ -297,15 +297,15 @@ export function Today() {
               >
                 <div>
                   <div className="text-[16px] font-semibold text-ink-950">
-                    {getClient(nextBooking.clientId)?.name ?? 'Клиент'}
+                    {getClient(nextBooking.clientId)?.name ?? nextBooking.clientName ?? 'Клиент'}
                   </div>
                   <div className="mt-1 text-[12px] text-ink-700/65">
                     {nextBooking.time} •{' '}
-                    {getService(nextBooking.serviceId)?.name ?? 'Услуга'}
+                    {getService(nextBooking.serviceId)?.name ?? nextBooking.serviceName ?? 'Услуга'}
                   </div>
                 </div>
                 <div className="rounded-2xl border border-white/55 bg-white/55 px-3 py-2 text-[12px] font-medium text-ink-800/80 shadow-soft">
-                  {getMaster(nextBooking.masterId)?.name}
+                  {getMaster(nextBooking.masterId)?.name ?? nextBooking.masterName ?? 'Мастер'}
                 </div>
               </button>
             ) : (

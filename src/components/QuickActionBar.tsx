@@ -1,10 +1,8 @@
-import { motion } from 'framer-motion'
 import { CalendarDays, MessageCircle, Sparkles } from 'lucide-react'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { cn } from '../lib/cn'
-import { glassBackdropFilter, glassBorderStyle, glassFill } from '../lib/glassStyles'
 
 export type QuickAction = {
   id: string
@@ -31,19 +29,15 @@ export function QuickActionBar({
 
   return (
     <div className="mt-3">
-      <motion.div
-        initial={{ opacity: 0, y: 10, scale: 0.99 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ type: 'spring', stiffness: 520, damping: 44 }}
+      <div
         className={cn('rounded-[26px] border px-3 py-2 shadow-soft', 'ring-1 ring-black/5')}
         style={{
-          backdropFilter: glassBackdropFilter('interactive'),
-          backgroundColor: glassFill('interactive'),
-          borderColor: glassBorderStyle('interactive'),
+          backgroundColor: '#FFFDF8',
+          borderColor: 'rgba(20,20,20,0.08)',
         }}
       >
         <div className="flex items-center justify-between gap-3">
-          <div className="text-[12px] font-medium text-ink-700/70">Quick actions</div>
+          <div className="text-[12px] font-medium text-ink-700/70">Быстрые действия</div>
           <button
             type="button"
             onClick={() => nav('/calendar')}
@@ -57,11 +51,9 @@ export function QuickActionBar({
           {list.map((a) => {
             const Icon = a.icon ? iconMap[a.icon] : undefined
             return (
-              <motion.button
+              <button
                 key={a.id}
                 type="button"
-                whileTap={{ scale: 0.985 }}
-                transition={{ type: 'spring', stiffness: 650, damping: 42 }}
                 onClick={a.onClick}
                 className={cn(
                   'inline-flex items-center gap-2 whitespace-nowrap rounded-3xl px-4 py-3 text-[13px] font-semibold shadow-soft',
@@ -72,11 +64,11 @@ export function QuickActionBar({
               >
                 {Icon ? <Icon size={16} className="text-gold-400" /> : null}
                 {a.label}
-              </motion.button>
+              </button>
             )
           })}
         </div>
-      </motion.div>
+      </div>
     </div>
   )
 }

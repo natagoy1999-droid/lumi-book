@@ -18,6 +18,36 @@ export type Client = {
   totalSpent: number
   visits: number
 }
+
+export type AppSettings = {
+  workHours: {
+    start: string
+    end: string
+    weekendDays: number[]
+  }
+  channels: {
+    sms: boolean
+    whatsapp: boolean
+    max: boolean
+    default: 'sms' | 'whatsapp' | 'max'
+  }
+  reminders: {
+    enabled: boolean
+    hoursBefore: number
+    repeat: boolean
+  }
+  templates: {
+    confirm: string
+    reschedule: string
+    reminder: string
+    followup: string
+  }
+  payments: {
+    prepayEnabled: boolean
+    prepayAmount: number
+    paymentComment: string
+  }
+}
 export type BookingStatus =
   | 'draft'
   | 'pending_confirm'
@@ -30,6 +60,12 @@ export type Booking = {
   clientId: string
   masterId: string
   serviceId: string
+  /** Snapshots for safe display after deletes/renames */
+  clientName?: string
+  clientPhone?: string
+  masterName?: string
+  serviceName?: string
+  serviceMinutes?: number
   dateISO: string // YYYY-MM-DD
   time: string // HH:MM
   price: number
@@ -72,6 +108,7 @@ type State = {
   bookings: Booking[]
   events: EngagementEvent[]
   onboardingDone: boolean
+  settings: AppSettings
 }
 
 type Action =
@@ -96,7 +133,11 @@ type Action =
     }
   | { type: 'upsertClient'; client: Client }
   | { type: 'upsertService'; service: Service }
+  | { type: 'deleteService'; serviceId: string }
   | { type: 'upsertMaster'; master: Master }
+  | { type: 'deleteMaster'; masterId: string }
+  | { type: 'deleteClient'; clientId: string }
+  | { type: 'updateSettings'; settings: Partial<AppSettings> }
 
 const initialState: State = {
   onboardingDone: false,
@@ -129,6 +170,18 @@ const initialState: State = {
   ],
   bookings: [],
   events: [],
+  settings: {
+    workHours: { start: '10:00', end: '20:00', weekendDays: [0] },
+    channels: { sms: true, whatsapp: true, max: false, default: 'whatsapp' },
+    reminders: { enabled: true, hoursBefore: 24, repeat: false },
+    templates: {
+      confirm: 'Здравствуйте! Подтверждаю вашу запись на {date} {time}.',
+      reschedule: 'Здравствуйте! Можно ли перенести запись на {date} {time}?',
+      reminder: 'Напоминаю о записи завтра в {time}. До встречи.',
+      followup: 'Здравствуйте! Если удобно — могу предложить свободное окно на этой неделе.',
+    },
+    payments: { prepayEnabled: false, prepayAmount: 0, paymentComment: '' },
+  },
 }
 
 const STORAGE_KEY = 'lumi_store_v1'
@@ -159,6 +212,53 @@ function sanitizeState(input: unknown): State | null {
   const events = Array.isArray(st.events) ? (st.events as EngagementEvent[]) : null
   if (!masters || !services || !clients || !bookings || !events) return null
 
+  const baseSettings = initialState.settings
+  const rawSettings = (st as { settings?: unknown }).settings
+  const settings: AppSettings = (() => {
+    if (!rawSettings || typeof rawSettings !== 'object') return baseSettings
+    const ss = rawSettings as Partial<AppSettings>
+    return {
+      workHours: {
+        start: ss.workHours?.start ?? baseSettings.workHours.start,
+        end: ss.workHours?.end ?? baseSettings.workHours.end,
+        weekendDays: Array.isArray(ss.workHours?.weekendDays)
+          ? (ss.workHours!.weekendDays as number[]).filter((x) => Number.isFinite(x))
+          : baseSettings.workHours.weekendDays,
+      },
+      channels: {
+        sms: Boolean(ss.channels?.sms ?? baseSettings.channels.sms),
+        whatsapp: Boolean(ss.channels?.whatsapp ?? baseSettings.channels.whatsapp),
+        max: Boolean(ss.channels?.max ?? baseSettings.channels.max),
+        default:
+          ss.channels?.default === 'sms' ||
+          ss.channels?.default === 'whatsapp' ||
+          ss.channels?.default === 'max'
+            ? ss.channels.default
+            : baseSettings.channels.default,
+      },
+      reminders: {
+        enabled: Boolean(ss.reminders?.enabled ?? baseSettings.reminders.enabled),
+        hoursBefore: Number.isFinite(ss.reminders?.hoursBefore as any)
+          ? Math.max(0, Math.round(ss.reminders!.hoursBefore))
+          : baseSettings.reminders.hoursBefore,
+        repeat: Boolean(ss.reminders?.repeat ?? baseSettings.reminders.repeat),
+      },
+      templates: {
+        confirm: ss.templates?.confirm ?? baseSettings.templates.confirm,
+        reschedule: ss.templates?.reschedule ?? baseSettings.templates.reschedule,
+        reminder: ss.templates?.reminder ?? baseSettings.templates.reminder,
+        followup: ss.templates?.followup ?? baseSettings.templates.followup,
+      },
+      payments: {
+        prepayEnabled: Boolean(ss.payments?.prepayEnabled ?? baseSettings.payments.prepayEnabled),
+        prepayAmount: Number.isFinite(ss.payments?.prepayAmount as any)
+          ? Math.max(0, Math.round(ss.payments!.prepayAmount))
+          : baseSettings.payments.prepayAmount,
+        paymentComment: ss.payments?.paymentComment ?? baseSettings.payments.paymentComment,
+      },
+    }
+  })()
+
   return {
     onboardingDone: Boolean(st.onboardingDone),
     masters,
@@ -166,6 +266,7 @@ function sanitizeState(input: unknown): State | null {
     clients,
     bookings,
     events,
+    settings,
   }
 }
 
@@ -407,6 +508,7 @@ function reduce(state: State, action: Action): State {
       return {
         onboardingDone: state.onboardingDone,
         ...demo,
+        settings: state.settings,
       }
     }
     case 'resetAllData': {
@@ -417,10 +519,22 @@ function reduce(state: State, action: Action): State {
         clients: [],
         bookings: [],
         events: [],
+        settings: state.settings,
       }
     }
     case 'createBooking': {
-      return { ...state, bookings: [action.booking, ...state.bookings] }
+      const c = state.clients.find((x) => x.id === action.booking.clientId)
+      const s = state.services.find((x) => x.id === action.booking.serviceId)
+      const m = state.masters.find((x) => x.id === action.booking.masterId)
+      const booking: Booking = {
+        ...action.booking,
+        clientName: action.booking.clientName ?? c?.name,
+        clientPhone: action.booking.clientPhone ?? c?.phone,
+        serviceName: action.booking.serviceName ?? s?.name,
+        serviceMinutes: action.booking.serviceMinutes ?? s?.minutes,
+        masterName: action.booking.masterName ?? m?.name,
+      }
+      return { ...state, bookings: [booking, ...state.bookings] }
     }
     case 'confirmBooking': {
       const bookings = state.bookings.map((b) =>
@@ -498,12 +612,29 @@ function reduce(state: State, action: Action): State {
         : [action.service, ...state.services]
       return { ...state, services }
     }
+    case 'deleteService': {
+      const services = state.services.filter((s) => s.id !== action.serviceId)
+      return { ...state, services }
+    }
     case 'upsertMaster': {
       const exists = state.masters.some((m) => m.id === action.master.id)
       const masters = exists
         ? state.masters.map((m) => (m.id === action.master.id ? action.master : m))
         : [action.master, ...state.masters]
       return { ...state, masters }
+    }
+    case 'deleteMaster': {
+      // Safety: never allow empty masters array (would break many screens).
+      if (state.masters.length <= 1) return state
+      const masters = state.masters.filter((m) => m.id !== action.masterId)
+      return { ...state, masters }
+    }
+    case 'deleteClient': {
+      const clients = state.clients.filter((c) => c.id !== action.clientId)
+      return { ...state, clients }
+    }
+    case 'updateSettings': {
+      return { ...state, settings: { ...state.settings, ...action.settings } as AppSettings }
     }
     default:
       return state

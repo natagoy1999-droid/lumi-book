@@ -142,7 +142,7 @@ export function buildFocusCard(args: {
     return {
       id: `focus_recovery_${today}`,
       tone: 'ink',
-      badge: 'Recovery',
+      badge: 'Возврат',
       title: `${inactive.length} клиента готовы к возврату`,
       subtitle: `Можно вернуть ~${money(incomeToday * 0.65)} ₽ мягким сценарием`,
       cta: { label: 'Открыть', action: { kind: 'open_calendar' } },

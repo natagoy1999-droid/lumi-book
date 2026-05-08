@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion'
 import { ArrowUpRight, Sparkles, Wand2 } from 'lucide-react'
 import { useMemo } from 'react'
 
@@ -62,7 +61,7 @@ export function RecoveryDashboard() {
       <div className="flex items-center justify-between">
         <div className="inline-flex items-center gap-2 text-[12px] font-medium text-ink-700/70">
           <Sparkles size={16} className="text-gold-400" />
-          Recovery dashboard
+          Возврат
         </div>
         <div className="text-[12px] text-ink-700/55">{today}</div>
       </div>
@@ -106,15 +105,10 @@ export function RecoveryDashboard() {
 
       <div className="mt-3 space-y-2">
         {opportunities.map((o) => (
-          <motion.div
+          <div
             key={o.name}
-            layout
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ type: 'spring', stiffness: 520, damping: 44 }}
             className={cn(
               'rounded-3xl border border-white/60 bg-white/55 px-4 py-3 shadow-soft',
-              'backdrop-blur-glass',
             )}
           >
             <div className="flex items-center justify-between gap-3">
@@ -128,7 +122,7 @@ export function RecoveryDashboard() {
                 лучше в {o.bestTime}
               </div>
             </div>
-          </motion.div>
+          </div>
         ))}
       </div>
     </GlassCard>

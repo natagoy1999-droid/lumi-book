@@ -138,14 +138,14 @@ export function Calendar() {
                   >
                     <div className="flex items-center justify-between">
                       <div className="text-[14px] font-semibold tracking-tightish text-ink-950">
-                        {b.time} • {getClient(b.clientId)?.name ?? 'Клиент'}
+                        {b.time} • {getClient(b.clientId)?.name ?? b.clientName ?? 'Клиент'}
                       </div>
                       <div className="text-[12px] font-medium text-ink-700/65">
                         {b.price} ₽
                       </div>
                     </div>
                     <div className="mt-1 text-[12px] text-ink-700/60">
-                      {getService(b.serviceId)?.name ?? 'Услуга'}
+                      {getService(b.serviceId)?.name ?? b.serviceName ?? 'Услуга'}
                       {b.status === 'pending_confirm' ? (
                         <span className="ml-2 inline-flex items-center rounded-full border border-gold-200/60 bg-white/55 px-2 py-0.5 text-[11px] font-medium text-ink-800/70">
                           pending
