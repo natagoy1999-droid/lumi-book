@@ -111,14 +111,14 @@ export function buildFocusCard(args: {
     }
   }
 
-  // 3) Premium slot suggestion if there is free slot at 16:00/17:30/19:00
+  // 3) Slot suggestion if there is free slot at 16:00/17:30/19:00
   const premium = freeSlotsToday.find((t) => ['16:00', '17:30', '19:00'].includes(t))
   if (premium) {
     return {
       id: `focus_premium_${today}_${premium}`,
       tone: 'gold',
       badge: 'Окно',
-      title: `Есть premium‑окно ${premium}`,
+      title: `Есть свободное окно ${premium}`,
       subtitle: 'Можно заполнить одним касанием',
       cta: { label: 'Предложить', action: { kind: 'open_message', clientId: clients[0]?.id ?? 'c1' } },
     }

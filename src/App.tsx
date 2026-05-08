@@ -26,6 +26,7 @@ import { useMaterialScroll } from './state/materialScroll'
 import { useMessaging } from './state/messaging'
 import { useRecovery } from './state/recovery'
 import { useInstall } from './state/install'
+import { useAppHydration } from './state/appHydration'
 import { Calendar } from './screens/Calendar'
 import { Clients } from './screens/Clients'
 import { Money } from './screens/Money'
@@ -34,6 +35,7 @@ import { Onboarding } from './screens/Onboarding'
 import { Reschedule } from './screens/Reschedule'
 import { Settings } from './screens/Settings'
 import { Today } from './screens/Today'
+import { ClientBooking } from './screens/ClientBooking'
 import { StoreProvider, todayISO, useStore } from './state/store'
 
 function Page({ children }: { children: ReactNode }) {
@@ -85,6 +87,8 @@ function GlobalMaterialSync() {
   const activeChains = useRecovery((s) => s.chains.filter((c) => c.status === 'active').length)
   const setDeferred = useInstall((s) => s.setDeferred)
   const markInstalled = useInstall((s) => s.markInstalled)
+  const ready = useAppHydration((s) => s.ready)
+  const setReady = useAppHydration((s) => s.setReady)
 
   const masterId = state.masters[0]?.id ?? ''
   const dateISO = todayISO()
@@ -159,6 +163,12 @@ function GlobalMaterialSync() {
       freeSlotsToday: slots,
       incomeToday: income,
     })
+
+    if (!ready) {
+      // Mark ready only after material pipeline applied once.
+      const raf = requestAnimationFrame(() => setReady(true))
+      return () => cancelAnimationFrame(raf)
+    }
   }, [
     activeChains,
     income,
@@ -171,6 +181,8 @@ function GlobalMaterialSync() {
     state.events,
     state.masters,
     state.services,
+    ready,
+    setReady,
   ])
 
   return null
@@ -179,14 +191,25 @@ function GlobalMaterialSync() {
 function Shell() {
   const loc = useLocation()
   const { state } = useStore()
+  const ready = useAppHydration((s) => s.ready)
 
   const hideTabs =
-    loc.pathname.startsWith('/onboarding') || loc.pathname.startsWith('/calendar/new')
+    loc.pathname.startsWith('/onboarding') ||
+    loc.pathname.startsWith('/calendar/new') ||
+    loc.pathname.startsWith('/client-booking')
 
   return (
     <div className="mx-auto max-w-[520px]">
       <GlobalMaterialSync />
-      <AppBootOverlay />
+      <AppBootOverlay active={!ready} />
+      <div
+        style={{
+          opacity: ready ? 1 : 0,
+          transform: ready ? 'translateY(0px)' : 'translateY(4px)',
+          transition: 'opacity 340ms ease, transform 340ms ease',
+          pointerEvents: ready ? 'auto' : 'none',
+        }}
+      >
       <AnimatePresence mode="wait" initial={false}>
         <Routes location={loc} key={loc.pathname + loc.search}>
           <Route
@@ -256,6 +279,14 @@ function Shell() {
             }
           />
           <Route
+            path="/client-booking"
+            element={
+              <Page>
+                <ClientBooking />
+              </Page>
+            }
+          />
+          <Route
             path="/settings"
             element={
               <Page>
@@ -271,6 +302,7 @@ function Shell() {
       {hideTabs ? null : <BottomTabs />}
       <MessageComposerSheet />
       <DemoWalkthrough />
+      </div>
     </div>
   )
 }

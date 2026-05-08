@@ -9,15 +9,10 @@ import { AssistantLayer } from '../components/AssistantLayer'
 import { RecoveryDashboard } from '../components/RecoveryDashboard'
 import { SmartReminders } from '../components/SmartReminders'
 import { FocusCard } from '../components/FocusCard'
-import { MagneticDock } from '../components/MagneticDock'
 import { MiniWidgets } from '../components/MiniWidgets'
 import { cn } from '../lib/cn'
 import { glassBackdropFilter, glassBorderStyle, glassFill } from '../lib/glassStyles'
 import { buildFocusCard, buildWidgets, computeHomeMode } from '../lib/homeEngine'
-import { pickSecondaryPinned } from '../lib/pinningEngine'
-import { buildDockActions } from '../lib/actionEngine'
-import { generateMessageDraft } from '../lib/messageGenerator'
-import { useStableDockActions } from '../lib/priorityTransition'
 import { kickMotionDecay } from '../lib/motionDecay'
 import { useMessaging } from '../state/messaging'
 import { useCognitiveUI } from '../state/cognitiveUI'
@@ -32,12 +27,8 @@ export function Today() {
   const nav = useNavigate()
   const { state, getClient, getMaster, getService, moneyForDay, freeSlots } = useStore()
   const sent = useMessaging((s) => s.sent)
-  const openComposer = useMessaging((s) => s.openComposer)
   const dateISO = todayISO()
   const [logoOk, setLogoOk] = useState(true)
-  const [isMobile, setIsMobile] = useState(() =>
-    typeof window !== 'undefined' ? window.innerWidth <= 480 : true,
-  )
   const dateLabel = useMemo(() => {
     return new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' }).format(new Date())
   }, [])
@@ -56,7 +47,6 @@ export function Today() {
   const income = moneyForDay(dateISO)
 
   const [compact, setCompact] = useState(false)
-  const [dock, setDock] = useState(false)
 
   const homeMode = useMemo(() => {
     // quick proxy: bookings + events + “pending”
@@ -93,126 +83,15 @@ export function Today() {
     })
   }, [bookingsToday, income, slots, state.bookings, state.clients])
 
-  const secondaryPinned = useMemo(() => {
-    return pickSecondaryPinned({
-      focus,
-      clients: state.clients,
-      bookings: state.bookings,
-      freeSlotsToday: slots,
-      incomeToday: income,
-    })
-  }, [focus, income, slots, state.bookings, state.clients])
-
-  const dockActions = useMemo(() => {
-    const acts = buildDockActions({
-      bookings: state.bookings,
-      clients: state.clients,
-      events: state.events,
-      sent,
-      masterId: master.id,
-    })
-    const top2 = acts.slice(0, 2)
-    return top2.map((a, idx) => ({
-      id: a.id,
-      label: a.label,
-      score: a.score,
-      role: idx === 0 ? ('dominant' as const) : ('secondary' as const),
-      onClick: () => {
-        const k = a.kind
-        switch (k.kind) {
-          case 'nudge_pending': {
-            const b = state.bookings.find((x) => x.id === k.bookingId)
-            const c = state.clients.find((x) => x.id === k.clientId)
-            if (!c) return
-            const draft = generateMessageDraft({
-              kind: 'nudge_confirm',
-              channel: 'whatsapp',
-              client: c,
-              booking: b,
-              service: b ? state.services.find((s) => s.id === b.serviceId) : undefined,
-            })
-            openComposer(draft)
-            return
-          }
-          case 'offer_slot': {
-            const c = k.clientId
-              ? state.clients.find((x) => x.id === k.clientId)
-              : state.clients[0]
-            if (!c) return
-            const draft = generateMessageDraft({
-              kind: 'slot_offer',
-              channel: 'whatsapp',
-              client: c,
-              slot: {
-                dateISO: k.dateISO,
-                time: k.time,
-                labelDay: k.dateISO === dateISO ? 'Сегодня' : k.dateISO,
-              },
-            })
-            openComposer(draft)
-            return
-          }
-          case 'write_client': {
-            const c = state.clients.find((x) => x.id === k.clientId)
-            if (!c) return
-            const draft = generateMessageDraft({
-              kind: 'reengage',
-              channel: 'whatsapp',
-              client: c,
-            })
-            openComposer(draft)
-            return
-          }
-          case 'open_reschedule': {
-            nav(
-              `/reschedule?bookingId=${encodeURIComponent(k.bookingId)}&clientId=${encodeURIComponent(
-                k.clientId,
-              )}&serviceId=${encodeURIComponent(k.serviceId)}&masterId=${encodeURIComponent(
-                k.masterId,
-              )}&date=${encodeURIComponent(k.dateISO)}&time=${encodeURIComponent(k.time)}`,
-            )
-            return
-          }
-        }
-      },
-    }))
-  }, [dateISO, master.id, nav, openComposer, sent, state.bookings, state.clients, state.events, state.services])
-
   const cognitivePolicy = useCognitiveUI((s) => s.policy)
   const cardPad = cognitivePolicy.load > 0.53 ? 'p-5' : 'p-6'
-
-  const dockActionsLimited = useMemo(
-    () => dockActions.slice(0, cognitivePolicy.dockActionsCap),
-    [dockActions, cognitivePolicy.dockActionsCap],
-  )
-
-  const stableDockActions = useStableDockActions(dockActionsLimited, 260)
   const setMaterialScrollY = useMaterialScroll((s) => s.setScrollY)
   const sampleScrollTelemetry = useInteractionTelemetry((s) => s.sampleScroll)
-
-  const dockPills = useMemo(() => {
-    const base = [
-      { id: 'p1', text: widgets.nextTime ? `${widgets.nextTime} ближайшая` : 'Ближайшая —' },
-      { id: 'p2', text: `+${money(income)} ₽`, tone: 'gold' as const },
-      { id: 'p3', text: slots[0] ? `Gap ${slots[0]}` : 'Окна: —' },
-      { id: 'p4', text: widgets.recoveryCount ? `${widgets.recoveryCount} recovery` : 'Recovery: —' },
-    ]
-    return cognitivePolicy.load > 0.6 ? base.slice(0, 2) : base
-  }, [cognitivePolicy.load, income, slots, widgets.nextTime, widgets.recoveryCount])
-
-  useEffect(() => {
-    const mq = window.matchMedia('(max-width: 480px)')
-    const apply = () => setIsMobile(mq.matches)
-    apply()
-    mq.addEventListener?.('change', apply)
-    return () => mq.removeEventListener?.('change', apply)
-  }, [])
 
   useEffect(() => {
     const onScroll = () => {
       const y = window.scrollY || 0
       setCompact(y > 56)
-      setDock(isMobile ? false : y > 160)
       setMaterialScrollY(y)
       sampleScrollTelemetry(y)
       kickMotionDecay()
@@ -220,16 +99,14 @@ export function Today() {
     // Avoid “restored scroll” causing a floating dock overlap on first paint.
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior })
     setCompact(false)
-    setDock(false)
     setMaterialScrollY(0)
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [sampleScrollTelemetry, setMaterialScrollY])
 
-  const shellPadTop = dock && !isMobile
-    ? 'calc(var(--safe-top, 0px) + 6.75rem * (0.94 + var(--global-rhythm, 1) * 0.06))'
-    : 'calc(var(--safe-top, 0px) + 2.25rem * (0.94 + var(--global-rhythm, 1) * 0.06))'
+  const shellPadTop =
+    'calc(var(--safe-top, 0px) + 2.25rem * (0.94 + var(--global-rhythm, 1) * 0.06))'
 
   return (
     <div
@@ -240,27 +117,7 @@ export function Today() {
       }}
     >
       <div className="mx-auto max-w-[520px]">
-        <MagneticDock
-          visible={dock && !isMobile}
-          model={focus}
-          secondary={cognitivePolicy.hideSecondaryPinned ? null : secondaryPinned}
-          actions={stableDockActions}
-          dominantScore={stableDockActions[0]?.score ?? 0}
-          pills={dockPills}
-          onAction={(action) => {
-            if (action.kind === 'open_calendar') nav('/calendar')
-            if (action.kind === 'open_reschedule') {
-              nav(
-                `/reschedule?bookingId=${encodeURIComponent(action.bookingId)}&clientId=${encodeURIComponent(
-                  action.clientId,
-                )}&serviceId=${encodeURIComponent(action.serviceId)}&masterId=${encodeURIComponent(
-                  action.masterId,
-                )}&date=${encodeURIComponent(action.dateISO)}&time=${encodeURIComponent(action.time)}`,
-              )
-            }
-            if (action.kind === 'open_message') nav('/clients')
-          }}
-        />
+        {/* Floating FocusDock disabled on Today (mobile-first clean layout). */}
 
         <motion.div
           initial={{ opacity: 0, y: 10 }}

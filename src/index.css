@@ -251,16 +251,21 @@ body {
   height: 100%;
 }
 
+html,
+body,
+#root {
+  min-height: 100%;
+  background: linear-gradient(180deg, #FFFDF8 0%, #FAF6EE 100%);
+  background-attachment: fixed;
+}
+
 body {
   margin: 0;
   font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Display",
     "SF Pro Text", "Segoe UI", Inter, Roboto, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background:
-    radial-gradient(1200px 560px at 50% -220px, rgba(214, 178, 90, calc(0.20 * var(--ambient-light, 1) * (1 - var(--ambient-quietness, 0) * 0.34))), transparent 60%),
-    radial-gradient(900px 480px at 10% 0%, rgba(255, 255, 255, calc((0.62 + var(--light-diffusion, 0.5) * 0.06) * (1 - var(--ambient-quietness, 0) * 0.14))), transparent 55%),
-    linear-gradient(180deg, #FFFEFB 0%, #FBF7EF 46%, #F2EADD 100%);
+  background: linear-gradient(180deg, #FFFDF8 0%, #FAF6EE 100%);
   color: #0E1016;
 }
 

@@ -3,37 +3,25 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { glassBackdropFilter, glassBorderStyle, glassFill } from '../lib/glassStyles'
 
-export function AppBootOverlay() {
-  const [visible, setVisible] = useState(true)
+export function AppBootOverlay({ active }: { active: boolean }) {
   const [logoOk, setLogoOk] = useState(true)
 
   const timings = useMemo(() => {
-    // keep it short but premium; allow layout/material to settle
-    return { minMs: 460, fadeMs: 320 }
+    return { fadeMs: 340 }
   }, [])
 
   useEffect(() => {
     // TEMP: verify asset path in runtime
     console.log("Logo path:", "/lumi-logo-transparent.png")
-    const t0 = performance.now()
-    const raf1 = requestAnimationFrame(() => {
-      const raf2 = requestAnimationFrame(() => {
-        const elapsed = performance.now() - t0
-        const wait = Math.max(0, timings.minMs - elapsed)
-        const tm = window.setTimeout(() => setVisible(false), wait)
-        return () => window.clearTimeout(tm)
-      })
-      return () => cancelAnimationFrame(raf2)
-    })
-    return () => cancelAnimationFrame(raf1)
-  }, [timings.minMs])
+  }, [])
 
   return (
     <AnimatePresence>
-      {visible ? (
+      {active ? (
         <motion.div
           className="fixed inset-0 z-[120] grid place-items-center px-6"
           initial={{ opacity: 1 }}
+          animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: timings.fadeMs / 1000, ease: 'easeOut' }}
           style={{

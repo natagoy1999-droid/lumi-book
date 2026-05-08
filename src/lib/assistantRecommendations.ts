@@ -148,13 +148,13 @@ export function buildAssistantCards(args: {
     })
   }
 
-  // Premium slot suggestion (if we have late slot free in template schedule)
+  // Slot suggestion (if we have late slot free in template schedule)
   out.push({
     id: `premium_${today}`,
     kind: 'premium_slot',
     priority: 7,
     tone: 'gold',
-    title: 'Есть свободное premium‑окно вечером',
+    title: 'Есть свободное окно вечером',
     subtitle: 'Если захотите — предложу его “правильному” клиенту',
   })
 

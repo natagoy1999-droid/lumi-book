@@ -31,7 +31,7 @@ export function FocusCard({
     <GlassCard
       materialTier="focus"
       className={cn(
-        'p-5',
+        'min-h-[118px] p-5',
         toneGlow,
         compact && 'p-4',
       )}
