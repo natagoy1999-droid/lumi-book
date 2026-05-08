@@ -1,0 +1,24 @@
+{
+  "name": "LUMI BOOK",
+  "short_name": "LUMI",
+  "description": "Calm luxury salon booking — demo-ready.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#FBF7EF",
+  "theme_color": "#FBF7EF",
+  "icons": [
+    {
+      "src": "/lumi-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/lumi-icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
+
