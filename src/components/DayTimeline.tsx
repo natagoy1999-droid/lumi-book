@@ -121,7 +121,7 @@ export function DayTimeline() {
           </div>
           <div className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 shadow-soft">
             <div className="text-[11px] font-medium uppercase tracking-[0.10em] text-ink-700/55">
-              Лучший gap
+              Лучшее окно
             </div>
             <div className="mt-1 text-[16px] font-semibold tracking-tightish text-ink-950">
               {gaps[0] ? `${gaps[0].start}–${gaps[0].end}` : '—'}
