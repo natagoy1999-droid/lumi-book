@@ -255,8 +255,7 @@ html,
 body,
 #root {
   min-height: 100%;
-  background: linear-gradient(180deg, #FFFDF8 0%, #FAF6EE 100%);
-  background-attachment: fixed;
+  background: #FAF7EF;
 }
 
 body {
@@ -265,8 +264,21 @@ body {
     "SF Pro Text", "Segoe UI", Inter, Roboto, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(180deg, #FFFDF8 0%, #FAF6EE 100%);
+  background: #FAF7EF;
   color: #0E1016;
+}
+
+.app-preparing {
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 300ms ease, transform 300ms ease;
+  pointer-events: none;
+}
+
+.app-ready {
+  opacity: 1;
+  transform: translateY(0px);
+  transition: opacity 300ms ease, transform 300ms ease;
 }
 
 ::selection {

@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowRight, Play, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Play, X } from 'lucide-react'
 import { useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -7,6 +7,8 @@ import { cn } from '../lib/cn'
 import { useDemoMode } from '../state/demoMode'
 
 type StepModel = {
+  idx: number
+  total: number
   title: string
   subtitle: string
   cta: string
@@ -16,9 +18,25 @@ type StepModel = {
 function useStepModel() {
   const step = useDemoMode((s) => s.step)
   return useMemo((): StepModel => {
+    const order = [
+      'intro',
+      'create_booking',
+      'reschedule',
+      'smart_reminder',
+      'assistant',
+      'analytics',
+      'followup',
+      'done',
+    ] as const
+    const idxRaw = order.indexOf(step)
+    const idx = idxRaw >= 0 ? idxRaw + 1 : 1
+    const total = order.length
+
     switch (step) {
       case 'intro':
         return {
+          idx,
+          total,
           title: 'Demo • 60–90 секунд',
           subtitle:
             'Пройдём ключевые сценарии: запись → перенос → напоминание → ассистент → деньги → follow-up.',
@@ -27,13 +45,17 @@ function useStepModel() {
         }
       case 'create_booking':
         return {
-          title: '1) Создать запись',
-          subtitle: 'Откройте календарь и создайте запись без кнопок “далее”.',
-          cta: 'Открыть “Новая запись”',
-          route: '/calendar/new',
+          idx,
+          total,
+          title: '1) Создание записи',
+          subtitle: 'Откройте онлайн-запись и выберите услугу → мастера → дату → время.',
+          cta: 'Открыть онлайн-запись',
+          route: '/client-booking',
         }
       case 'reschedule':
         return {
+          idx,
+          total,
           title: '2) Перенос',
           subtitle: 'Откройте перенос — слоты уже готовы. Отправьте предложение (mock-send).',
           cta: 'Открыть перенос',
@@ -41,20 +63,26 @@ function useStepModel() {
         }
       case 'smart_reminder':
         return {
-          title: '3) Smart reminder',
-          subtitle: 'В Today — мягкие напоминания без давления. Нажмите на действие → Composer.',
-          cta: 'Вернуться в Today',
+          idx,
+          total,
+          title: '3) Напоминание клиенту',
+          subtitle: 'В Today — мягкие напоминания. Нажмите действие → Composer.',
+          cta: 'Открыть Today',
           route: '/today',
         }
       case 'assistant':
         return {
-          title: '4) Assistant',
-          subtitle: 'Ассистент предлагает спокойные варианты, когда день плотный или есть gap.',
+          idx,
+          total,
+          title: '4) Lumi Assistant',
+          subtitle: 'Ассистент предлагает спокойные варианты и помогает держать ритм дня.',
           cta: 'Показать Today',
           route: '/today',
         }
       case 'analytics':
         return {
+          idx,
+          total,
           title: '5) Деньги',
           subtitle: 'Аналитика считается из реальных записей: день / неделя / месяц / средний чек.',
           cta: 'Открыть “Деньги”',
@@ -62,6 +90,8 @@ function useStepModel() {
         }
       case 'followup':
         return {
+          idx,
+          total,
           title: '6) Follow-up',
           subtitle: 'Откройте Clients и нажмите на клиента — можно мягко подготовить контакт.',
           cta: 'Открыть “Клиенты”',
@@ -69,6 +99,8 @@ function useStepModel() {
         }
       case 'done':
         return {
+          idx,
+          total,
           title: 'Готово',
           subtitle: 'Это базовый demo loop. Можно повторить или продолжить работать в Today.',
           cta: 'В Today',
@@ -81,6 +113,7 @@ function useStepModel() {
 export function DemoWalkthrough() {
   const nav = useNavigate()
   const active = useDemoMode((s) => s.active)
+  const prev = useDemoMode((s) => s.prev)
   const next = useDemoMode((s) => s.next)
   const stop = useDemoMode((s) => s.stop)
   const step = useDemoMode((s) => s.step)
@@ -95,6 +128,14 @@ export function DemoWalkthrough() {
     }
   }, [active])
 
+  useEffect(() => {
+    if (!active) return
+    if (!model?.title || !model?.cta) {
+      stop()
+      nav('/settings')
+    }
+  }, [active, model?.cta, model?.title, nav, stop])
+
   return (
     <AnimatePresence>
       {active ? (
@@ -103,8 +144,8 @@ export function DemoWalkthrough() {
             aria-label="Close"
             className="fixed inset-0 z-[100] cursor-default"
             style={{
-              backgroundColor: 'rgba(14, 16, 22, 0.28)',
-              backdropFilter: 'blur(10px)',
+              backgroundColor: 'rgba(14, 16, 22, 0.30)',
+              backdropFilter: 'blur(6px)',
             }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -127,16 +168,19 @@ export function DemoWalkthrough() {
           >
             <div
               className={cn(
-                'rounded-[30px] border border-white/60 bg-white/70 p-5 shadow-lift',
+                'rounded-[30px] border border-white/60 p-5 shadow-lift',
                 'ring-1 ring-black/5',
               )}
               style={{
+                backgroundColor: 'rgba(255, 253, 248, 0.92)',
                 backdropFilter: 'blur(18px)',
               }}
             >
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <div className="text-[12px] font-medium text-ink-700/70">Guided demo</div>
+                  <div className="text-[12px] font-medium text-ink-700/70">
+                    Guided demo • шаг {model.idx}/{model.total}
+                  </div>
                   <div className="mt-1 text-[16px] font-semibold tracking-tightish text-ink-950">
                     {model.title}
                   </div>
@@ -153,7 +197,16 @@ export function DemoWalkthrough() {
                 </button>
               </div>
 
-              <div className="mt-4 grid grid-cols-2 gap-2">
+              <div className="mt-4 grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={() => prev()}
+                  className="inline-flex items-center justify-center gap-2 rounded-3xl border border-white/60 bg-white/60 px-4 py-4 text-[13px] font-semibold text-ink-950 shadow-soft"
+                >
+                  <ArrowLeft size={16} />
+                  Назад
+                </button>
+
                 <motion.button
                   type="button"
                   whileTap={{ scale: 0.985 }}
@@ -170,10 +223,10 @@ export function DemoWalkthrough() {
 
                 <button
                   type="button"
-                  onClick={() => next()}
+                  onClick={() => stop()}
                   className="rounded-3xl border border-white/60 bg-white/60 px-4 py-4 text-[13px] font-semibold text-ink-950 shadow-soft"
                 >
-                  Дальше
+                  Закрыть
                 </button>
               </div>
             </div>

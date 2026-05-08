@@ -113,7 +113,7 @@ export function Today() {
       className="px-5"
       style={{
         paddingTop: shellPadTop,
-        paddingBottom: 'calc(110px + env(safe-area-inset-bottom))',
+        paddingBottom: '0px',
       }}
     >
       <div className="mx-auto max-w-[520px]">
@@ -225,29 +225,33 @@ export function Today() {
             marginTop: 'calc(var(--cognitive-inline-stack) * 1.12)',
           }}
         >
-          <FocusCard
-            model={focus}
-            compact={compact}
-            onAction={(action) => {
-              if (action.kind === 'open_calendar') nav('/calendar')
-              if (action.kind === 'open_reschedule') {
-                nav(
-                  `/reschedule?bookingId=${encodeURIComponent(action.bookingId)}&clientId=${encodeURIComponent(
-                    action.clientId,
-                  )}&serviceId=${encodeURIComponent(action.serviceId)}&masterId=${encodeURIComponent(
-                    action.masterId,
-                  )}&date=${encodeURIComponent(action.dateISO)}&time=${encodeURIComponent(action.time)}`,
-                )
-              }
-              if (action.kind === 'open_message') nav('/clients')
-            }}
-          />
+          <div style={{ minHeight: 118 }}>
+            <FocusCard
+              model={focus}
+              compact={compact}
+              onAction={(action) => {
+                if (action.kind === 'open_calendar') nav('/calendar')
+                if (action.kind === 'open_reschedule') {
+                  nav(
+                    `/reschedule?bookingId=${encodeURIComponent(action.bookingId)}&clientId=${encodeURIComponent(
+                      action.clientId,
+                    )}&serviceId=${encodeURIComponent(action.serviceId)}&masterId=${encodeURIComponent(
+                      action.masterId,
+                    )}&date=${encodeURIComponent(action.dateISO)}&time=${encodeURIComponent(action.time)}`,
+                  )
+                }
+                if (action.kind === 'open_message') nav('/clients')
+              }}
+            />
+          </div>
 
-          <MiniWidgets
-            widgets={widgets}
-            compact={compact || cognitivePolicy.miniWidgetsCompact}
-            hideRecovery={cognitivePolicy.hideRecoveryWidget}
-          />
+          <div style={{ minHeight: 148 }}>
+            <MiniWidgets
+              widgets={widgets}
+              compact={compact || cognitivePolicy.miniWidgetsCompact}
+              hideRecovery={cognitivePolicy.hideRecoveryWidget}
+            />
+          </div>
 
           <GlassCard onClick={() => nav('/calendar/new')} className={cn(cardPad)}>
             <div className="flex items-start justify-between gap-4">
@@ -350,19 +354,31 @@ export function Today() {
 
           {homeMode === 'busy' ? (
             <>
-              <AssistantLayer compact={compact} />
-              <SmartReminders hideWhenEmpty />
+              <div style={{ minHeight: 140 }}>
+                <AssistantLayer compact={compact} />
+              </div>
+              <div style={{ minHeight: 160 }}>
+                <SmartReminders hideWhenEmpty />
+              </div>
               {cognitivePolicy.hideBusyHeavyBlocks ? null : (
                 <>
-                  <RecoveryDashboard />
-                  <DayTimeline />
+                  <div style={{ minHeight: 160 }}>
+                    <RecoveryDashboard />
+                  </div>
+                  <div style={{ minHeight: 210 }}>
+                    <DayTimeline />
+                  </div>
                 </>
               )}
             </>
           ) : (
             <>
-              <AssistantLayer compact={compact} />
-              <SmartReminders hideWhenEmpty />
+              <div style={{ minHeight: 140 }}>
+                <AssistantLayer compact={compact} />
+              </div>
+              <div style={{ minHeight: 160 }}>
+                <SmartReminders hideWhenEmpty />
+              </div>
             </>
           )}
 

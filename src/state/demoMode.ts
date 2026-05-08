@@ -17,6 +17,7 @@ type DemoModeState = {
   start: () => void
   stop: () => void
   go: (step: DemoStep) => void
+  prev: () => void
   next: () => void
 }
 
@@ -38,6 +39,12 @@ export const useDemoMode = create<DemoModeState>((set, get) => ({
   start: () => set({ active: true, step: 'intro', startedAt: Date.now() }),
   stop: () => set({ active: false, step: 'intro', startedAt: null }),
   go: (step) => set({ active: true, step }),
+  prev: () => {
+    const s = get().step
+    const idx = order.indexOf(s)
+    const prev = order[Math.max(0, Math.min(order.length - 1, idx - 1))]
+    set({ active: true, step: prev })
+  },
   next: () => {
     const s = get().step
     const idx = order.indexOf(s)

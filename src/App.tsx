@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, MotionConfig, motion } from 'framer-motion'
 import type { ReactNode } from 'react'
 import { useEffect, useMemo, useRef } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
@@ -39,6 +39,7 @@ import { ClientBooking } from './screens/ClientBooking'
 import { StoreProvider, todayISO, useStore } from './state/store'
 
 function Page({ children }: { children: ReactNode }) {
+  const firstPaintDone = useAppHydration((s) => s.firstPaintDone)
   const load = useCognitiveUI((s) => s.policy.load)
   const flowMom = useFlowIntel((s) => s.bundle?.flowMomentum ?? 0)
   const energySnap = useEnergyIntel((s) => s.snapshot)
@@ -67,10 +68,13 @@ function Page({ children }: { children: ReactNode }) {
   return (
     <motion.main
       className="min-h-[100svh]"
-      initial={{ opacity: 0, y }}
+      initial={firstPaintDone ? { opacity: 0, y } : false}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -y * 0.65 }}
       transition={spring}
+      style={{
+        paddingBottom: 'var(--app-bottom-pad, 0px)',
+      }}
     >
       {children}
     </motion.main>
@@ -89,6 +93,7 @@ function GlobalMaterialSync() {
   const markInstalled = useInstall((s) => s.markInstalled)
   const ready = useAppHydration((s) => s.ready)
   const setReady = useAppHydration((s) => s.setReady)
+  const setFirstPaintDone = useAppHydration((s) => s.setFirstPaintDone)
 
   const masterId = state.masters[0]?.id ?? ''
   const dateISO = todayISO()
@@ -165,9 +170,15 @@ function GlobalMaterialSync() {
     })
 
     if (!ready) {
-      // Mark ready only after material pipeline applied once.
-      const raf = requestAnimationFrame(() => setReady(true))
-      return () => cancelAnimationFrame(raf)
+      // Strict gate: material applied + 2 animation frames.
+      const raf1 = requestAnimationFrame(() => {
+        const raf2 = requestAnimationFrame(() => {
+          setReady(true)
+          setFirstPaintDone(true)
+        })
+        return () => cancelAnimationFrame(raf2)
+      })
+      return () => cancelAnimationFrame(raf1)
     }
   }, [
     activeChains,
@@ -183,6 +194,7 @@ function GlobalMaterialSync() {
     state.services,
     ready,
     setReady,
+    setFirstPaintDone,
   ])
 
   return null
@@ -192,6 +204,7 @@ function Shell() {
   const loc = useLocation()
   const { state } = useStore()
   const ready = useAppHydration((s) => s.ready)
+  const firstPaintDone = useAppHydration((s) => s.firstPaintDone)
 
   const hideTabs =
     loc.pathname.startsWith('/onboarding') ||
@@ -199,19 +212,20 @@ function Shell() {
     loc.pathname.startsWith('/client-booking')
 
   return (
-    <div className="mx-auto max-w-[520px]">
+    <div
+      className="mx-auto max-w-[520px]"
+      style={{
+        // Global reserve so content never hides under BottomTabs.
+        ['--app-bottom-pad' as any]: hideTabs ? '0px' : 'calc(96px + env(safe-area-inset-bottom))',
+      }}
+    >
       <GlobalMaterialSync />
       <AppBootOverlay active={!ready} />
-      <div
-        style={{
-          opacity: ready ? 1 : 0,
-          transform: ready ? 'translateY(0px)' : 'translateY(4px)',
-          transition: 'opacity 340ms ease, transform 340ms ease',
-          pointerEvents: ready ? 'auto' : 'none',
-        }}
-      >
-      <AnimatePresence mode="wait" initial={false}>
-        <Routes location={loc} key={loc.pathname + loc.search}>
+      <div className={ready ? 'app-ready' : 'app-preparing'}>
+      <MotionConfig reducedMotion={firstPaintDone ? 'never' : 'always'}>
+      {ready ? (
+        <AnimatePresence mode="wait" initial={false}>
+          <Routes location={loc} key={loc.pathname + loc.search}>
           <Route
             path="/"
             element={
@@ -295,13 +309,15 @@ function Shell() {
             }
           />
           <Route path="*" element={<Navigate to="/today" replace />} />
-        </Routes>
-      </AnimatePresence>
+          </Routes>
+        </AnimatePresence>
+      ) : null}
 
       {loc.pathname === '/today' ? <InstallPromptCard /> : null}
       {hideTabs ? null : <BottomTabs />}
       <MessageComposerSheet />
       <DemoWalkthrough />
+      </MotionConfig>
       </div>
     </div>
   )
