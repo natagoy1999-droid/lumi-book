@@ -12,9 +12,10 @@ type Props = PropsWithChildren<{
 }>
 
 export function Sheet({ open, title, onClose, children, className }: Props) {
+  const active = open && children != null
   return (
     <AnimatePresence>
-      {open ? (
+      {active ? (
         <>
           <motion.button
             aria-label="Close"

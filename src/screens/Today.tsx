@@ -184,11 +184,8 @@ export function Today() {
           </div>
         </motion.div>
 
-        <div
-          className="grid grid-cols-2"
-          style={{ gap: 'calc(var(--cognitive-grid-gap) * 1.12)' }}
-        >
-          <GlassCard className={cn(cardPad)}>
+        <div className="grid grid-cols-2" style={{ gap: '16px' }}>
+          <GlassCard className={cn(cardPad)} style={{ minHeight: 135 }}>
             <div className="text-[12px] font-medium text-ink-700/70">
               Записей сегодня
             </div>
@@ -204,7 +201,7 @@ export function Today() {
             )}
           </GlassCard>
 
-          <GlassCard className={cn(cardPad)}>
+          <GlassCard className={cn(cardPad)} style={{ minHeight: 135 }}>
             <div className="text-[12px] font-medium text-ink-700/70">Доход</div>
             <div className="mt-2 text-[26px] font-semibold tracking-tightish text-ink-950">
               {money(income)} ₽
@@ -217,15 +214,8 @@ export function Today() {
           </GlassCard>
         </div>
 
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 'calc(var(--cognitive-section-gap) * 1.18)',
-            marginTop: 'calc(var(--cognitive-inline-stack) * 1.12)',
-          }}
-        >
-          <div style={{ minHeight: 118 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 16 }}>
+          <div style={{ minHeight: 190 }}>
             <FocusCard
               model={focus}
               compact={compact}
@@ -245,7 +235,7 @@ export function Today() {
             />
           </div>
 
-          <div style={{ minHeight: 148 }}>
+          <div style={{ minHeight: 92 }}>
             <MiniWidgets
               widgets={widgets}
               compact={compact || cognitivePolicy.miniWidgetsCompact}
@@ -253,7 +243,11 @@ export function Today() {
             />
           </div>
 
-          <GlassCard onClick={() => nav('/calendar/new')} className={cn(cardPad)}>
+          <GlassCard
+            onClick={() => nav('/calendar/new')}
+            className={cn(cardPad)}
+            style={{ minHeight: 150 }}
+          >
             <div className="flex items-start justify-between gap-4">
               <div>
                 <div className="inline-flex items-center gap-2 text-[12px] font-medium text-ink-700/70">
@@ -277,7 +271,7 @@ export function Today() {
             </div>
           </GlassCard>
 
-          <GlassCard className={cn(cardPad)}>
+          <GlassCard className={cn(cardPad)} style={{ minHeight: 135 }}>
             <div className="text-[12px] font-medium text-ink-700/70">
               Ближайшая запись
             </div>
@@ -328,7 +322,7 @@ export function Today() {
             )}
           </GlassCard>
 
-          <GlassCard className={cn(cardPad)}>
+          <GlassCard className={cn(cardPad)} style={{ minHeight: 135 }}>
             <div className="text-[12px] font-medium text-ink-700/70">
               Свободные окна
             </div>
@@ -354,7 +348,7 @@ export function Today() {
 
           {homeMode === 'busy' ? (
             <>
-              <div style={{ minHeight: 140 }}>
+              <div style={{ minHeight: 160 }}>
                 <AssistantLayer compact={compact} />
               </div>
               <div style={{ minHeight: 160 }}>
@@ -373,7 +367,7 @@ export function Today() {
             </>
           ) : (
             <>
-              <div style={{ minHeight: 140 }}>
+              <div style={{ minHeight: 160 }}>
                 <AssistantLayer compact={compact} />
               </div>
               <div style={{ minHeight: 160 }}>

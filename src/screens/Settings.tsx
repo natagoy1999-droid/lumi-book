@@ -66,7 +66,7 @@ export function Settings() {
   }))
 
   return (
-    <div className="px-5 pt-7 pb-28">
+    <div className="px-5 pt-7">
       <div className="mx-auto max-w-[520px]">
         <motion.div
           initial={{ opacity: 0, y: 10 }}

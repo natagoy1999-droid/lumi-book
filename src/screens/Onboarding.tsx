@@ -143,6 +143,14 @@ export function Onboarding() {
             Начать • {title}
           </motion.button>
 
+          <button
+            type="button"
+            onClick={() => nav('/book')}
+            className="w-full rounded-3xl border border-white/60 bg-white/60 px-5 py-4 text-[15px] font-semibold text-ink-950 shadow-soft"
+          >
+            Записаться клиенту
+          </button>
+
           <div className="px-1 text-center text-[12px] leading-5 text-ink-700/60">
             Можно в любой момент переключить демо в Настройках → Seed demo / Reset.
           </div>

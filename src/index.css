@@ -270,15 +270,13 @@ body {
 
 .app-preparing {
   opacity: 0;
-  transform: translateY(4px);
-  transition: opacity 300ms ease, transform 300ms ease;
+  transition: opacity 300ms ease;
   pointer-events: none;
 }
 
 .app-ready {
   opacity: 1;
-  transform: translateY(0px);
-  transition: opacity 300ms ease, transform 300ms ease;
+  transition: opacity 300ms ease;
 }
 
 ::selection {

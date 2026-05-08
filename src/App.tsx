@@ -8,7 +8,6 @@ import { AppBootOverlay } from './components/AppBootOverlay'
 import { InstallPromptCard } from './components/InstallPromptCard'
 import { MessageComposerSheet } from './components/MessageComposerSheet'
 import { DemoWalkthrough } from './components/DemoWalkthrough'
-import { cognitiveRoutePresenceY, cognitiveRouteSpring } from './lib/cognitiveRouting'
 import { applyMaterialFromStore } from './lib/globalMaterial'
 import { hydratePresenceMemory } from './lib/presenceMemory'
 import {
@@ -18,15 +17,14 @@ import {
 } from './lib/sessionContinuity'
 import { startGlassBreathing, stopGlassBreathing } from './lib/glassBreathing'
 import { useBehavioralIntel } from './state/behavioralIntel'
-import { useEnergyIntel } from './state/energyIntel'
 import { useCognitiveUI } from './state/cognitiveUI'
-import { useFlowIntel } from './state/flowIntel'
 import { useInteractionTelemetry } from './state/interactionTelemetry'
 import { useMaterialScroll } from './state/materialScroll'
 import { useMessaging } from './state/messaging'
 import { useRecovery } from './state/recovery'
 import { useInstall } from './state/install'
 import { useAppHydration } from './state/appHydration'
+import { useDemoMode } from './state/demoMode'
 import { Calendar } from './screens/Calendar'
 import { Clients } from './screens/Clients'
 import { Money } from './screens/Money'
@@ -40,38 +38,16 @@ import { StoreProvider, todayISO, useStore } from './state/store'
 
 function Page({ children }: { children: ReactNode }) {
   const firstPaintDone = useAppHydration((s) => s.firstPaintDone)
-  const load = useCognitiveUI((s) => s.policy.load)
-  const flowMom = useFlowIntel((s) => s.bundle?.flowMomentum ?? 0)
-  const energySnap = useEnergyIntel((s) => s.snapshot)
-  const loc = useLocation()
-  const spring = useMemo(
-    () =>
-      cognitiveRouteSpring(
-        load,
-        loc.pathname,
-        flowMom,
-        energySnap
-          ? {
-              interactionEnergy: energySnap.interactionEnergy,
-              fatigueLevel: energySnap.fatigueLevel,
-              humanePacing: energySnap.humanePacing,
-            }
-          : undefined,
-      ),
-    [energySnap, flowMom, load, loc.pathname],
-  )
-  const y = useMemo(
-    () => cognitiveRoutePresenceY(load, flowMom, energySnap?.fatigueLevel ?? 0.32),
-    [energySnap?.fatigueLevel, flowMom, load],
-  )
+  // keep reading cognitive policy so UI density stays correct; no motion coupling here
+  useCognitiveUI((s) => s.policy.load)
 
   return (
     <motion.main
       className="min-h-[100svh]"
-      initial={firstPaintDone ? { opacity: 0, y } : false}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -y * 0.65 }}
-      transition={spring}
+      initial={firstPaintDone ? { opacity: 0 } : false}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.25, ease: 'easeOut' }}
       style={{
         paddingBottom: 'var(--app-bottom-pad, 0px)',
       }}
@@ -206,17 +182,47 @@ function Shell() {
   const ready = useAppHydration((s) => s.ready)
   const firstPaintDone = useAppHydration((s) => s.firstPaintDone)
 
+  useEffect(() => {
+    const t = window.setTimeout(() => {
+      const demoActive = useDemoMode.getState().active
+      if (demoActive) {
+        const hasModal = Boolean(
+          document.querySelector('[data-demo-walkthrough-modal="1"]'),
+        )
+        if (!hasModal) useDemoMode.getState().stop()
+      }
+
+      const composer = useMessaging.getState().composer
+      if (composer.open && (!('draft' in composer) || !composer.draft)) {
+        useMessaging.getState().closeComposer()
+      }
+
+      // If something still left body scroll locked, unlock it.
+      const anyOverlay =
+        useDemoMode.getState().active ||
+        (useMessaging.getState().composer.open &&
+          ('draft' in useMessaging.getState().composer) &&
+          Boolean(useMessaging.getState().composer.draft))
+      if (!anyOverlay && document.body.style.overflow === 'hidden') {
+        document.body.style.overflow = ''
+      }
+    }, 0)
+    return () => window.clearTimeout(t)
+  }, [loc.pathname, loc.search])
+
   const hideTabs =
     loc.pathname.startsWith('/onboarding') ||
     loc.pathname.startsWith('/calendar/new') ||
-    loc.pathname.startsWith('/client-booking')
+    loc.pathname.startsWith('/client-booking') ||
+    loc.pathname.startsWith('/book')
 
   return (
     <div
       className="mx-auto max-w-[520px]"
       style={{
         // Global reserve so content never hides under BottomTabs.
-        ['--app-bottom-pad' as any]: hideTabs ? '0px' : 'calc(96px + env(safe-area-inset-bottom))',
+        ['--app-bottom-pad' as any]:
+          hideTabs ? '0px' : 'calc(110px + env(safe-area-inset-bottom))',
       }}
     >
       <GlobalMaterialSync />
@@ -293,12 +299,16 @@ function Shell() {
             }
           />
           <Route
-            path="/client-booking"
+            path="/book"
             element={
               <Page>
                 <ClientBooking />
               </Page>
             }
+          />
+          <Route
+            path="/client-booking"
+            element={<Navigate to="/book" replace />}
           />
           <Route
             path="/settings"

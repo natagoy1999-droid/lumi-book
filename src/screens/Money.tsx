@@ -81,7 +81,7 @@ export function Money() {
 
   return (
     <div
-      className="px-5 pb-28"
+      className="px-5"
       style={{
         paddingTop: 'calc(1.75rem * (0.94 + var(--global-rhythm, 1) * 0.06))',
       }}

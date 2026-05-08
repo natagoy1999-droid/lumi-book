@@ -119,26 +119,41 @@ export function DemoWalkthrough() {
   const step = useDemoMode((s) => s.step)
   const model = useStepModel()
 
+  const show = Boolean(active && model?.title && model?.cta && model?.subtitle)
+
   useEffect(() => {
-    if (!active) return
+    if (!show) return
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     return () => {
       document.body.style.overflow = prev
     }
-  }, [active])
+  }, [show])
 
   useEffect(() => {
     if (!active) return
-    if (!model?.title || !model?.cta) {
+    if (!show) {
       stop()
       nav('/settings')
     }
-  }, [active, model?.cta, model?.title, nav, stop])
+  }, [active, nav, show, stop])
+
+  useEffect(() => {
+    if (!active) return
+    const t = window.setTimeout(() => {
+      const stillActive = useDemoMode.getState().active
+      if (!stillActive) return
+      const hasModal = Boolean(document.querySelector('[data-demo-walkthrough-modal="1"]'))
+      if (!hasModal) {
+        useDemoMode.getState().stop()
+      }
+    }, 3000)
+    return () => window.clearTimeout(t)
+  }, [active, step])
 
   return (
     <AnimatePresence>
-      {active ? (
+      {show ? (
         <>
           <motion.button
             aria-label="Close"
@@ -157,6 +172,7 @@ export function DemoWalkthrough() {
             role="dialog"
             aria-modal="true"
             className="fixed bottom-0 left-0 right-0 z-[120] mx-auto max-w-[520px]"
+            data-demo-walkthrough-modal="1"
             style={{
               width: 'calc(100% - 32px)',
               paddingBottom: 'calc(14px + var(--safe-bottom))',

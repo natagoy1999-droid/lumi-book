@@ -15,10 +15,14 @@ export function BottomTabs() {
   return (
     <nav
       className={cn(
-        'fixed bottom-0 left-0 right-0 z-[90]',
+        'fixed bottom-0 z-[9999]',
         'px-3 pb-[env(safe-area-inset-bottom)] pt-2',
       )}
       style={{
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '100%',
+        maxWidth: 520,
         backgroundColor: '#FAF7EF',
         borderTop: '1px solid rgba(20,20,20,0.08)',
         boxShadow: '0 -8px 24px rgba(0,0,0,0.06)',

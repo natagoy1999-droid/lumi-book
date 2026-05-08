@@ -1,17 +1,9 @@
-import { motion } from 'framer-motion'
 import { ArrowRight, Sparkles } from 'lucide-react'
 import type { ReactNode } from 'react'
 
 import { cn } from '../lib/cn'
 import type { FocusCardModel } from '../lib/homeEngine'
 import { GlassCard } from './GlassCard'
-
-function breathing() {
-  return {
-    y: [0, -3, 0],
-    transition: { duration: 3.2, repeat: Infinity, ease: 'easeInOut' as const },
-  }
-}
 
 export function FocusCard({
   model,
@@ -31,7 +23,7 @@ export function FocusCard({
     <GlassCard
       materialTier="focus"
       className={cn(
-        'min-h-[118px] p-5',
+        'min-h-[190px] p-5',
         toneGlow,
         compact && 'p-4',
       )}
@@ -43,7 +35,7 @@ export function FocusCard({
             {model.badge ?? 'Focus'}
           </div>
 
-          <motion.div animate={model.tone === 'gold' ? breathing() : undefined} className="mt-3">
+          <div className="mt-3">
             <div
               className={cn(
                 'text-[20px] font-semibold tracking-tightish text-ink-950',
@@ -62,14 +54,12 @@ export function FocusCard({
                 {model.subtitle}
               </div>
             ) : null}
-          </motion.div>
+          </div>
         </div>
 
         {model.cta ? (
-          <motion.button
+          <button
             type="button"
-            whileTap={{ scale: 0.985 }}
-            transition={{ type: 'spring', stiffness: 650, damping: 42 }}
             onClick={() => onAction(model.cta!.action as any)}
             className={cn(
               'mt-1 inline-flex items-center gap-2 rounded-3xl bg-ink-950 px-4 py-3 text-[13px] font-semibold text-paper-50',
@@ -79,7 +69,7 @@ export function FocusCard({
           >
             {model.cta.label}
             <ArrowRight size={16} className="text-gold-400" />
-          </motion.button>
+          </button>
         ) : (
           <div className="mt-1 h-10 w-10 rounded-2xl bg-white/55 shadow-soft" />
         )}

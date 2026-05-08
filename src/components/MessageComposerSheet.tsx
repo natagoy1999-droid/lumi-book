@@ -40,9 +40,13 @@ export function MessageComposerSheet() {
     }
   }, [cognitiveLoad, energySnap?.fatigueLevel, energySnap?.humanePacing, energySnap?.interactionEnergy])
 
-  const open = composer.open
-  const draft = composer.open ? composer.draft : undefined
+  const open = composer.open && 'draft' in composer && Boolean(composer.draft)
+  const draft = composer.open && 'draft' in composer ? composer.draft : undefined
   const client = useMemo(() => (draft ? getClient(draft.clientId) : undefined), [draft, getClient])
+
+  useEffect(() => {
+    if (composer.open && (!('draft' in composer) || !composer.draft)) closeComposer()
+  }, [closeComposer, composer])
 
   const handleComposerClose = () => {
     const d = composer.open ? composer.draft : undefined

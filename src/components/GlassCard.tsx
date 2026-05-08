@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion'
 import type { CSSProperties, PropsWithChildren } from 'react'
 
 import { cn } from '../lib/cn'
@@ -26,12 +25,10 @@ export function GlassCard({
   const ink = tone === 'ink'
 
   return (
-    <motion.div
+    <div
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
       onClick={onClick}
-      whileTap={onClick ? { scale: 0.985, y: 1 } : undefined}
-      transition={{ type: 'spring', stiffness: 550, damping: 38, mass: 0.7 }}
       className={cn(
         'relative overflow-hidden rounded-3xl border shadow-soft',
         'ring-1 ring-black/5',
@@ -66,6 +63,6 @@ export function GlassCard({
         }}
       />
       {children}
-    </motion.div>
+    </div>
   )
 }
