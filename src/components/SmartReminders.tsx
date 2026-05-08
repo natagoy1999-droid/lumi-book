@@ -573,7 +573,7 @@ export function SmartReminders({ hideWhenEmpty = false }: { hideWhenEmpty?: bool
           steps: [
             makeStep('reminder_1', now),
             makeStep('offer_new_time', now + 24 * 60 * 60 * 1000),
-            makeStep('soft_stop', now + 7 * 24 * 60 * 60 * 1000),
+            makeStep('soft_stop', now + 14 * 24 * 60 * 60 * 1000),
           ],
           note: 'Inactive recovery',
         })

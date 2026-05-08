@@ -154,7 +154,7 @@ export function Today() {
             </div>
 
             <div className="w-full text-center">
-              <div className="text-[30px] font-semibold tracking-tightish text-ink-950">
+              <div className="text-[34px] font-semibold tracking-tightish text-ink-950">
                 Привет, {master.name}
               </div>
               <div className="mt-2 text-[13px] font-medium tracking-tightish text-ink-700/65">

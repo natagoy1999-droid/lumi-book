@@ -80,6 +80,18 @@ export type Booking = {
   }
 }
 
+export type SubscriptionPlan = 'free' | 'start' | 'pro' | 'studio' | 'premium_ai'
+export type SubscriptionStatus = 'trial' | 'active' | 'expired'
+export type SubscriptionState = {
+  plan: SubscriptionPlan
+  status: SubscriptionStatus
+  trialEndsAt: number | null
+  selectedAt: number | null
+}
+
+export const TRIAL_DAYS = 14
+const DAY_MS = 24 * 60 * 60 * 1000
+
 export type EngagementEvent =
   | {
       id: string
@@ -109,6 +121,7 @@ type State = {
   events: EngagementEvent[]
   onboardingDone: boolean
   settings: AppSettings
+  subscription: SubscriptionState
 }
 
 type Action =
@@ -138,6 +151,7 @@ type Action =
   | { type: 'deleteMaster'; masterId: string }
   | { type: 'deleteClient'; clientId: string }
   | { type: 'updateSettings'; settings: Partial<AppSettings> }
+  | { type: 'updateSubscription'; subscription: Partial<SubscriptionState> }
 
 const initialState: State = {
   onboardingDone: false,
@@ -181,6 +195,12 @@ const initialState: State = {
       followup: 'Здравствуйте! Если удобно — могу предложить свободное окно на этой неделе.',
     },
     payments: { prepayEnabled: false, prepayAmount: 0, paymentComment: '' },
+  },
+  subscription: {
+    plan: 'free',
+    status: 'trial',
+    trialEndsAt: Date.now() + TRIAL_DAYS * DAY_MS,
+    selectedAt: Date.now(),
   },
 }
 
@@ -259,6 +279,48 @@ function sanitizeState(input: unknown): State | null {
     }
   })()
 
+  const baseSub = initialState.subscription
+  const rawSub = (st as { subscription?: unknown }).subscription
+  const subscription: SubscriptionState = (() => {
+    if (!rawSub || typeof rawSub !== 'object') return baseSub
+    const ss = rawSub as Partial<SubscriptionState>
+    const plan: SubscriptionPlan =
+      ss.plan === 'free' ||
+      ss.plan === 'start' ||
+      ss.plan === 'pro' ||
+      ss.plan === 'studio' ||
+      ss.plan === 'premium_ai'
+        ? ss.plan
+        : baseSub.plan
+    const status: SubscriptionStatus =
+      ss.status === 'trial' || ss.status === 'active' || ss.status === 'expired'
+        ? ss.status
+        : baseSub.status
+    const trialEndsAt =
+      ss.trialEndsAt == null
+        ? null
+        : Number.isFinite(ss.trialEndsAt as any)
+          ? Number(ss.trialEndsAt)
+          : baseSub.trialEndsAt
+    const selectedAt =
+      ss.selectedAt == null
+        ? null
+        : Number.isFinite(ss.selectedAt as any)
+          ? Number(ss.selectedAt)
+          : baseSub.selectedAt
+
+    const now = Date.now()
+    // Strict: trial is always 14 days from "now" while in trial.
+    const ensuredTrialEndsAt = status === 'trial' ? now + TRIAL_DAYS * DAY_MS : trialEndsAt
+
+    return {
+      plan,
+      status,
+      trialEndsAt: ensuredTrialEndsAt,
+      selectedAt,
+    }
+  })()
+
   return {
     onboardingDone: Boolean(st.onboardingDone),
     masters,
@@ -267,6 +329,7 @@ function sanitizeState(input: unknown): State | null {
     bookings,
     events,
     settings,
+    subscription,
   }
 }
 
@@ -509,6 +572,7 @@ function reduce(state: State, action: Action): State {
         onboardingDone: state.onboardingDone,
         ...demo,
         settings: state.settings,
+        subscription: state.subscription,
       }
     }
     case 'resetAllData': {
@@ -520,6 +584,7 @@ function reduce(state: State, action: Action): State {
         bookings: [],
         events: [],
         settings: state.settings,
+        subscription: state.subscription,
       }
     }
     case 'createBooking': {
@@ -635,6 +700,12 @@ function reduce(state: State, action: Action): State {
     }
     case 'updateSettings': {
       return { ...state, settings: { ...state.settings, ...action.settings } as AppSettings }
+    }
+    case 'updateSubscription': {
+      return {
+        ...state,
+        subscription: { ...state.subscription, ...action.subscription } as SubscriptionState,
+      }
     }
     default:
       return state

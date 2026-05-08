@@ -255,7 +255,7 @@ html,
 body,
 #root {
   min-height: 100%;
-  background: #FAF7EF;
+  background: linear-gradient(180deg, #FFFDF8 0%, #FAF7EF 100%);
 }
 
 body {
@@ -264,8 +264,9 @@ body {
     "SF Pro Text", "Segoe UI", Inter, Roboto, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #FAF7EF;
-  color: #0E1016;
+  background: linear-gradient(180deg, #FFFDF8 0%, #FAF7EF 100%);
+  color: #1E1C19;
+  font-size: 17px;
 }
 
 .app-preparing {

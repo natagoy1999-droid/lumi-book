@@ -34,6 +34,7 @@ import { Reschedule } from './screens/Reschedule'
 import { Settings } from './screens/Settings'
 import { Today } from './screens/Today'
 import { ClientBooking } from './screens/ClientBooking'
+import { Pricing } from './screens/Pricing'
 import { StoreProvider, todayISO, useStore } from './state/store'
 
 function Page({ children }: { children: ReactNode }) {
@@ -296,6 +297,14 @@ function Shell() {
             element={
               <Page>
                 <Money />
+              </Page>
+            }
+          />
+          <Route
+            path="/pricing"
+            element={
+              <Page>
+                <Pricing />
               </Page>
             }
           />

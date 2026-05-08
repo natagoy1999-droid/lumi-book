@@ -62,7 +62,7 @@ export function Calendar() {
             <div className="text-[12px] font-medium tracking-tightish text-ink-700/70">
               Календарь
             </div>
-            <div className="mt-1 text-[28px] font-semibold tracking-tightish text-ink-950">
+            <div className="mt-1 text-[32px] font-semibold tracking-tightish text-ink-950">
               {master.name}
             </div>
           </div>

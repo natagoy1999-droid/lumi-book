@@ -195,7 +195,7 @@ export function DemoWalkthrough() {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <div className="text-[12px] font-medium text-ink-700/70">
-                    Guided demo • шаг {model.idx}/{model.total}
+                    Пошаговое демо • шаг {model.idx}/{model.total}
                   </div>
                   <div className="mt-1 text-[16px] font-semibold tracking-tightish text-ink-950">
                     {model.title}

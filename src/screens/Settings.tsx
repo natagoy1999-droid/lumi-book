@@ -11,11 +11,12 @@ import {
   Users,
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { GlassCard } from '../components/GlassCard'
 import { cn } from '../lib/cn'
 import { Sheet } from '../components/Sheet'
-import { useStore, type AppSettings, type Master, type Service } from '../state/store'
+import { TRIAL_DAYS, useStore, type AppSettings, type Master, type Service } from '../state/store'
 import { useDemoMode } from '../state/demoMode'
 
 const groups = [
@@ -46,6 +47,7 @@ function uid() {
 }
 
 export function Settings() {
+  const nav = useNavigate()
   const { state, dispatch } = useStore()
   const startDemo = useDemoMode((s) => s.start)
   const mastersCountHint = useMemo(() => `${state.masters.length} мастера`, [state.masters.length])
@@ -78,6 +80,36 @@ export function Settings() {
     price: 2000,
   }))
 
+  const sub = state.subscription
+  const trialBadge = useMemo(() => {
+    if (sub.status !== 'trial') return null
+    return `Пробный период: ${TRIAL_DAYS} дней`
+  }, [sub.status])
+
+  const planLabel = useMemo(() => {
+    if (sub.plan === 'free') return 'Пробный период'
+    if (sub.plan === 'start') return 'Старт'
+    if (sub.plan === 'pro') return 'Профи'
+    if (sub.plan === 'studio') return 'Студия'
+    return 'Premium AI'
+  }, [sub.plan])
+
+  const planLimits = useMemo(() => {
+    const p = sub.plan
+    if (p === 'start') return { masters: 1, clients: 100 }
+    if (p === 'pro') return { masters: 3, clients: 500 }
+    if (p === 'studio') return { masters: 10, clients: 2000 }
+    if (p === 'premium_ai') return { masters: Infinity, clients: Infinity }
+    return { masters: 1, clients: 100 }
+  }, [sub.plan])
+
+  const softHint = useMemo(() => {
+    const tooManyMasters = state.masters.length > planLimits.masters
+    const tooManyClients = state.clients.length > planLimits.clients
+    if (!tooManyMasters && !tooManyClients) return null
+    return `Для большего количества ${tooManyMasters ? 'мастеров' : 'клиентов'} подойдёт тариф Профи`
+  }, [planLimits.clients, planLimits.masters, state.clients.length, state.masters.length])
+
   return (
     <div className="px-5 pt-7">
       <div className="mx-auto max-w-[520px]">
@@ -90,7 +122,7 @@ export function Settings() {
           <div className="text-[12px] font-medium tracking-tightish text-ink-700/70">
             Настройки
           </div>
-          <div className="mt-1 text-[28px] font-semibold tracking-tightish text-ink-950">
+          <div className="mt-1 text-[32px] font-semibold tracking-tightish text-ink-950">
             Очень просто
           </div>
         </motion.div>
@@ -99,12 +131,43 @@ export function Settings() {
           <GlassCard
             className="p-5"
             onClick={() => {
+              nav('/pricing')
+            }}
+          >
+            <div className="text-[12px] font-medium text-ink-700/70">Подписка</div>
+            <div className="mt-2 text-[14px] font-semibold tracking-tightish text-ink-950">
+              {planLabel}
+            </div>
+            <div className="mt-1 text-[12px] leading-5 text-ink-700/65">
+              Статус: {sub.status}
+              {trialBadge ? ` • ${trialBadge}` : ''}
+            </div>
+            {softHint ? (
+              <div className="mt-2 rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[12px] leading-5 text-ink-700/65 shadow-soft">
+                {softHint}
+              </div>
+            ) : null}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                nav('/pricing')
+              }}
+              className="mt-4 w-full rounded-3xl bg-ink-950 px-5 py-4 text-[15px] font-medium text-paper-50 shadow-glowGold"
+            >
+              Управлять тарифом
+            </button>
+          </GlassCard>
+
+          <GlassCard
+            className="p-5"
+            onClick={() => {
               setOpenDemo(true)
             }}
           >
             <div className="text-[12px] font-medium text-ink-700/70">Демо</div>
             <div className="mt-2 text-[14px] font-semibold tracking-tightish text-ink-950">
-              Guided walkthrough • 60–90 секунд
+              Пошаговое демо • 60–90 секунд
             </div>
             <div className="mt-1 text-[12px] leading-5 text-ink-700/65">
               Публичная демонстрация: запись → перенос → напоминание → ассистент → деньги → follow-up.
@@ -222,7 +285,13 @@ export function Settings() {
         </div>
       </div>
 
-      <Sheet open={openWorkHours} title="Рабочие часы" onClose={() => setOpenWorkHours(false)} className="pb-6">
+      <Sheet
+        open={openWorkHours}
+        title="Рабочие часы"
+        onClose={() => setOpenWorkHours(false)}
+        variant="center"
+        surface="solid"
+      >
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-2">
             <div className="space-y-1">
@@ -314,7 +383,13 @@ export function Settings() {
         </div>
       </Sheet>
 
-      <Sheet open={openMasters} title="Мастера" onClose={() => setOpenMasters(false)}>
+      <Sheet
+        open={openMasters}
+        title="Мастера"
+        onClose={() => setOpenMasters(false)}
+        variant="center"
+        surface="solid"
+      >
         <div className="space-y-2">
           {state.masters.map((m) => (
             <button
@@ -386,7 +461,13 @@ export function Settings() {
         </div>
       </Sheet>
 
-      <Sheet open={openServices} title="Услуги и цены" onClose={() => setOpenServices(false)}>
+      <Sheet
+        open={openServices}
+        title="Услуги и цены"
+        onClose={() => setOpenServices(false)}
+        variant="center"
+        surface="solid"
+      >
         <div className="space-y-2">
           {state.services.map((s) => (
             <button
@@ -462,7 +543,8 @@ export function Settings() {
         open={Boolean(masterEdit)}
         title="Редактировать мастера"
         onClose={() => setMasterEdit(null)}
-        className="pb-6"
+        variant="center"
+        surface="solid"
       >
         {masterEdit ? (
           <div className="space-y-3">
@@ -553,7 +635,8 @@ export function Settings() {
         open={Boolean(serviceEdit)}
         title="Редактировать услугу"
         onClose={() => setServiceEdit(null)}
-        className="pb-6"
+        variant="center"
+        surface="solid"
       >
         {serviceEdit ? (
           <div className="space-y-3">
@@ -635,7 +718,13 @@ export function Settings() {
         ) : null}
       </Sheet>
 
-      <Sheet open={openChannels} title="SMS / WhatsApp / Max" onClose={() => setOpenChannels(false)} className="pb-6">
+      <Sheet
+        open={openChannels}
+        title="SMS / WhatsApp / Max"
+        onClose={() => setOpenChannels(false)}
+        variant="center"
+        surface="solid"
+      >
         <div className="space-y-3">
           <div className="space-y-2">
             {(
@@ -706,7 +795,13 @@ export function Settings() {
         </div>
       </Sheet>
 
-      <Sheet open={openReminders} title="Напоминания" onClose={() => setOpenReminders(false)} className="pb-6">
+      <Sheet
+        open={openReminders}
+        title="Напоминания"
+        onClose={() => setOpenReminders(false)}
+        variant="center"
+        surface="solid"
+      >
         <div className="space-y-3">
           <button
             type="button"
@@ -761,7 +856,13 @@ export function Settings() {
         </div>
       </Sheet>
 
-      <Sheet open={openTemplates} title="Шаблоны сообщений" onClose={() => setOpenTemplates(false)} className="pb-6">
+      <Sheet
+        open={openTemplates}
+        title="Шаблоны сообщений"
+        onClose={() => setOpenTemplates(false)}
+        variant="center"
+        surface="solid"
+      >
         <div className="space-y-3">
           {(
             [
@@ -803,7 +904,13 @@ export function Settings() {
         </div>
       </Sheet>
 
-      <Sheet open={openPayments} title="Прайс и предоплата" onClose={() => setOpenPayments(false)} className="pb-6">
+      <Sheet
+        open={openPayments}
+        title="Прайс и предоплата"
+        onClose={() => setOpenPayments(false)}
+        variant="center"
+        surface="solid"
+      >
         <div className="space-y-3">
           <button
             type="button"
@@ -859,10 +966,16 @@ export function Settings() {
         </div>
       </Sheet>
 
-      <Sheet open={openDemo} title="Демо" onClose={() => setOpenDemo(false)} className="pb-6">
+      <Sheet
+        open={openDemo}
+        title="Демо"
+        onClose={() => setOpenDemo(false)}
+        variant="center"
+        surface="solid"
+      >
         <div className="space-y-2">
           <div className="text-[12px] leading-5 text-ink-700/65">
-            Guided walkthrough • 60–90 секунд. Публичная демонстрация сценариев.
+            Пошаговое демо • 60–90 секунд. Публичная демонстрация сценариев.
           </div>
           <button
             type="button"
@@ -881,7 +994,13 @@ export function Settings() {
         </div>
       </Sheet>
 
-      <Sheet open={openDemoData} title="Демо-данные" onClose={() => setOpenDemoData(false)} className="pb-6">
+      <Sheet
+        open={openDemoData}
+        title="Демо-данные"
+        onClose={() => setOpenDemoData(false)}
+        variant="center"
+        surface="solid"
+      >
         <div className="space-y-2">
           <button
             type="button"

@@ -9,20 +9,35 @@ type Props = PropsWithChildren<{
   title?: string
   onClose: () => void
   className?: string
+  variant?: 'bottom' | 'center'
+  surface?: 'glass' | 'solid'
 }>
 
-export function Sheet({ open, title, onClose, children, className }: Props) {
+export function Sheet({
+  open,
+  title,
+  onClose,
+  children,
+  className,
+  variant = 'bottom',
+  surface = 'glass',
+}: Props) {
   const active = open && children != null
+  const centered = variant === 'center'
+  const zBackdrop = centered ? 11000 : 60
+  const zModal = centered ? 11010 : 70
   return (
     <AnimatePresence>
       {active ? (
         <>
           <motion.button
             aria-label="Close"
-            className="fixed inset-0 z-[60]"
+            className="fixed inset-0"
             style={{
               backgroundColor:
-                'rgba(14, 16, 22, calc(0.25 * var(--chrome-opacity-quiet, 1)))',
+                // soft dim only, no heavy blur
+                'rgba(14, 16, 22, calc(0.28 * var(--chrome-opacity-quiet, 1)))',
+              zIndex: zBackdrop,
             }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -34,9 +49,25 @@ export function Sheet({ open, title, onClose, children, className }: Props) {
             role="dialog"
             aria-modal="true"
             className={cn(
-              'fixed bottom-0 left-0 right-0 z-[70] mx-auto max-w-[520px]',
-              'px-3 pb-[calc(14px+var(--safe-bottom))]',
+              'fixed mx-auto max-w-[520px]',
+              centered
+                ? 'left-1/2 top-1/2'
+                : 'bottom-0 left-0 right-0',
+              centered ? '' : 'px-3 pb-[calc(14px+var(--safe-bottom))]',
             )}
+            style={
+              centered
+                ? {
+                    left: '50%',
+                    top: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: 'calc(100% - 32px)',
+                    maxWidth: 520,
+                    maxHeight: 'calc(100dvh - 140px)',
+                    zIndex: zModal,
+                  }
+                : { zIndex: zModal }
+            }
             initial={{ y: 28, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 28, opacity: 0 }}
@@ -49,20 +80,35 @@ export function Sheet({ open, title, onClose, children, className }: Props) {
                 className,
               )}
               style={{
-                backdropFilter: glassBackdropFilter('interactive'),
-                backgroundColor: glassFill('interactive'),
-                borderColor: glassBorderStyle('interactive'),
+                backdropFilter: surface === 'glass' ? glassBackdropFilter('interactive') : 'none',
+                backgroundColor: surface === 'glass' ? glassFill('interactive') : '#FFFDF8',
+                borderColor:
+                  surface === 'glass' ? glassBorderStyle('interactive') : 'rgba(20,20,20,0.08)',
               }}
             >
               <div className="px-5 pt-4">
-                <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-ink-950/10" />
+                {!centered ? (
+                  <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-ink-950/10" />
+                ) : null}
                 {title ? (
                   <div className="mb-3 text-[13px] font-medium tracking-tightish text-ink-700/80">
                     {title}
                   </div>
                 ) : null}
               </div>
-              <div className="px-5 pb-5">{children}</div>
+              <div
+                className="px-5"
+                style={{
+                  maxHeight: centered ? 'calc(100dvh - 220px)' : undefined,
+                  overflowY: centered ? 'auto' : undefined,
+                  WebkitOverflowScrolling: centered ? 'touch' : undefined,
+                  paddingBottom: centered
+                    ? 'calc(24px + env(safe-area-inset-bottom))'
+                    : '1.25rem',
+                }}
+              >
+                {children}
+              </div>
             </div>
           </motion.div>
         </>
