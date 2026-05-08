@@ -35,6 +35,12 @@ export function Today() {
   const openComposer = useMessaging((s) => s.openComposer)
   const dateISO = todayISO()
   const [logoOk, setLogoOk] = useState(true)
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth <= 480 : true,
+  )
+  const dateLabel = useMemo(() => {
+    return new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' }).format(new Date())
+  }, [])
 
   const master = state.masters[0]
   const slots = freeSlots(dateISO, master.id)
@@ -173,7 +179,7 @@ export function Today() {
   }, [dateISO, master.id, nav, openComposer, sent, state.bookings, state.clients, state.events, state.services])
 
   const cognitivePolicy = useCognitiveUI((s) => s.policy)
-  const cardPad = cognitivePolicy.load > 0.53 ? 'p-4' : 'p-5'
+  const cardPad = cognitivePolicy.load > 0.53 ? 'p-5' : 'p-6'
 
   const dockActionsLimited = useMemo(
     () => dockActions.slice(0, cognitivePolicy.dockActionsCap),
@@ -195,28 +201,47 @@ export function Today() {
   }, [cognitivePolicy.load, income, slots, widgets.nextTime, widgets.recoveryCount])
 
   useEffect(() => {
+    const mq = window.matchMedia('(max-width: 480px)')
+    const apply = () => setIsMobile(mq.matches)
+    apply()
+    mq.addEventListener?.('change', apply)
+    return () => mq.removeEventListener?.('change', apply)
+  }, [])
+
+  useEffect(() => {
     const onScroll = () => {
       const y = window.scrollY || 0
       setCompact(y > 56)
-      setDock(y > 160)
+      setDock(isMobile ? false : y > 160)
       setMaterialScrollY(y)
       sampleScrollTelemetry(y)
       kickMotionDecay()
     }
+    // Avoid “restored scroll” causing a floating dock overlap on first paint.
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior })
+    setCompact(false)
+    setDock(false)
+    setMaterialScrollY(0)
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [sampleScrollTelemetry, setMaterialScrollY])
 
-  const shellPadTop = dock
-    ? 'calc(6rem * (0.94 + var(--global-rhythm, 1) * 0.06))'
-    : 'calc(1.75rem * (0.94 + var(--global-rhythm, 1) * 0.06))'
+  const shellPadTop = dock && !isMobile
+    ? 'calc(var(--safe-top, 0px) + 6.75rem * (0.94 + var(--global-rhythm, 1) * 0.06))'
+    : 'calc(var(--safe-top, 0px) + 2.25rem * (0.94 + var(--global-rhythm, 1) * 0.06))'
 
   return (
-    <div className="px-5 pb-28" style={{ paddingTop: shellPadTop }}>
+    <div
+      className="px-5"
+      style={{
+        paddingTop: shellPadTop,
+        paddingBottom: 'calc(110px + env(safe-area-inset-bottom))',
+      }}
+    >
       <div className="mx-auto max-w-[520px]">
         <MagneticDock
-          visible={dock}
+          visible={dock && !isMobile}
           model={focus}
           secondary={cognitivePolicy.hideSecondaryPinned ? null : secondaryPinned}
           actions={stableDockActions}
@@ -276,7 +301,7 @@ export function Today() {
                 Привет, {master.name}
               </div>
               <div className="mt-2 text-[13px] font-medium tracking-tightish text-ink-700/65">
-                Сегодня
+                Сегодня • {dateLabel}
               </div>
             </div>
 
@@ -302,7 +327,10 @@ export function Today() {
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-2" style={{ gap: 'var(--cognitive-grid-gap)' }}>
+        <div
+          className="grid grid-cols-2"
+          style={{ gap: 'calc(var(--cognitive-grid-gap) * 1.12)' }}
+        >
           <GlassCard className={cn(cardPad)}>
             <div className="text-[12px] font-medium text-ink-700/70">
               Записей сегодня
@@ -336,8 +364,8 @@ export function Today() {
           style={{
             display: 'flex',
             flexDirection: 'column',
-            gap: 'var(--cognitive-section-gap)',
-            marginTop: 'var(--cognitive-inline-stack)',
+            gap: 'calc(var(--cognitive-section-gap) * 1.18)',
+            marginTop: 'calc(var(--cognitive-inline-stack) * 1.12)',
           }}
         >
           <FocusCard
@@ -480,6 +508,8 @@ export function Today() {
               <SmartReminders hideWhenEmpty />
             </>
           )}
+
+          <div className="h-[120px]" />
         </div>
       </div>
     </div>
