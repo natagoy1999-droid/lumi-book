@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
-import { Sparkles } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { GlassCard } from '../components/GlassCard'
@@ -9,24 +9,26 @@ import { LumiButton } from '../components/ui/LumiButton'
 import { useCognitiveUI } from '../state/cognitiveUI'
 import { todayISO, useStore } from '../state/store'
 
-function addDaysISO(iso: string, delta: number) {
+const WEEKDAYS_MON_FIRST = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'] as const
+
+function parseParts(iso: string) {
   const [y, m, d] = iso.split('-').map(Number)
-  const dt = new Date(y, m - 1, d)
-  dt.setDate(dt.getDate() + delta)
-  const yy = dt.getFullYear()
-  const mm = String(dt.getMonth() + 1).padStart(2, '0')
-  const dd = String(dt.getDate()).padStart(2, '0')
-  return `${yy}-${mm}-${dd}`
+  return { y, m: m - 1, d }
 }
 
-function weekdayShort(iso: string) {
-  const [y, m, d] = iso.split('-').map(Number)
-  const dt = new Date(y, m - 1, d)
-  return dt.toLocaleDateString('ru-RU', { weekday: 'short' })
+function toISO(y: number, monthIndex: number, day: number) {
+  return `${y}-${String(monthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
 }
 
-function dayNum(iso: string) {
-  return iso.split('-')[2]
+function monthGridCells(year: number, monthIndex: number) {
+  const first = new Date(year, monthIndex, 1)
+  const daysInMonth = new Date(year, monthIndex + 1, 0).getDate()
+  const mondayOffset = (first.getDay() + 6) % 7
+  const list: (number | null)[] = []
+  for (let i = 0; i < mondayOffset; i++) list.push(null)
+  for (let day = 1; day <= daysInMonth; day++) list.push(day)
+  while (list.length % 7 !== 0) list.push(null)
+  return list
 }
 
 export function Calendar() {
@@ -36,14 +38,48 @@ export function Calendar() {
   const [dateISO, setDateISO] = useState(todayISO())
   const master = state.masters[0]
 
-  const days = useMemo(
-    () => Array.from({ length: 10 }, (_, i) => addDaysISO(todayISO(), i)),
-    [],
-  )
+  const [viewY, setViewY] = useState(() => parseParts(todayISO()).y)
+  const [viewM, setViewM] = useState(() => parseParts(todayISO()).m)
+
+  useEffect(() => {
+    const { y, m } = parseParts(dateISO)
+    setViewY(y)
+    setViewM(m)
+  }, [dateISO])
+
+  const monthTitle = useMemo(() => {
+    const raw = new Date(viewY, viewM, 1).toLocaleDateString('ru-RU', {
+      month: 'long',
+      year: 'numeric',
+    })
+    return raw.charAt(0).toUpperCase() + raw.slice(1)
+  }, [viewY, viewM])
+
+  const cells = useMemo(() => monthGridCells(viewY, viewM), [viewY, viewM])
+
+  const goPrevMonth = () => {
+    if (viewM === 0) {
+      setViewY((yy) => yy - 1)
+      setViewM(11)
+    } else {
+      setViewM((mm) => mm - 1)
+    }
+  }
+
+  const goNextMonth = () => {
+    if (viewM === 11) {
+      setViewY((yy) => yy + 1)
+      setViewM(0)
+    } else {
+      setViewM((mm) => mm + 1)
+    }
+  }
 
   const bookings = state.bookings
     .filter((b) => b.dateISO === dateISO && b.masterId === master.id)
     .sort((a, b) => a.time.localeCompare(b.time))
+
+  const chipGap = 'calc(0.5rem * var(--global-rhythm, 1))'
 
   return (
     <div
@@ -62,33 +98,79 @@ export function Calendar() {
           <div className="lumi-page-title">Календарь</div>
         </motion.div>
 
-        <div
-          className="flex overflow-x-auto pb-2 [-webkit-overflow-scrolling:touch]"
-          style={{ gap: 'calc(0.5rem * var(--global-rhythm, 1))' }}
-        >
-          {days.map((d) => {
-            const active = d === dateISO
-            return (
-              <button
-                key={d}
-                type="button"
-                onClick={() => setDateISO(d)}
-                className={cn(
-                  'min-w-[64px] rounded-3xl border-[1.5px] px-3 py-3 text-left shadow-soft transition',
-                  active
-                    ? 'border-gold-400 bg-[var(--lumi-surface)] shadow-glowGold'
-                    : 'border-gold-400/22 bg-white/55 hover:border-gold-400/40 hover:bg-[var(--lumi-surface)]',
-                )}
+        <div className="flex flex-col pb-2" style={{ gap: chipGap }}>
+          <div className="flex items-center justify-between" style={{ gap: chipGap }}>
+            <button
+              type="button"
+              aria-label="Предыдущий месяц"
+              onClick={goPrevMonth}
+              className={cn(
+                'inline-flex min-h-[44px] min-w-[44px] shrink-0 touch-manipulation items-center justify-center rounded-3xl border-[1.5px] px-2 shadow-soft transition',
+                'border-gold-400/22 bg-white/55 hover:border-gold-400/40 hover:bg-[var(--lumi-surface)]',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400/35 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--lumi-bg)]',
+              )}
+            >
+              <ChevronLeft size={20} className="text-ink-800/75" strokeWidth={2} />
+            </button>
+            <div className="min-w-0 flex-1 text-center text-[14px] font-semibold tracking-tightish text-ink-950">
+              {monthTitle}
+            </div>
+            <button
+              type="button"
+              aria-label="Следующий месяц"
+              onClick={goNextMonth}
+              className={cn(
+                'inline-flex min-h-[44px] min-w-[44px] shrink-0 touch-manipulation items-center justify-center rounded-3xl border-[1.5px] px-2 shadow-soft transition',
+                'border-gold-400/22 bg-white/55 hover:border-gold-400/40 hover:bg-[var(--lumi-surface)]',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400/35 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--lumi-bg)]',
+              )}
+            >
+              <ChevronRight size={20} className="text-ink-800/75" strokeWidth={2} />
+            </button>
+          </div>
+
+          <div
+            className="grid grid-cols-7 text-center"
+            style={{ gap: chipGap }}
+            role="grid"
+            aria-label="Календарь"
+          >
+            {WEEKDAYS_MON_FIRST.map((w) => (
+              <div
+                key={w}
+                className="text-[11px] font-medium uppercase tracking-[0.08em] text-ink-700/60"
               >
-                <div className="text-[11px] font-medium uppercase tracking-[0.08em] text-ink-700/60">
-                  {weekdayShort(d)}
-                </div>
-                <div className="mt-1 text-[18px] font-semibold tracking-tightish text-ink-950">
-                  {dayNum(d)}
-                </div>
-              </button>
-            )
-          })}
+                {w}
+              </div>
+            ))}
+            {cells.map((day, idx) => {
+              if (day == null) {
+                return <div key={`pad-${idx}`} className="min-h-[44px]" aria-hidden />
+              }
+              const iso = toISO(viewY, viewM, day)
+              const active = iso === dateISO
+              return (
+                <button
+                  key={iso}
+                  type="button"
+                  role="gridcell"
+                  aria-pressed={active}
+                  onClick={() => setDateISO(iso)}
+                  className={cn(
+                    'flex min-h-[44px] touch-manipulation flex-col items-center justify-center rounded-3xl border-[1.5px] px-1 py-2 shadow-soft transition',
+                    active
+                      ? 'border-gold-400 bg-[var(--lumi-surface)] shadow-glowGold'
+                      : 'border-gold-400/22 bg-white/55 hover:border-gold-400/40 hover:bg-[var(--lumi-surface)]',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400/35 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--lumi-bg)]',
+                  )}
+                >
+                  <span className="text-[18px] font-semibold tracking-tightish text-ink-950">
+                    {day}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
         </div>
 
         <div className="mt-3 flex flex-col" style={{ gap: 'var(--cognitive-inline-stack)' }}>
@@ -171,4 +253,3 @@ export function Calendar() {
     </div>
   )
 }
-
