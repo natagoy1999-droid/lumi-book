@@ -1,4 +1,4 @@
-import type { CSSProperties, PropsWithChildren } from 'react'
+import type { CSSProperties, KeyboardEventHandler, PropsWithChildren } from 'react'
 
 import { cn } from '../lib/cn'
 import type { MaterialTier } from '../lib/glassStyles'
@@ -8,6 +8,7 @@ import { cinematicAmbientWash, cinematicHighlightOpacity, cinematicWashOpacity }
 type Props = PropsWithChildren<{
   className?: string
   onClick?: () => void
+  onKeyDown?: KeyboardEventHandler<HTMLDivElement>
   tone?: 'paper' | 'ink'
   /** Unified global material tier — defaults to interactive glass */
   materialTier?: MaterialTier
@@ -18,6 +19,7 @@ export function GlassCard({
   children,
   className,
   onClick,
+  onKeyDown,
   tone = 'paper',
   materialTier = 'interactive',
   style: styleProp,
@@ -29,6 +31,7 @@ export function GlassCard({
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
       onClick={onClick}
+      onKeyDown={onKeyDown}
       className={cn(
         'relative overflow-hidden rounded-3xl border shadow-soft',
         'ring-1 ring-black/[0.04] transition-[transform,background-color,border-color,box-shadow,opacity] duration-[240ms] ease-out',

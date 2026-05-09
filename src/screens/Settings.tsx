@@ -1,16 +1,19 @@
 import { motion } from 'framer-motion'
 import {
   Bell,
+  ChevronRight,
   Clock,
   CreditCard,
+  HelpCircle,
   Plus,
   MessageSquare,
   SlidersHorizontal,
   Sparkles,
   Trash2,
+  UserRound,
   Users,
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { GlassCard } from '../components/GlassCard'
@@ -25,39 +28,37 @@ import {
   type AppSettings,
   type Master,
   type Service,
-  type SubscriptionStatus,
+  type SubscriptionState,
 } from '../state/store'
 import { useDemoMode } from '../state/demoMode'
 import { useAuthStore } from '../store/authStore'
 
-function subscriptionStatusRu(s: SubscriptionStatus) {
-  if (s === 'trial') return 'пробный период'
-  if (s === 'active') return 'активна'
-  return 'истекла'
+function paidPlanTitle(plan: SubscriptionState['plan']) {
+  if (plan === 'start') return 'Старт'
+  if (plan === 'pro') return 'Профи'
+  if (plan === 'studio') return 'Студия'
+  if (plan === 'premium_ai') return 'Премиум с ИИ'
+  return 'Старт'
 }
 
-const groups = [
-  {
-    title: 'Планирование',
-    items: [
-      { icon: Clock, label: 'Рабочие часы', hint: '10:00 — 20:00' },
-      { icon: Users, label: 'Мастера', hint: '2 мастера' },
-      { icon: SlidersHorizontal, label: 'Услуги и цены', hint: '3 услуги' },
-    ],
-  },
-  {
-    title: 'Коммуникации',
-    items: [
-      { icon: MessageSquare, label: 'SMS / WhatsApp / Max', hint: 'подключено демо' },
-      { icon: Bell, label: 'Напоминания', hint: 'мягко и по делу' },
-      { icon: Sparkles, label: 'Шаблоны сообщений', hint: 'премиальные тексты' },
-    ],
-  },
-  {
-    title: 'Оплата',
-    items: [{ icon: CreditCard, label: 'Прайс и предоплата', hint: 'опционально' }],
-  },
-] as const
+function tariffLines(sub: SubscriptionState) {
+  if (sub.status === 'expired') {
+    return {
+      primary: 'Подключите тариф',
+      secondary: 'Чтобы пользоваться всеми возможностями без ограничений.',
+    }
+  }
+  if (sub.status === 'trial' || sub.plan === 'free') {
+    return {
+      primary: `${TRIAL_DAYS} дней бесплатно`,
+      secondary: 'Знакомство без спешки — подключение оплаты только когда будете готовы.',
+    }
+  }
+  return {
+    primary: `Тариф «${paidPlanTitle(sub.plan)}»`,
+    secondary: 'Спасибо, что с нами.',
+  }
+}
 
 function uid() {
   return Math.random().toString(16).slice(2) + Date.now().toString(16)
@@ -126,6 +127,45 @@ function mergeAppSettings(raw: AppSettings | undefined): AppSettings {
   }
 }
 
+function SectionLabel({ children }: { children: ReactNode }) {
+  return (
+    <h2 className="mb-2.5 px-1 text-[11px] font-semibold uppercase tracking-[0.09em] text-ink-700/45">
+      {children}
+    </h2>
+  )
+}
+
+type SettingsRowProps = {
+  icon: typeof Clock
+  title: string
+  subtitle?: string
+  onClick: () => void
+}
+
+function SettingsRow({ icon: Icon, title, subtitle, onClick }: SettingsRowProps) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        'flex w-full items-center gap-3.5 px-5 py-4 text-left transition-colors',
+        'hover:bg-white/35 active:bg-white/50',
+      )}
+    >
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/50 shadow-sm">
+        <Icon size={18} strokeWidth={1.75} className="text-ink-800/70" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="text-[15px] font-medium tracking-tight text-ink-950">{title}</div>
+        {subtitle ? (
+          <div className="mt-0.5 truncate text-[13px] text-ink-700/55">{subtitle}</div>
+        ) : null}
+      </div>
+      <ChevronRight size={18} className="shrink-0 text-ink-700/30" strokeWidth={1.75} />
+    </button>
+  )
+}
+
 export function Settings() {
   const nav = useNavigate()
   const { state, dispatch } = useStore()
@@ -144,7 +184,6 @@ export function Settings() {
     | 'reminders'
     | 'templates'
     | 'payments'
-    | 'demo'
     | 'demoData'
   >(null)
 
@@ -166,18 +205,7 @@ export function Settings() {
   }))
 
   const sub = state.subscription
-  const trialBadge = useMemo(() => {
-    if (sub.status !== 'trial') return null
-    return `Пробный период: ${TRIAL_DAYS} дней`
-  }, [sub.status])
-
-  const planLabel = useMemo(() => {
-    if (sub.plan === 'free') return 'Пробный период'
-    if (sub.plan === 'start') return 'Старт'
-    if (sub.plan === 'pro') return 'Профи'
-    if (sub.plan === 'studio') return 'Студия'
-    return 'Премиум с ИИ'
-  }, [sub.plan])
+  const { primary: tariffPrimary, secondary: tariffSecondary } = useMemo(() => tariffLines(sub), [sub])
 
   const planLimits = useMemo(() => {
     const p = sub.plan
@@ -192,8 +220,30 @@ export function Settings() {
     const tooManyMasters = state.masters.length > planLimits.masters
     const tooManyClients = state.clients.length > planLimits.clients
     if (!tooManyMasters && !tooManyClients) return null
-    return `Для большего количества ${tooManyMasters ? 'мастеров' : 'клиентов'} подойдёт тариф Профи`
+    return `Если нужно больше ${tooManyMasters ? 'мастеров' : 'клиентов'}, загляните в тариф «Профи».`
   }, [planLimits.clients, planLimits.masters, state.clients.length, state.masters.length])
+
+  const workHoursHint = `${state.settings.workHours.start} — ${state.settings.workHours.end}`
+  const channelDefaultLabels = { sms: 'SMS', whatsapp: 'WhatsApp', max: 'Max' } as const
+  const channelHint = `По умолчанию — ${channelDefaultLabels[state.settings.channels.default]}`
+  const remindersHint = state.settings.reminders.enabled
+    ? `За ${state.settings.reminders.hoursBefore} ч до визита`
+    : 'Выключены'
+  const templatesHint = 'Тексты для клиентов'
+  const paymentsHint = state.settings.payments.prepayEnabled
+    ? `Предоплата ${state.settings.payments.prepayAmount} ₽`
+    : 'Без предоплаты'
+
+  const accountEmail =
+    authMode === 'auth' ? authUser?.email?.trim() || authUser?.phone?.trim() || null : null
+
+  const openPanel = (
+    panel: NonNullable<typeof activePanel>,
+    refreshDraft?: boolean,
+  ) => {
+    if (refreshDraft) setSettingsDraft(mergeAppSettings(state.settings))
+    setActivePanel(panel)
+  }
 
   return (
     <div className="lumi-page" style={{ paddingTop: 'calc(1.75rem * (0.94 + var(--global-rhythm, 1) * 0.06))' }}>
@@ -202,180 +252,179 @@ export function Settings() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: 'spring', stiffness: 520, damping: 44 }}
-          className="mb-4"
+          className="mb-8"
         >
-          <div className="lumi-section-title">Настройки</div>
-          <div className="mt-1 lumi-title">Очень просто</div>
+          <div className="lumi-title text-[26px] font-semibold tracking-tight text-ink-950">Настройки</div>
+          <p className="mt-2 max-w-[34ch] text-[14px] leading-relaxed text-ink-700/60">
+            Спокойное управление аккаунтом и приложением.
+          </p>
         </motion.div>
 
-        <div className="space-y-3">
-          <GlassCard className="p-5">
-            <div className="lumi-section-title">Режим приложения</div>
-            <div className="mt-2 text-[14px] font-semibold tracking-tightish text-ink-950">
-              {authMode === 'auth' ? 'Аккаунт подключён' : 'Демо‑режим'}
-            </div>
-            <div className="mt-1 lumi-secondary">
-              {authMode === 'auth'
-                ? `ID: ${authUser?.id ?? '—'}`
-                : 'Работает локально: без обязательного входа.'}
-            </div>
-          </GlassCard>
-
-          <GlassCard
-            className="p-5"
-            onClick={() => {
-              nav('/pricing')
-            }}
-          >
-            <div className="text-[12px] font-medium text-ink-700/70">Подписка</div>
-            <div className="mt-2 text-[14px] font-semibold tracking-tightish text-ink-950">
-              {planLabel}
-            </div>
-            <div className="mt-1 text-[12px] leading-5 text-ink-700/65">
-              Статус: {subscriptionStatusRu(sub.status)}
-              {trialBadge ? ` • ${trialBadge}` : ''}
-            </div>
-            {softHint ? (
-              <div className="mt-2 rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[12px] leading-5 text-ink-700/65 shadow-soft">
-                {softHint}
-              </div>
-            ) : null}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation()
-                nav('/pricing')
-              }}
-              className="mt-4 w-full rounded-3xl bg-ink-950 px-5 py-4 text-[15px] font-medium text-paper-50 shadow-glowGold"
-            >
-              Управлять тарифом
-            </button>
-          </GlassCard>
-
-          <GlassCard
-            className="p-5"
-            onClick={() => {
-              setActivePanel('demo')
-            }}
-          >
-            <div className="text-[12px] font-medium text-ink-700/70">Демо</div>
-            <div className="mt-2 text-[14px] font-semibold tracking-tightish text-ink-950">
-              Пошаговое демо • 60–90 секунд
-            </div>
-            <div className="mt-1 text-[12px] leading-5 text-ink-700/65">
-              Спокойная демонстрация: запись → перенос → напоминание → ассистент → деньги → сопровождение.
-            </div>
-            <div className="mt-2 text-[11px] text-ink-700/45">Нажмите, чтобы открыть</div>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation()
-                startDemo()
-              }}
-              className="mt-4 w-full rounded-3xl bg-ink-950 px-5 py-4 text-[15px] font-medium text-paper-50 shadow-glowGold"
-            >
-              Запустить демо
-            </button>
-          </GlassCard>
-
-          {groups.map((g) => (
-            <GlassCard key={g.title} className="p-5">
-              <div className="text-[12px] font-medium text-ink-700/70">{g.title}</div>
-              <div className="mt-4 space-y-2">
-                {g.items.map((it) => (
-                  <button
-                    key={it.label}
-                    type="button"
-                    onClick={() => {
-                      if (it.label === 'Рабочие часы') {
-                        setSettingsDraft(mergeAppSettings(state.settings))
-                        setActivePanel('workHours')
-                      }
-                      if (it.label === 'Мастера') setActivePanel('masters')
-                      if (it.label === 'Услуги и цены') setActivePanel('services')
-                      if (it.label === 'SMS / WhatsApp / Max') {
-                        setSettingsDraft(mergeAppSettings(state.settings))
-                        setActivePanel('channels')
-                      }
-                      if (it.label === 'Напоминания') {
-                        setSettingsDraft(mergeAppSettings(state.settings))
-                        setActivePanel('reminders')
-                      }
-                      if (it.label === 'Шаблоны сообщений') {
-                        setSettingsDraft(mergeAppSettings(state.settings))
-                        setActivePanel('templates')
-                      }
-                      if (it.label === 'Прайс и предоплата') {
-                        setSettingsDraft(mergeAppSettings(state.settings))
-                        setActivePanel('payments')
-                      }
-                    }}
-                    className={cn(
-                      'w-full rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-left shadow-soft',
-                      'transition hover:bg-white/65',
-                    )}
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/60 shadow-soft">
-                          <it.icon size={18} className="text-ink-800/75" />
-                        </div>
-                        <div>
-                          <div className="text-[14px] font-semibold tracking-tightish text-ink-950">
-                            {it.label}
-                          </div>
-                          <div className="mt-0.5 text-[12px] text-ink-700/60">
-                            {it.label === 'Мастера'
-                              ? mastersCountHint
-                              : it.label === 'Услуги и цены'
-                                ? servicesCountHint
-                                : it.hint}
-                          </div>
-                        </div>
+        <div className="space-y-8">
+          <section>
+            <SectionLabel>Аккаунт</SectionLabel>
+            <GlassCard className="p-6">
+              <div className="flex gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-white/55 shadow-sm">
+                  <UserRound size={22} strokeWidth={1.6} className="text-ink-800/65" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  {authMode === 'auth' ? (
+                    <>
+                      <div className="text-[16px] font-medium tracking-tight text-ink-950">
+                        {accountEmail ?? 'Аккаунт'}
                       </div>
-                      <div className="h-2 w-2 rounded-full bg-gold-300/60 shadow-glowGold" />
-                    </div>
+                      <p className="mt-1 text-[13px] leading-relaxed text-ink-700/55">
+                        Вход выполнен. Данные синхронизируются с вашим аккаунтом.
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <div className="text-[16px] font-medium tracking-tight text-ink-950">
+                        Аккаунт не подключён
+                      </div>
+                      <p className="mt-1 text-[13px] leading-relaxed text-ink-700/55">
+                        Работает локально на этом устройстве.
+                      </p>
+                    </>
+                  )}
+                </div>
+              </div>
+              {authMode !== 'auth' ? (
+                <div className="mt-6 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => nav('/login')}
+                    className="rounded-full bg-ink-950 px-5 py-2.5 text-[13px] font-medium text-paper-50 shadow-sm transition hover:bg-ink-950/90"
+                  >
+                    Войти
                   </button>
-                ))}
+                  <button
+                    type="button"
+                    onClick={() => nav('/signup')}
+                    className="rounded-full border border-black/[0.08] bg-white/50 px-5 py-2.5 text-[13px] font-medium text-ink-950 shadow-sm transition hover:bg-white/70"
+                  >
+                    Подключить аккаунт
+                  </button>
+                </div>
+              ) : null}
+            </GlassCard>
+          </section>
+
+          <section>
+            <SectionLabel>Тариф</SectionLabel>
+            <GlassCard
+              className="cursor-pointer p-6 transition hover:bg-white/25"
+              onClick={() => nav('/pricing')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  nav('/pricing')
+                }
+              }}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <div className="text-[18px] font-semibold tracking-tight text-ink-950">{tariffPrimary}</div>
+                  <p className="mt-2 text-[13px] leading-relaxed text-ink-700/58">{tariffSecondary}</p>
+                  {softHint ? (
+                    <p className="mt-4 rounded-2xl bg-white/45 px-4 py-3 text-[12px] leading-snug text-ink-700/65">
+                      {softHint}
+                    </p>
+                  ) : null}
+                </div>
+                <ChevronRight size={20} className="mt-1 shrink-0 text-ink-700/28" strokeWidth={1.75} />
+              </div>
+              <div className="mt-6">
+                <span className="text-[13px] font-medium text-ink-800/70">Изменить тариф</span>
               </div>
             </GlassCard>
-          ))}
+          </section>
 
-          <GlassCard
-            className="p-5"
-            onClick={() => {
-              setActivePanel('demoData')
-            }}
-          >
-            <div className="text-[12px] font-medium text-ink-700/70">Демо-данные</div>
-            <div className="mt-1 text-[11px] text-ink-700/45">Нажмите, чтобы открыть</div>
-            <div className="mt-3 grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  dispatch({ type: 'seedDemoData' })
-                }}
-                className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[13px] font-semibold text-ink-950 shadow-soft"
-              >
-                Заполнить демо
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  dispatch({ type: 'resetAllData' })
-                }}
-                className="rounded-3xl bg-ink-950 px-4 py-3 text-[13px] font-semibold text-paper-50 shadow-glowGold"
-              >
-                Сбросить
-              </button>
-            </div>
-            <div className="mt-2 text-[12px] leading-[1.55] text-ink-700/60">
-              Сброс очищает клиентов, записи и события, затем возвращает базовый демо-набор. «Заполнить демо»
-              подставляет расширенный учебный календарь и клиентов.
-            </div>
-          </GlassCard>
+          <section>
+            <SectionLabel>Планирование</SectionLabel>
+            <GlassCard className={cn('overflow-hidden p-0', 'divide-y divide-black/[0.06]')}>
+              <SettingsRow
+                icon={Clock}
+                title="Рабочие часы"
+                subtitle={workHoursHint}
+                onClick={() => openPanel('workHours', true)}
+              />
+              <SettingsRow
+                icon={Users}
+                title="Мастера"
+                subtitle={mastersCountHint}
+                onClick={() => openPanel('masters')}
+              />
+              <SettingsRow
+                icon={SlidersHorizontal}
+                title="Услуги и цены"
+                subtitle={servicesCountHint}
+                onClick={() => openPanel('services')}
+              />
+            </GlassCard>
+          </section>
+
+          <section>
+            <SectionLabel>Коммуникации</SectionLabel>
+            <GlassCard className={cn('overflow-hidden p-0', 'divide-y divide-black/[0.06]')}>
+              <SettingsRow
+                icon={MessageSquare}
+                title="SMS, WhatsApp, Max"
+                subtitle={channelHint}
+                onClick={() => openPanel('channels', true)}
+              />
+              <SettingsRow
+                icon={Bell}
+                title="Напоминания"
+                subtitle={remindersHint}
+                onClick={() => openPanel('reminders', true)}
+              />
+              <SettingsRow
+                icon={Sparkles}
+                title="Шаблоны сообщений"
+                subtitle={templatesHint}
+                onClick={() => openPanel('templates', true)}
+              />
+              <SettingsRow
+                icon={CreditCard}
+                title="Прайс и предоплата"
+                subtitle={paymentsHint}
+                onClick={() => openPanel('payments', true)}
+              />
+            </GlassCard>
+          </section>
+
+          <section>
+            <SectionLabel>Помощь</SectionLabel>
+            <GlassCard className="p-6">
+              <div className="flex gap-3">
+                <HelpCircle size={22} strokeWidth={1.6} className="mt-0.5 shrink-0 text-ink-800/55" />
+                <div className="min-w-0 flex-1">
+                  <div className="text-[16px] font-medium tracking-tight text-ink-950">Быстрое знакомство</div>
+                  <p className="mt-2 text-[13px] leading-relaxed text-ink-700/58">
+                    Короткий обзор основных возможностей.
+                  </p>
+                  <LumiButton className="mt-5 w-auto" fullWidth={false} size="sm" onClick={() => startDemo()}>
+                    Открыть обзор
+                  </LumiButton>
+
+                  <div className="my-6 border-t border-black/[0.06]" />
+
+                  <button
+                    type="button"
+                    onClick={() => openPanel('demoData')}
+                    className="text-left text-[13px] font-medium text-ink-700/65 underline-offset-4 transition hover:text-ink-950 hover:underline"
+                  >
+                    Данные для примера…
+                  </button>
+                  <p className="mt-2 text-[12px] leading-relaxed text-ink-700/48">
+                    Заполнить календарь примерами или вернуть приложение к чистому состоянию.
+                  </p>
+                </div>
+              </div>
+            </GlassCard>
+          </section>
         </div>
       </div>
 
@@ -814,7 +863,7 @@ export function Settings() {
 
       <LumiModal
         open={activePanel === 'channels'}
-        title="SMS / WhatsApp / Max"
+        title="SMS, WhatsApp, Max"
         onClose={() => setActivePanel(null)}
         variant="center"
         surface="solid"
@@ -1065,37 +1114,8 @@ export function Settings() {
       </LumiModal>
 
       <LumiModal
-        open={activePanel === 'demo'}
-        title="Демо"
-        onClose={() => setActivePanel(null)}
-        variant="center"
-        surface="solid"
-        modalId="settings"
-      >
-        <div className="space-y-2">
-          <div className="text-[12px] leading-5 text-ink-700/65">
-            Пошаговое демо • 60–90 секунд. Спокойный проход по ключевым сценариям.
-          </div>
-          <button
-            type="button"
-            onClick={() => startDemo()}
-            className="w-full rounded-3xl bg-ink-950 px-5 py-4 text-[15px] font-medium text-paper-50 shadow-glowGold"
-          >
-            Запустить демо
-          </button>
-          <button
-            type="button"
-            onClick={() => setActivePanel(null)}
-            className="w-full rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[13px] font-semibold text-ink-950 shadow-soft"
-          >
-            Отмена
-          </button>
-        </div>
-      </LumiModal>
-
-      <LumiModal
         open={activePanel === 'demoData'}
-        title="Демо-данные"
+        title="Данные для примера"
         onClose={() => setActivePanel(null)}
         variant="center"
         surface="solid"
@@ -1103,15 +1123,15 @@ export function Settings() {
       >
         <div className="space-y-2">
           <div className="text-[12px] leading-[1.55] text-ink-700/65">
-            Сброс очищает клиентов, записи и события, затем возвращает базовый демо-набор. «Заполнить демо»
-            восстанавливает расширенный учебный набор.
+            Сброс удалит клиентов, записи и события и вернёт чистый старт. Заполнение подставляет расширенный
+            учебный календарь — удобно для знакомства с приложением.
           </div>
           <button
             type="button"
             onClick={() => dispatch({ type: 'seedDemoData' })}
             className="w-full rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[13px] font-semibold text-ink-950 shadow-soft"
           >
-            Заполнить демо
+            Заполнить примерами
           </button>
           <button
             type="button"
