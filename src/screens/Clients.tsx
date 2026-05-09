@@ -101,9 +101,6 @@ export function Clients() {
       }}
     >
       <div className="mx-auto max-w-[520px]">
-        <p className="mb-2 text-[11px] font-medium tracking-wide text-ink-700/45">
-          STYLE TEST CLIENTS
-        </p>
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}

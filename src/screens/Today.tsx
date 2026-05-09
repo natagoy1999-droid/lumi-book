@@ -116,9 +116,6 @@ export function Today() {
       }}
     >
       <div className="mx-auto max-w-[520px]">
-        <p className="mb-2 text-center text-[11px] font-medium tracking-wide text-ink-700/45">
-          STYLE TEST TODAY
-        </p>
         {/* Floating FocusDock disabled on Today (mobile-first clean layout). */}
 
         <motion.div
@@ -140,8 +137,8 @@ export function Today() {
                 <img
                   src="/lumi-logo-transparent.png"
                   alt="LUMI BOOK"
-                  className="h-auto w-auto max-w-[78vw] object-contain"
-                  style={{ width: 'min(204px, 78vw)' }}
+                  className="h-auto w-auto max-w-[88vw] object-contain"
+                  style={{ width: 'min(268px, 88vw)' }}
                   draggable={false}
                   onError={() => setLogoOk(false)}
                 />
@@ -177,7 +174,7 @@ export function Today() {
         </motion.div>
 
         <div className="grid grid-cols-2" style={{ gap: '18px' }}>
-          <GlassCard className={cn(cardPad, 'lumi-luxury-test-card')} style={{ minHeight: 148 }}>
+          <GlassCard className={cn(cardPad)} style={{ minHeight: 148 }}>
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0 flex-1">
                 <div className="text-[13px] font-semibold text-ink-800/72">Записей сегодня</div>

@@ -250,9 +250,6 @@ export function Settings() {
   return (
     <div className="lumi-page" style={{ paddingTop: 'calc(1.75rem * (0.94 + var(--global-rhythm, 1) * 0.06))' }}>
       <div className="mx-auto max-w-[520px]">
-        <p className="mb-2 text-[11px] font-medium tracking-wide text-ink-700/45">
-          STYLE TEST SETTINGS
-        </p>
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
