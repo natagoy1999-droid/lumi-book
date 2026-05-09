@@ -4,6 +4,7 @@ export type ModalId =
   | 'none'
   | 'settings'
   | 'composer'
+  | 'client'
   | 'walkthrough'
   | 'install'
   | 'pricing_confirm'
@@ -13,6 +14,7 @@ const KNOWN: ModalId[] = [
   'none',
   'settings',
   'composer',
+  'client',
   'walkthrough',
   'install',
   'pricing_confirm',

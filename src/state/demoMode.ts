@@ -1,5 +1,7 @@
 import { create } from 'zustand'
 
+import { useModalManager } from './modalManager'
+
 export type DemoStep =
   | 'intro'
   | 'create_booking'
@@ -36,8 +38,16 @@ export const useDemoMode = create<DemoModeState>((set, get) => ({
   active: false,
   step: 'intro',
   startedAt: null,
-  start: () => set({ active: true, step: 'intro', startedAt: Date.now() }),
-  stop: () => set({ active: false, step: 'intro', startedAt: null }),
+  start: () => {
+    useModalManager.getState().open('walkthrough')
+    set({ active: true, step: 'intro', startedAt: Date.now() })
+  },
+  stop: () => {
+    set({ active: false, step: 'intro', startedAt: null })
+    if (useModalManager.getState().active === 'walkthrough') {
+      useModalManager.getState().close()
+    }
+  },
   go: (step) => set({ active: true, step }),
   prev: () => {
     const s = get().step

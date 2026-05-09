@@ -139,9 +139,12 @@ export function DemoWalkthrough() {
     }
   }, [modal, show])
 
+  // Sync: if another overlay steals modal manager while intro is visible, end demo.
+  // Must read getState() — `modal.active` from render is stale on the same tick as modal.open('walkthrough').
   useEffect(() => {
     if (!show) return
-    if (modal.active !== 'walkthrough') stop()
+    const id = useModalManager.getState().active
+    if (id !== 'walkthrough' && id !== 'none') stop()
   }, [modal.active, show, stop])
 
   useEffect(() => {

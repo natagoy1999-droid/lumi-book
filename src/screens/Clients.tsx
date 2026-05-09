@@ -16,14 +16,20 @@ import { useCommunicationCalmIntel } from '../state/communicationCalmIntel'
 import { useMessaging } from '../state/messaging'
 import { useStore, type Client } from '../state/store'
 
-function money(n: number) {
-  return new Intl.NumberFormat('ru-RU').format(n)
+function money(n: number | undefined) {
+  const v = typeof n === 'number' && Number.isFinite(n) ? n : 0
+  return new Intl.NumberFormat('ru-RU').format(v)
 }
 
-function atLocalMs(dateISO: string, time: string) {
-  const [y, m, d] = dateISO.split('-').map(Number)
-  const [hh, mm] = time.split(':').map(Number)
-  return new Date(y, m - 1, d, hh, mm, 0, 0).getTime()
+function atLocalMs(dateISO: string, time: string | undefined) {
+  try {
+    const [y, m, d] = (dateISO ?? '').split('-').map(Number)
+    const [hh, mm] = (time ?? '0:0').split(':').map(Number)
+    if (![y, m, d, hh, mm].every(Number.isFinite)) return 0
+    return new Date(y, m - 1, d, hh, mm, 0, 0).getTime()
+  } catch {
+    return 0
+  }
 }
 
 export function Clients() {
@@ -35,8 +41,10 @@ export function Clients() {
 
   const [openEdit, setOpenEdit] = useState(false)
   const [draft, setDraft] = useState<Client | null>(null)
+  const [saveError, setSaveError] = useState<string | null>(null)
 
   const openNew = () => {
+    setSaveError(null)
     setDraft({
       id: `c_${Math.random().toString(16).slice(2)}_${Date.now().toString(16)}`,
       name: '',
@@ -48,12 +56,24 @@ export function Clients() {
     setOpenEdit(true)
   }
 
+  const closeModal = () => {
+    setOpenEdit(false)
+    setDraft(null)
+    setSaveError(null)
+  }
+
+  const isExistingClient = Boolean(
+    draft && state.clients.some((c) => c.id === draft.id),
+  )
+
   const list = useMemo(() => {
     const t = q.trim().toLowerCase()
     if (!t) return state.clients
-    return state.clients.filter(
-      (c) => c.name.toLowerCase().includes(t) || c.phone.toLowerCase().includes(t),
-    )
+    return state.clients.filter((c) => {
+      const name = (c.name ?? '').toLowerCase()
+      const phone = (c.phone ?? '').toLowerCase()
+      return name.includes(t) || phone.includes(t)
+    })
   }, [q, state.clients])
 
   return (
@@ -111,12 +131,21 @@ export function Clients() {
         >
           {list.length ? (
             list.map((c) => {
-              const card = deriveClientCardSurface({
-                client: c,
-                bookings: state.bookings,
-                sent,
-                socialQuietness,
-              })
+              let card
+              try {
+                card = deriveClientCardSurface({
+                  client: c,
+                  bookings: state.bookings,
+                  sent,
+                  socialQuietness,
+                })
+              } catch {
+                card = {
+                  insightLine: 'Профиль ещё формируется',
+                  calm: 0.5,
+                  preferQuietFollowUp: false,
+                }
+              }
               return (
                 <motion.div
                   key={c.id}
@@ -131,20 +160,28 @@ export function Clients() {
                       opacity: `calc(0.94 + var(--client-card-calm, 0.48) * 0.06 * ${card.calm.toFixed(3)})`,
                     }}
                     onClick={() => {
-                      setDraft({ ...c })
+                      setSaveError(null)
+                      setDraft({
+                        id: c.id,
+                        name: c.name ?? '',
+                        phone: c.phone ?? '',
+                        notes: c.notes ?? '',
+                        totalSpent: c.totalSpent ?? 0,
+                        visits: c.visits ?? 0,
+                      })
                       setOpenEdit(true)
                     }}
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <div className="text-[16px] font-semibold tracking-tightish text-ink-950">
-                          {c.name}
+                          {c.name?.trim() ? c.name : 'Без имени'}
                         </div>
-                        <div className="mt-1 text-[12px] text-ink-700/65">{c.phone}</div>
+                        <div className="mt-1 text-[12px] text-ink-700/65">{c.phone ?? '—'}</div>
                       </div>
                       <div className="rounded-2xl border border-white/60 bg-white/55 px-3 py-2 text-right text-[12px] shadow-soft">
                         <div className="font-semibold text-ink-950">{money(c.totalSpent)} ₽</div>
-                        <div className="text-ink-700/60">{c.visits} визитов</div>
+                        <div className="text-ink-700/60">{c.visits ?? 0} визитов</div>
                       </div>
                     </div>
 
@@ -195,129 +232,158 @@ export function Clients() {
       </div>
 
       <LumiModal
-        open={openEdit}
-        title={draft?.name?.trim() ? `Клиент • ${draft.name}` : 'Новый клиент'}
-        onClose={() => setOpenEdit(false)}
-        modalId="settings"
+        open={openEdit && draft != null}
+        title={
+          isExistingClient
+            ? (draft?.name ?? '').trim()
+              ? `Клиент • ${(draft?.name ?? '').trim()}`
+              : 'Клиент'
+            : 'Новый клиент'
+        }
+        onClose={closeModal}
+        modalId="client"
         variant="center"
         surface="solid"
       >
         {draft ? (
-          <div className="space-y-3">
-            <div className="rounded-3xl border border-white/60 bg-white/55 p-4 text-[12px] text-ink-700/65 shadow-soft">
-              Нажмите на карточку клиента, чтобы изменить данные. Удаление безопасно — записи не сломаются.
+          <div className="space-y-3 pb-[env(safe-area-inset-bottom)]">
+            <div className="rounded-3xl border border-white/60 bg-white/55 p-4 text-[12px] leading-relaxed text-ink-700/65 shadow-soft">
+              {isExistingClient
+                ? 'Измените данные или удалите карточку — записи останутся на месте.'
+                : 'Добавьте клиента вручную. Телефон и заметку можно заполнить позже.'}
             </div>
+
+            {saveError ? (
+              <div className="rounded-2xl border border-gold-300/35 bg-gold-50/80 px-4 py-3 text-[13px] text-ink-800">
+                {saveError}
+              </div>
+            ) : null}
 
             <LumiInput
               label="Имя"
-              value={draft.name}
-              onChange={(e) => setDraft((s) => (s ? { ...s, name: e.target.value } : s))}
+              value={draft.name ?? ''}
+              onChange={(e) => {
+                setSaveError(null)
+                setDraft((s) => (s ? { ...s, name: e.target.value } : s))
+              }}
               placeholder="Например, Мария"
             />
             <LumiInput
               label="Телефон"
-              value={draft.phone}
+              value={draft.phone ?? ''}
               onChange={(e) => setDraft((s) => (s ? { ...s, phone: e.target.value } : s))}
               inputMode="tel"
               placeholder="+7 ___ ___-__-__"
             />
             <LumiTextarea
-              label="Заметки"
+              label="Заметка"
               value={draft.notes ?? ''}
               onChange={(e) => setDraft((s) => (s ? { ...s, notes: e.target.value } : s))}
               rows={3}
               placeholder="Опционально"
             />
 
-            {(() => {
-              const hist = state.bookings
-                .filter((b) => b.clientId === draft.id && b.status !== 'draft')
-                .slice()
-                .sort((a, b) => atLocalMs(b.dateISO, b.time) - atLocalMs(a.dateISO, a.time))
-              const last = hist.find((b) => b.status !== 'cancelled') ?? hist[0]
-              return (
-                <div className="rounded-3xl border border-white/60 bg-white/55 p-4 shadow-soft">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="text-[12px] font-medium text-ink-700/70">Профиль</div>
-                    <div className="text-[12px] font-medium text-ink-700/60">
-                      {draft.visits} визитов • {money(draft.totalSpent)} ₽
-                    </div>
-                  </div>
-                  <div className="mt-2 grid grid-cols-2 gap-2">
-                    <div className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 shadow-soft">
-                      <div className="text-[11px] font-medium uppercase tracking-[0.10em] text-ink-700/55">
-                        Последний визит
-                      </div>
-                      <div className="mt-1 text-[13px] font-semibold text-ink-950">
-                        {last ? `${last.dateISO} • ${last.time}` : '—'}
+            {isExistingClient ? (
+              (() => {
+                const hist = state.bookings
+                  .filter((b) => b.clientId === draft.id && b.status !== 'draft')
+                  .slice()
+                  .sort((a, b) => atLocalMs(b.dateISO, b.time) - atLocalMs(a.dateISO, a.time))
+                const last = hist.find((b) => b.status !== 'cancelled') ?? hist[0]
+                return (
+                  <div className="rounded-3xl border border-white/60 bg-white/55 p-4 shadow-soft">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="text-[12px] font-medium text-ink-700/70">Профиль</div>
+                      <div className="text-[12px] font-medium text-ink-700/60">
+                        {draft.visits ?? 0} визитов • {money(draft.totalSpent)} ₽
                       </div>
                     </div>
-                    <div className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 shadow-soft">
-                      <div className="text-[11px] font-medium uppercase tracking-[0.10em] text-ink-700/55">
-                        История
-                      </div>
-                      <div className="mt-1 text-[13px] font-semibold text-ink-950">
-                        {hist.length ? `${hist.length} записей` : '—'}
-                      </div>
-                    </div>
-                  </div>
-                  {hist.length ? (
-                    <div className="mt-3 space-y-2">
-                      {hist.slice(0, 5).map((b) => (
-                        <div
-                          key={b.id}
-                          className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[12px] text-ink-700/70 shadow-soft"
-                        >
-                          <div className="font-semibold text-ink-950">{b.dateISO} • {b.time}</div>
-                          <div className="mt-0.5">
-                            {b.serviceName ?? 'Услуга'} • {money(b.price)} ₽
-                          </div>
+                    <div className="mt-2 grid grid-cols-2 gap-2">
+                      <div className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 shadow-soft">
+                        <div className="text-[11px] font-medium uppercase tracking-[0.10em] text-ink-700/55">
+                          Последний визит
                         </div>
-                      ))}
+                        <div className="mt-1 text-[13px] font-semibold text-ink-950">
+                          {last ? `${last.dateISO} • ${last.time ?? '—'}` : '—'}
+                        </div>
+                      </div>
+                      <div className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 shadow-soft">
+                        <div className="text-[11px] font-medium uppercase tracking-[0.10em] text-ink-700/55">
+                          История
+                        </div>
+                        <div className="mt-1 text-[13px] font-semibold text-ink-950">
+                          {hist.length ? `${hist.length} записей` : '—'}
+                        </div>
+                      </div>
                     </div>
-                  ) : null}
-                </div>
-              )
-            })()}
+                    {hist.length ? (
+                      <div className="mt-3 space-y-2">
+                        {hist.slice(0, 5).map((b) => (
+                          <div
+                            key={b.id}
+                            className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[12px] text-ink-700/70 shadow-soft"
+                          >
+                            <div className="font-semibold text-ink-950">
+                              {b.dateISO} • {b.time ?? '—'}
+                            </div>
+                            <div className="mt-0.5">
+                              {b.serviceName ?? 'Услуга'} • {money(b.price)} ₽
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                )
+              })()
+            ) : null}
 
             <LumiButton
+              type="button"
               onClick={() => {
-                const name = draft.name.trim()
-                const phone = draft.phone.trim()
-                if (name.length < 2 || phone.length < 7) return
+                const name = (draft.name ?? '').trim()
+                if (!name) {
+                  setSaveError('Введите имя клиента')
+                  return
+                }
+                setSaveError(null)
+                const phone = (draft.phone ?? '').trim()
                 dispatch({
                   type: 'upsertClient',
                   client: {
                     ...draft,
                     name,
-                    phone,
-                    notes: draft.notes?.trim() || undefined,
+                    phone: phone || '—',
+                    notes: (draft.notes ?? '').trim() || undefined,
                     totalSpent: draft.totalSpent ?? 0,
                     visits: draft.visits ?? 0,
                   },
                 })
-                setOpenEdit(false)
+                closeModal()
               }}
             >
               Сохранить
             </LumiButton>
 
-            <div className="grid grid-cols-2 gap-2">
-              <LumiButton variant="secondary" size="sm" fullWidth onClick={() => setOpenEdit(false)}>
+            <div className={cn('grid gap-2', isExistingClient ? 'grid-cols-2' : 'grid-cols-1')}>
+              <LumiButton type="button" variant="secondary" size="sm" fullWidth onClick={closeModal}>
                 Отмена
               </LumiButton>
-              <LumiButton
-                variant="destructive"
-                size="sm"
-                fullWidth
-                onClick={() => {
-                  dispatch({ type: 'deleteClient', clientId: draft.id })
-                  setOpenEdit(false)
-                }}
-              >
-                <Trash2 size={18} />
-                Удалить
-              </LumiButton>
+              {isExistingClient ? (
+                <LumiButton
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  fullWidth
+                  onClick={() => {
+                    dispatch({ type: 'deleteClient', clientId: draft.id })
+                    closeModal()
+                  }}
+                >
+                  <Trash2 size={18} />
+                  Удалить
+                </LumiButton>
+              ) : null}
             </div>
           </div>
         ) : null}

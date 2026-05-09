@@ -9,8 +9,10 @@ export type ClientInsights = {
   label: string
 }
 
-function minutesOf(t: string) {
+function minutesOf(t: string | undefined) {
+  if (typeof t !== 'string' || !t.includes(':')) return 12 * 60
   const [h, m] = t.split(':').map(Number)
+  if (!Number.isFinite(h) || !Number.isFinite(m)) return 12 * 60
   return h * 60 + m
 }
 

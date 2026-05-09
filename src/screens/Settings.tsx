@@ -408,7 +408,17 @@ export function Settings() {
                   <p className="mt-2 text-[13px] leading-relaxed text-ink-700/58">
                     Короткий обзор основных возможностей.
                   </p>
-                  <LumiButton className="mt-5 w-auto" fullWidth={false} size="sm" onClick={() => startDemo()}>
+                  <LumiButton
+                    type="button"
+                    className="mt-5 w-auto"
+                    fullWidth={false}
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setActivePanel(null)
+                      startDemo()
+                    }}
+                  >
                     Открыть обзор
                   </LumiButton>
 
