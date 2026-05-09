@@ -1,12 +1,16 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import type { PropsWithChildren } from 'react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 import { cn } from '../lib/cn'
 import { glassBackdropFilter, glassBorderStyle, glassFill } from '../lib/glassStyles'
 import { coerceModalId, useModalManager, type ModalId } from '../state/modalManager'
-import { z } from '../theme/elevation'
 import { motion as motionTokens } from '../theme/motion'
+
+/** Viewport stacking — above app shell / BottomTabs; backdrop below panel */
+const Z_BACKDROP = 9999
+const Z_LAYER = 10000
 
 type Props = PropsWithChildren<{
   open: boolean
@@ -31,8 +35,9 @@ export function Sheet({
   const resolvedModalId = coerceModalId(modalId)
   const active = open && children != null
   const centered = variant === 'center'
-  const zBackdrop = z.backdrop
-  const zModal = z.modal
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => setMounted(true), [])
 
   // Do not depend on `useModalManager()` snapshot — it changes identity every store update and
   // would re-run this effect, firing cleanup that closes the modal → infinite loop (React #185).
@@ -47,128 +52,180 @@ export function Sheet({
     }
   }, [active, resolvedModalId])
 
-  return (
+  const backdropTransition = {
+    duration: motionTokens.duration.normal,
+    ease: motionTokens.ease.out,
+  } as const
+
+  const panelTransition = {
+    duration: motionTokens.duration.slow,
+    ease: motionTokens.ease.out,
+  } as const
+
+  if (!mounted) return null
+
+  return createPortal(
     <AnimatePresence>
       {active ? (
-        centered ? (
-          <motion.div
-            key="sheet-center"
-            className="fixed inset-0 box-border flex items-center justify-center pointer-events-none"
-            style={{
-              zIndex: zModal,
-              padding: 24,
-              paddingTop: 'calc(24px + env(safe-area-inset-top))',
-              paddingBottom: 'calc(24px + env(safe-area-inset-bottom))',
-            }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: motionTokens.duration.normal, ease: motionTokens.ease.out }}
-          >
+        centered ? [
             <motion.button
-              type="button"
-              aria-label="Закрыть"
-              className="pointer-events-auto absolute inset-0"
-              style={{
-                backgroundColor:
-                  'rgba(14, 16, 22, calc(0.28 * var(--chrome-opacity-quiet, 1)))',
-              }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: motionTokens.duration.normal, ease: motionTokens.ease.out }}
-              onClick={onClose}
-            />
-
-            <motion.div
-              role="dialog"
-              aria-modal="true"
-              className={cn(
-                'pointer-events-auto relative box-border flex max-h-[calc(100dvh-64px)] w-full flex-col overflow-hidden rounded-[28px] border shadow-luxury-md',
-                className,
-              )}
-              style={{
-                width: 'min(520px, calc(100vw - 32px))',
-                maxHeight: 'calc(100dvh - 64px)',
-                backdropFilter: surface === 'glass' ? glassBackdropFilter('interactive') : 'none',
-                backgroundColor: surface === 'glass' ? glassFill('interactive') : 'var(--lumi-surface)',
-                borderColor: surface === 'glass' ? glassBorderStyle('interactive') : 'var(--lumi-border)',
-              }}
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.98 }}
-              transition={{ duration: motionTokens.duration.slow, ease: motionTokens.ease.out }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div
-                className="box-border min-h-0 flex-1 overflow-y-auto overscroll-contain p-6"
-                style={{ WebkitOverflowScrolling: 'touch' }}
-              >
-                {title ? (
-                  <div className="mb-4 text-[15px] font-semibold tracking-tight text-ink-900">
-                    {title}
-                  </div>
-                ) : null}
-                {children}
-              </div>
-            </motion.div>
-          </motion.div>
-        ) : (
-          <>
-            <motion.button
-              aria-label="Закрыть"
-              className="fixed inset-0"
-              style={{
-                backgroundColor:
-                  'rgba(14, 16, 22, calc(0.28 * var(--chrome-opacity-quiet, 1)))',
-                zIndex: zBackdrop,
-              }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={onClose}
-              transition={{ duration: motionTokens.duration.normal, ease: motionTokens.ease.out }}
-            />
-
-            <motion.div
-              role="dialog"
-              aria-modal="true"
-              className={cn(
-                'fixed bottom-0 left-0 right-0 mx-auto max-w-[520px] px-3 pb-[calc(14px+var(--safe-bottom))]',
-              )}
-              style={{ zIndex: zModal }}
-              initial={{ y: 14, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 14, opacity: 0 }}
-              transition={{ duration: motionTokens.duration.slow, ease: motionTokens.ease.out }}
-            >
-              <div
-                className={cn('rounded-[28px] border shadow-luxury', className)}
+              key="lumi-sheet-backdrop-center"
+                type="button"
+                aria-label="Закрыть"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={backdropTransition}
+                onClick={onClose}
                 style={{
-                  backdropFilter: surface === 'glass' ? glassBackdropFilter('interactive') : 'none',
-                  backgroundColor: surface === 'glass' ? glassFill('interactive') : 'var(--lumi-surface)',
-                  borderColor: surface === 'glass' ? glassBorderStyle('interactive') : 'var(--lumi-border)',
+                  position: 'fixed',
+                  inset: 0,
+                  width: '100vw',
+                  height: '100dvh',
+                  margin: 0,
+                  padding: 0,
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: 'rgba(23, 23, 23, 0.28)',
+                  zIndex: Z_BACKDROP,
+                }}
+            />,
+            <motion.div
+              key="lumi-sheet-overlay-center"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={backdropTransition}
+                style={{
+                  position: 'fixed',
+                  inset: 0,
+                  width: '100vw',
+                  height: '100dvh',
+                  margin: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 24,
+                  paddingTop: 'calc(24px + env(safe-area-inset-top, 0px))',
+                  paddingBottom: 'calc(24px + env(safe-area-inset-bottom, 0px))',
+                  boxSizing: 'border-box',
+                  zIndex: Z_LAYER,
+                  pointerEvents: 'none',
                 }}
               >
-                <div className="px-5 pt-5">
-                  <div className="mx-auto mb-4 h-1.5 w-11 rounded-full bg-ink-950/10" />
-                  {title ? (
-                    <div className="mb-4 text-[15px] font-semibold tracking-tight text-ink-900">{title}</div>
-                  ) : null}
-                </div>
-                <div
-                  className="px-5"
+                <motion.div
+                  role="dialog"
+                  aria-modal="true"
+                  className={cn(
+                    'pointer-events-auto relative box-border flex flex-col overflow-y-auto overscroll-contain rounded-[28px] border-[1.5px] shadow-luxury-md',
+                    className,
+                  )}
                   style={{
-                    paddingBottom: '1.35rem',
+                    width: 'min(520px, calc(100vw - 32px))',
+                    maxHeight: 'calc(100dvh - 64px)',
+                    WebkitOverflowScrolling: 'touch',
+                    boxSizing: 'border-box',
+                    backdropFilter: surface === 'glass' ? glassBackdropFilter('interactive') : 'none',
+                    backgroundColor: surface === 'glass' ? glassFill('interactive') : 'var(--lumi-surface)',
+                    borderColor: surface === 'glass' ? glassBorderStyle('interactive') : 'rgba(198,161,91,0.45)',
                   }}
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  transition={panelTransition}
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  {children}
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )
+                  <div className="box-border min-h-0 flex-1 p-6">
+                    {title ? (
+                      <div className="mb-4 text-[15px] font-semibold tracking-tight text-ink-900">{title}</div>
+                    ) : null}
+                    {children}
+                  </div>
+                </motion.div>
+            </motion.div>,
+        ] : [
+            <motion.button
+              key="lumi-sheet-backdrop-bottom"
+                type="button"
+                aria-label="Закрыть"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={backdropTransition}
+                onClick={onClose}
+                style={{
+                  position: 'fixed',
+                  inset: 0,
+                  width: '100vw',
+                  height: '100dvh',
+                  margin: 0,
+                  padding: 0,
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: 'rgba(23, 23, 23, 0.28)',
+                  zIndex: Z_BACKDROP,
+                }}
+            />,
+            <motion.div
+              key="lumi-sheet-overlay-bottom"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={backdropTransition}
+                style={{
+                  position: 'fixed',
+                  inset: 0,
+                  width: '100vw',
+                  height: '100dvh',
+                  margin: 0,
+                  display: 'flex',
+                  alignItems: 'flex-end',
+                  justifyContent: 'center',
+                  paddingLeft: 24,
+                  paddingRight: 24,
+                  paddingBottom: 'calc(24px + env(safe-area-inset-bottom, 0px))',
+                  paddingTop: 'calc(24px + env(safe-area-inset-top, 0px))',
+                  boxSizing: 'border-box',
+                  zIndex: Z_LAYER,
+                  pointerEvents: 'none',
+                }}
+              >
+                <motion.div
+                  role="dialog"
+                  aria-modal="true"
+                  className={cn(
+                    'pointer-events-auto box-border max-h-[calc(100dvh-64px)] w-full overflow-hidden rounded-[28px] border-[1.5px] shadow-luxury-md',
+                    className,
+                  )}
+                  style={{
+                    width: 'min(520px, calc(100vw - 32px))',
+                    maxHeight: 'calc(100dvh - 64px)',
+                    backdropFilter: surface === 'glass' ? glassBackdropFilter('interactive') : 'none',
+                    backgroundColor: surface === 'glass' ? glassFill('interactive') : 'var(--lumi-surface)',
+                    borderColor: surface === 'glass' ? glassBorderStyle('interactive') : 'rgba(198,161,91,0.42)',
+                  }}
+                  initial={{ y: 14, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: 14, opacity: 0 }}
+                  transition={panelTransition}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="box-border flex max-h-[inherit] flex-col overflow-y-auto overscroll-contain">
+                    <div className="px-5 pt-5">
+                      <div className="mx-auto mb-4 h-1.5 w-11 rounded-full bg-ink-950/10" />
+                      {title ? (
+                        <div className="mb-4 text-[15px] font-semibold tracking-tight text-ink-900">{title}</div>
+                      ) : null}
+                    </div>
+                    <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-[1.35rem]" style={{ WebkitOverflowScrolling: 'touch' }}>
+                      {children}
+                    </div>
+                  </div>
+                </motion.div>
+              </motion.div>,
+        ]
       ) : null}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   )
 }

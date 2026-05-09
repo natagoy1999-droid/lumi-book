@@ -83,7 +83,7 @@ export function Today() {
   }, [bookingsToday, income, slots, state.bookings, state.clients])
 
   const cognitivePolicy = useCognitiveUI((s) => s.policy)
-  const cardPad = cognitivePolicy.load > 0.53 ? 'p-5' : 'p-6'
+  const cardPad = cognitivePolicy.load > 0.53 ? 'p-6' : 'p-7'
   const setMaterialScrollY = useMaterialScroll((s) => s.setScrollY)
   const sampleScrollTelemetry = useInteractionTelemetry((s) => s.sampleScroll)
 
@@ -105,7 +105,7 @@ export function Today() {
   }, [sampleScrollTelemetry, setMaterialScrollY])
 
   const shellPadTop =
-    'calc(var(--safe-top, 0px) + 2.75rem * (0.94 + var(--global-rhythm, 1) * 0.06))'
+    'calc(var(--safe-top, 0px) + 3.1rem * (0.94 + var(--global-rhythm, 1) * 0.06))'
 
   return (
     <div
@@ -116,6 +116,9 @@ export function Today() {
       }}
     >
       <div className="mx-auto max-w-[520px]">
+        <p className="mb-2 text-center text-[11px] font-medium tracking-wide text-ink-700/45">
+          STYLE TEST TODAY
+        </p>
         {/* Floating FocusDock disabled on Today (mobile-first clean layout). */}
 
         <motion.div
@@ -148,7 +151,7 @@ export function Today() {
             </div>
 
             <div className="w-full text-center">
-              <div className="text-[36px] font-semibold leading-[1.08] tracking-tight text-ink-950">
+              <div className="lumi-page-title">
                 Привет, {master.name}
               </div>
               <div className="mx-auto mt-3 max-w-[28ch] text-[15px] font-medium leading-snug tracking-tight text-ink-700/72">
@@ -174,52 +177,44 @@ export function Today() {
         </motion.div>
 
         <div className="grid grid-cols-2" style={{ gap: '18px' }}>
-          <GlassCard className={cn(cardPad)} style={{ minHeight: 142 }}>
-            <div className="flex gap-3.5">
-              <div
-                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border shadow-soft"
-                style={{
-                  borderColor: 'var(--lumi-border)',
-                  backgroundColor: 'var(--lumi-surface)',
-                }}
-              >
-                <CalendarDays size={22} strokeWidth={1.65} className="text-gold-400" />
-              </div>
+          <GlassCard className={cn(cardPad, 'lumi-luxury-test-card')} style={{ minHeight: 148 }}>
+            <div className="flex items-center justify-between gap-3">
               <div className="min-w-0 flex-1">
-                <div className="text-[13px] font-semibold text-ink-700/78">Записей сегодня</div>
-                <div className="mt-1.5 text-[28px] font-semibold leading-none tracking-tight text-ink-950">
+                <div className="text-[13px] font-semibold text-ink-800/72">Записей сегодня</div>
+                <div className="mt-2 text-[30px] font-semibold leading-none tracking-tight text-ink-950">
                   {bookingsToday.length}
                 </div>
                 {cognitivePolicy.showAmbientHints ? (
-                  <div className="mt-2 text-[13px] leading-snug text-ink-700/62">Всё под контролем</div>
+                  <div className="mt-2 text-[13px] leading-snug text-ink-800/58">Всё под контролем</div>
                 ) : (
-                  <div className="mt-2 text-[12px] text-ink-700/48">Лента дня</div>
+                  <div className="mt-2 text-[12px] text-ink-800/48">Лента дня</div>
                 )}
+              </div>
+              <div
+                className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full border-[1.5px] border-gold-400/55 bg-[var(--lumi-bg)] shadow-glowGold"
+              >
+                <CalendarDays size={24} strokeWidth={1.85} className="text-gold-400" />
               </div>
             </div>
           </GlassCard>
 
-          <GlassCard className={cn(cardPad)} style={{ minHeight: 142 }}>
-            <div className="flex gap-3.5">
-              <div
-                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border shadow-soft"
-                style={{
-                  borderColor: 'var(--lumi-border)',
-                  backgroundColor: 'var(--lumi-surface)',
-                }}
-              >
-                <Wallet size={22} strokeWidth={1.65} className="text-gold-400" />
-              </div>
+          <GlassCard className={cn(cardPad)} style={{ minHeight: 148 }}>
+            <div className="flex items-center justify-between gap-3">
               <div className="min-w-0 flex-1">
-                <div className="text-[13px] font-semibold text-ink-700/78">Доход</div>
-                <div className="mt-1.5 text-[28px] font-semibold leading-none tracking-tight text-ink-950">
+                <div className="text-[13px] font-semibold text-ink-800/72">Доход</div>
+                <div className="mt-2 text-[30px] font-semibold leading-none tracking-tight text-ink-950">
                   {money(income)} ₽
                 </div>
                 {cognitivePolicy.showAmbientHints ? (
-                  <div className="mt-2 text-[13px] leading-snug text-ink-700/62">За день</div>
+                  <div className="mt-2 text-[13px] leading-snug text-ink-800/58">За день</div>
                 ) : (
-                  <div className="mt-2 text-[12px] text-ink-700/48">Сводка</div>
+                  <div className="mt-2 text-[12px] text-ink-800/48">Сводка</div>
                 )}
+              </div>
+              <div
+                className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full border-[1.5px] border-gold-400/55 bg-[var(--lumi-bg)] shadow-glowGold"
+              >
+                <Wallet size={24} strokeWidth={1.85} className="text-gold-400" />
               </div>
             </div>
           </GlassCard>

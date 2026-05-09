@@ -1,13 +1,13 @@
 import { cn } from './cn'
 
-/** Premium primary: warm ivory, champagne gold edge, near-black label — not a solid black pill. */
+/** Primary — champagne gold gradient, black label (premium CTA). */
 export const lumiPrimaryActionBase = cn(
-  'rounded-3xl border border-gold-300/45 bg-paper-50 text-ink-950',
-  'shadow-luxury',
-  'transition-[transform,background-color,border-color,box-shadow,opacity] duration-200 ease-out',
-  'hover:border-gold-300/60 hover:bg-[#FFFCF9] hover:shadow-luxury-md',
-  'active:bg-gold-50/70 active:border-gold-300/55',
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200/45 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--lumi-bg)]',
+  'rounded-3xl border border-gold-500/40 bg-[linear-gradient(180deg,#F4D98E_0%,#C6A15B_100%)] text-ink-950',
+  'shadow-[0_8px_26px_rgba(198,161,91,0.38)]',
+  'transition-[transform,filter,box-shadow,border-color,opacity] duration-200 ease-out',
+  'hover:brightness-[1.05] hover:shadow-[0_10px_30px_rgba(198,161,91,0.45)]',
+  'active:brightness-[0.98] active:scale-[var(--press-scale,0.992)]',
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400/55 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--lumi-bg)]',
 )
 
 export const lumiPrimaryActionMd = cn(lumiPrimaryActionBase, 'px-5 py-4 text-[16px] font-semibold')

@@ -59,7 +59,7 @@ export function Calendar() {
           transition={{ type: 'spring', stiffness: 520, damping: 44 }}
           className="mb-4"
         >
-          <div className="lumi-section-title">Календарь</div>
+          <div className="lumi-page-title">Календарь</div>
         </motion.div>
 
         <div
@@ -74,11 +74,10 @@ export function Calendar() {
                 type="button"
                 onClick={() => setDateISO(d)}
                 className={cn(
-                  'min-w-[64px] rounded-3xl border px-3 py-3 text-left shadow-soft transition',
-                  'backdrop-blur-glass',
+                  'min-w-[64px] rounded-3xl border-[1.5px] px-3 py-3 text-left shadow-soft transition',
                   active
-                    ? 'border-white/60 bg-white/65'
-                    : 'border-white/45 bg-fog-200 hover:bg-white/55',
+                    ? 'border-gold-400 bg-[var(--lumi-surface)] shadow-glowGold'
+                    : 'border-gold-400/22 bg-white/55 hover:border-gold-400/40 hover:bg-[var(--lumi-surface)]',
                 )}
               >
                 <div className="text-[11px] font-medium uppercase tracking-[0.08em] text-ink-700/60">

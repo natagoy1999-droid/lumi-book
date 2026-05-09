@@ -17,6 +17,9 @@ type DemoModeState = {
   step: DemoStep
   startedAt: number | null
   start: () => void
+  /** Alias for `start` — opens the viewport-centered walkthrough modal */
+  startDemo: () => void
+  startWalkthrough: () => void
   stop: () => void
   go: (step: DemoStep) => void
   prev: () => void
@@ -42,6 +45,8 @@ export const useDemoMode = create<DemoModeState>((set, get) => ({
     useModalManager.getState().open('walkthrough')
     set({ active: true, step: 'intro', startedAt: Date.now() })
   },
+  startDemo: () => get().start(),
+  startWalkthrough: () => get().start(),
   stop: () => {
     set({ active: false, step: 'intro', startedAt: null })
     if (useModalManager.getState().active === 'walkthrough') {

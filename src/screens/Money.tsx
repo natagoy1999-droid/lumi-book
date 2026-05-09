@@ -96,10 +96,10 @@ export function Money() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: 'spring', stiffness: 520, damping: 44 }}
-          className="mb-4"
+          className="mb-4 space-y-1"
         >
           <div className="lumi-section-title">Деньги</div>
-          <div className="mt-1 lumi-title">Аналитика</div>
+          <div className="lumi-page-title">Аналитика</div>
         </motion.div>
 
         <div className="grid grid-cols-2" style={{ gap: 'var(--cognitive-grid-gap)' }}>

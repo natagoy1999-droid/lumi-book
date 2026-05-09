@@ -19,11 +19,17 @@ export function FocusCard({
   return (
     <GlassCard
       materialTier="focus"
+      style={
+        isGoldHero
+          ? {
+              borderColor: '#C6A15B',
+              borderWidth: 1.5,
+            }
+          : undefined
+      }
       className={cn(
         'min-h-[190px] p-6 sm:p-6',
-        isGoldHero
-          ? 'border-2 shadow-luxury-md ring-2 ring-gold-300/35'
-          : 'shadow-luxury ring-1 ring-black/[0.04]',
+        isGoldHero ? 'shadow-heroGold ring-2 ring-gold-400/30' : 'shadow-luxury-md',
         compact && 'p-5',
       )}
     >
@@ -31,22 +37,22 @@ export function FocusCard({
         <div className="min-w-0 flex-1">
           <div
             className={cn(
-              'inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[13px] font-semibold shadow-soft',
+              'inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[13px] font-semibold',
               isGoldHero
-                ? 'border-gold-300/50 bg-gradient-to-b from-gold-50 to-paper-50 text-ink-900'
-                : 'border-white/60 bg-white/55 text-ink-800/85',
+                ? 'border-gold-400/55 bg-gradient-to-b from-gold-200/90 to-paper-50 text-ink-950 shadow-soft'
+                : 'border-white/65 bg-white/60 text-ink-900 shadow-soft',
             )}
           >
-            <Sparkles size={17} className={cn(isGoldHero ? 'text-gold-300' : 'text-gold-400')} strokeWidth={1.75} />
+            <Sparkles size={17} className="text-gold-400" strokeWidth={2} />
             {model.badge ?? 'Focus'}
           </div>
 
           <div className="mt-4">
             <div
               className={cn(
-                'font-semibold tracking-tightish text-ink-950',
-                isGoldHero ? 'text-[22px] leading-snug' : 'text-[20px]',
-                compact && (isGoldHero ? 'text-[20px]' : 'text-[18px]'),
+                'font-semibold tracking-tight text-ink-950',
+                isGoldHero ? 'text-[24px] leading-[1.15]' : 'text-[20px] leading-snug',
+                compact && (isGoldHero ? 'text-[21px]' : 'text-[18px]'),
               )}
             >
               {model.title}
@@ -54,8 +60,8 @@ export function FocusCard({
             {model.subtitle ? (
               <div
                 className={cn(
-                  'mt-2 leading-relaxed text-[var(--lumi-muted)]',
-                  compact ? 'line-clamp-2 text-[13px]' : 'text-[14px]',
+                  'mt-2 leading-relaxed text-ink-800/72',
+                  compact ? 'line-clamp-2 text-[13px]' : 'text-[15px]',
                 )}
               >
                 {model.subtitle}
@@ -69,18 +75,18 @@ export function FocusCard({
             type="button"
             onClick={() => onAction(model.cta!.action as any)}
             className={cn(
-              'inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-3xl border px-5 py-3.5 text-[14px] font-semibold text-ink-950 shadow-luxury transition-[transform,box-shadow] duration-200 sm:w-auto',
+              'inline-flex w-full shrink-0 items-center justify-center gap-2 px-6 py-3.5 text-[15px] font-semibold tracking-tight transition-[filter,transform] duration-200 sm:w-auto',
               isGoldHero
-                ? 'border-gold-300/55 bg-gradient-to-b from-gold-100 via-gold-50 to-paper-50 hover:border-gold-300/70 hover:shadow-luxury-md'
-                : 'border-gold-300/45 bg-paper-50 hover:bg-[#FFFCF9] hover:shadow-luxury-md',
-              compact && 'px-4 py-3 text-[13px]',
+                ? 'rounded-full border border-gold-500/40 bg-[linear-gradient(180deg,#F4D98E_0%,#C6A15B_100%)] text-ink-950 shadow-[0_8px_26px_rgba(198,161,91,0.42)] hover:brightness-[1.04] active:scale-[var(--press-scale,0.992)]'
+                : 'rounded-3xl border border-gold-400/45 bg-paper-50 text-ink-950 shadow-luxury hover:border-gold-400/60 hover:shadow-luxury-md',
+              compact && 'px-5 py-3 text-[14px]',
             )}
           >
             {model.cta.label}
-            <ArrowRight size={17} className="text-gold-400" strokeWidth={2} />
+            <ArrowRight size={18} className={cn(isGoldHero ? 'text-ink-950' : 'text-gold-400')} strokeWidth={2.25} />
           </button>
         ) : (
-          <div className="hidden h-11 w-11 shrink-0 rounded-2xl border border-[var(--lumi-border)] bg-[var(--lumi-surface)] shadow-soft sm:block" />
+          <div className="hidden h-11 w-11 shrink-0 rounded-2xl border border-gold-400/35 bg-[var(--lumi-bg)] shadow-soft sm:block" />
         )}
       </div>
     </GlassCard>

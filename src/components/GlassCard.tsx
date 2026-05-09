@@ -33,17 +33,17 @@ export function GlassCard({
       onClick={onClick}
       onKeyDown={onKeyDown}
       className={cn(
-        'relative overflow-hidden rounded-3xl border shadow-luxury',
+        'relative overflow-hidden rounded-3xl border-[1.5px] shadow-luxury',
         'transition-[transform,background-color,border-color,box-shadow,opacity] duration-[240ms] ease-out',
-        ink ? 'bg-ink-900/70 text-white ring-1 ring-white/10' : 'text-ink-900 ring-1 ring-black/[0.03]',
+        ink ? 'border-white/14 bg-ink-900/70 text-white' : 'border-[var(--lumi-border)] text-ink-900',
+        !ink && 'ring-1 ring-gold-400/18',
         onClick &&
-          'touch-manipulation cursor-pointer select-none active:scale-[var(--press-scale,0.992)] active:opacity-[var(--press-opacity,0.94)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-300/45 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--lumi-bg)]',
-        onClick && 'hover:shadow-luxury-md hover:border-gold-300/40',
+          'touch-manipulation cursor-pointer select-none active:scale-[var(--press-scale,0.992)] active:opacity-[var(--press-opacity,0.94)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--lumi-bg)]',
+        onClick && 'hover:shadow-luxury-md hover:border-gold-400/55',
         className,
       )}
       style={{
         backdropFilter: glassBackdropFilter(ink ? 'interactive' : materialTier),
-        borderColor: ink ? 'rgba(255,255,255,0.10)' : 'var(--lumi-border)',
         backgroundColor: ink ? undefined : glassFill(materialTier),
         ...styleProp,
       }}

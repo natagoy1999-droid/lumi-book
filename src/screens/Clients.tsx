@@ -101,14 +101,17 @@ export function Clients() {
       }}
     >
       <div className="mx-auto max-w-[520px]">
+        <p className="mb-2 text-[11px] font-medium tracking-wide text-ink-700/45">
+          STYLE TEST CLIENTS
+        </p>
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: 'spring', stiffness: 520, damping: 44 }}
-          className="mb-4"
+          className="mb-4 space-y-1"
         >
           <div className="lumi-section-title">Клиенты</div>
-          <div className="mt-1 lumi-title">История клиентов</div>
+          <div className="lumi-page-title">История клиентов</div>
         </motion.div>
 
         <GlassCard className="p-4">

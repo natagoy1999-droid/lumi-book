@@ -1,12 +1,15 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowLeft, ArrowRight, X } from 'lucide-react'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 
 import { cn } from '../lib/cn'
 import { useDemoMode } from '../state/demoMode'
 import { useModalManager } from '../state/modalManager'
-import { z } from '../theme/elevation'
+
+const Z_BACKDROP = 9999
+const Z_LAYER = 10000
 
 type StepModel = {
   idx: number
@@ -124,6 +127,9 @@ export function DemoWalkthrough() {
   const stop = useDemoMode((s) => s.stop)
   const step = useDemoMode((s) => s.step)
   const model = useStepModel()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => setMounted(true), [])
 
   const show = Boolean(active && model?.title && model?.subtitle)
 
@@ -151,122 +157,148 @@ export function DemoWalkthrough() {
     return () => window.clearTimeout(t)
   }, [active, step])
 
-  return (
+  if (!mounted) return null
+
+  const backdropTransition = { duration: 0.22, ease: [0.22, 1, 0.36, 1] as const }
+  const panelTransition = { duration: 0.28, ease: [0.22, 1, 0.36, 1] as const }
+
+  return createPortal(
     <AnimatePresence>
-      {show ? (
-        <motion.div
-          key="demo-walkthrough-shell"
-          className="fixed inset-0 box-border flex items-center justify-center pointer-events-none"
-          style={{
-            zIndex: z.walkthroughModal,
-            padding: 24,
-            paddingTop: 'calc(24px + env(safe-area-inset-top))',
-            paddingBottom: 'calc(24px + env(safe-area-inset-bottom))',
-          }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <motion.button
-            type="button"
-            aria-label="Закрыть"
-            className="pointer-events-auto absolute inset-0 cursor-default"
-            style={{
-              backgroundColor: 'rgba(14, 16, 22, 0.28)',
-            }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-            onClick={() => stop()}
-          />
-
-          <motion.div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="demo-walkthrough-title"
-            data-demo-walkthrough-modal="1"
-            className={cn(
-              'pointer-events-auto relative box-border flex max-h-[calc(100dvh-64px)] w-full flex-col overflow-hidden rounded-[28px]',
-              'border shadow-luxury-md',
-            )}
-            style={{
-              width: 'min(520px, calc(100vw - 32px))',
-              maxHeight: 'calc(100dvh - 64px)',
-              backgroundColor: 'var(--lumi-surface)',
-              borderColor: 'var(--lumi-border)',
-            }}
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div
-              className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-6 pb-3"
-              style={{ WebkitOverflowScrolling: 'touch' }}
+      {show
+        ? [
+            <motion.button
+              key="demo-walkthrough-backdrop"
+              type="button"
+              aria-label="Закрыть"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={backdropTransition}
+              onClick={() => stop()}
+              style={{
+                position: 'fixed',
+                inset: 0,
+                width: '100vw',
+                height: '100dvh',
+                margin: 0,
+                padding: 0,
+                border: 'none',
+                cursor: 'pointer',
+                background: 'rgba(23, 23, 23, 0.28)',
+                zIndex: Z_BACKDROP,
+              }}
+            />,
+            <motion.div
+              key="demo-walkthrough-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={backdropTransition}
+              style={{
+                position: 'fixed',
+                inset: 0,
+                width: '100vw',
+                height: '100dvh',
+                margin: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 24,
+                paddingTop: 'calc(24px + env(safe-area-inset-top, 0px))',
+                paddingBottom: 'calc(24px + env(safe-area-inset-bottom, 0px))',
+                boxSizing: 'border-box',
+                zIndex: Z_LAYER,
+                pointerEvents: 'none',
+              }}
             >
-              <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0 flex-1">
-                  <div className="text-[12px] font-medium text-ink-700/70">
-                    Пошаговое демо • шаг {model.idx}/{model.total}
+              <motion.div
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="demo-walkthrough-title"
+                data-demo-walkthrough-modal="1"
+                className={cn(
+                  'pointer-events-auto relative box-border flex max-h-[calc(100dvh-64px)] w-full flex-col overflow-hidden rounded-[28px]',
+                  'border-[1.5px] shadow-luxury-md',
+                )}
+                style={{
+                  width: 'min(520px, calc(100vw - 32px))',
+                  maxHeight: 'calc(100dvh - 64px)',
+                  backgroundColor: 'var(--lumi-surface)',
+                  borderColor: 'rgba(198,161,91,0.48)',
+                  boxSizing: 'border-box',
+                }}
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.98 }}
+                transition={panelTransition}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div
+                  className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-6 pb-3"
+                  style={{ WebkitOverflowScrolling: 'touch' }}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[12px] font-medium text-ink-700/70">
+                        Пошаговое демо • шаг {model.idx}/{model.total}
+                      </div>
+                      <div
+                        id="demo-walkthrough-title"
+                        className="mt-1 text-[16px] font-semibold tracking-tightish text-ink-950"
+                      >
+                        {model.title}
+                      </div>
+                      <div className="mt-2 text-[12px] leading-[1.55] text-ink-700/65">{model.subtitle}</div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => stop()}
+                      className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/60 bg-white/60 text-ink-950 shadow-soft"
+                    >
+                      <X size={16} />
+                    </button>
                   </div>
-                  <div
-                    id="demo-walkthrough-title"
-                    className="mt-1 text-[16px] font-semibold tracking-tightish text-ink-950"
-                  >
-                    {model.title}
-                  </div>
-                  <div className="mt-2 text-[12px] leading-[1.55] text-ink-700/65">{model.subtitle}</div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => stop()}
-                  className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/60 bg-white/60 text-ink-950 shadow-soft"
-                >
-                  <X size={16} />
-                </button>
-              </div>
-            </div>
 
-            <div className="shrink-0 border-t border-black/[0.06] px-6 pb-[calc(16px+env(safe-area-inset-bottom))] pt-4">
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  type="button"
-                  onClick={() => prev()}
-                  className="inline-flex items-center justify-center gap-2 rounded-3xl border border-white/60 bg-white/60 px-3 py-3.5 text-[13px] font-semibold text-ink-950 shadow-soft"
-                >
-                  <ArrowLeft size={16} />
-                  Назад
-                </button>
+                <div className="shrink-0 border-t border-black/[0.06] px-6 pb-[calc(16px+env(safe-area-inset-bottom))] pt-4">
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => prev()}
+                      className="inline-flex items-center justify-center gap-2 rounded-3xl border border-white/60 bg-white/60 px-3 py-3.5 text-[13px] font-semibold text-ink-950 shadow-soft"
+                    >
+                      <ArrowLeft size={16} />
+                      Назад
+                    </button>
 
-                <motion.button
-                  type="button"
-                  whileTap={{ scale: 0.985 }}
-                  transition={{ type: 'spring', stiffness: 600, damping: 40 }}
-                  onClick={() => {
-                    if (model.route) nav(model.route)
-                    next()
-                  }}
-                  className="inline-flex items-center justify-center gap-2 rounded-3xl bg-ink-950 px-3 py-3.5 text-[13px] font-semibold text-paper-50 shadow-glowGold"
-                >
-                  <ArrowRight size={18} />
-                  Далее
-                </motion.button>
+                    <motion.button
+                      type="button"
+                      whileTap={{ scale: 0.985 }}
+                      transition={{ type: 'spring', stiffness: 600, damping: 40 }}
+                      onClick={() => {
+                        if (model.route) nav(model.route)
+                        next()
+                      }}
+                      className="inline-flex items-center justify-center gap-2 rounded-3xl bg-ink-950 px-3 py-3.5 text-[13px] font-semibold text-paper-50 shadow-glowGold"
+                    >
+                      <ArrowRight size={18} />
+                      Далее
+                    </motion.button>
 
-                <button
-                  type="button"
-                  onClick={() => stop()}
-                  className="rounded-3xl border border-white/60 bg-white/60 px-3 py-3.5 text-[13px] font-semibold text-ink-950 shadow-soft"
-                >
-                  Закрыть
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        </motion.div>
-      ) : null}
-    </AnimatePresence>
+                    <button
+                      type="button"
+                      onClick={() => stop()}
+                      className="rounded-3xl border border-white/60 bg-white/60 px-3 py-3.5 text-[13px] font-semibold text-ink-950 shadow-soft"
+                    >
+                      Закрыть
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>,
+          ]
+        : null}
+    </AnimatePresence>,
+    document.body,
   )
 }

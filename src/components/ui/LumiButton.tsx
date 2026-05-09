@@ -37,11 +37,11 @@ export function LumiButton({
   const v =
     variant === 'primary'
       ? ''
-      : variant === 'secondary'
-        ? 'border border-white/65 bg-white/68 font-semibold text-ink-950 shadow-soft hover:bg-white/78 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200/45 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7EF]'
+      :       variant === 'secondary'
+        ? 'border-[1.5px] border-gold-400/35 bg-[var(--lumi-surface)] font-semibold text-ink-950 shadow-soft hover:border-gold-400/50 hover:bg-paper-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--lumi-bg)]'
         : variant === 'destructive'
-          ? 'border border-ink-950/15 bg-ink-900 font-semibold text-paper-50 shadow-soft hover:bg-ink-950 active:bg-[#0d0d0d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200/35 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7EF]'
-          : 'font-semibold text-ink-950 hover:bg-white/48 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7EF]'
+          ? 'border border-ink-950/15 bg-ink-900 font-semibold text-paper-50 shadow-soft hover:bg-ink-950 active:bg-[#0d0d0d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400/35 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--lumi-bg)]'
+          : 'font-semibold text-ink-950 hover:bg-white/48 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400/35 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--lumi-bg)]'
 
   return (
     <button

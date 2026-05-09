@@ -250,13 +250,16 @@ export function Settings() {
   return (
     <div className="lumi-page" style={{ paddingTop: 'calc(1.75rem * (0.94 + var(--global-rhythm, 1) * 0.06))' }}>
       <div className="mx-auto max-w-[520px]">
+        <p className="mb-2 text-[11px] font-medium tracking-wide text-ink-700/45">
+          STYLE TEST SETTINGS
+        </p>
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: 'spring', stiffness: 520, damping: 44 }}
           className="mb-8"
         >
-          <div className="lumi-title">Настройки</div>
+          <div className="lumi-page-title">Настройки</div>
           <p className="mt-2 max-w-[34ch] text-[14px] leading-relaxed text-ink-700/60">
             Управление аккаунтом и приложением.
           </p>
@@ -413,9 +416,10 @@ export function Settings() {
                     fullWidth={false}
                     size="sm"
                     onClick={(e) => {
+                      e.preventDefault()
                       e.stopPropagation()
                       setActivePanel(null)
-                      queueMicrotask(() => useDemoMode.getState().start())
+                      queueMicrotask(() => useDemoMode.getState().startWalkthrough())
                     }}
                   >
                     Открыть обзор

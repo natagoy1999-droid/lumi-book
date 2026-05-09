@@ -105,9 +105,9 @@ export function Pricing() {
       style={{ paddingTop: 'calc(1.75rem * (0.94 + var(--global-rhythm, 1) * 0.06))' }}
     >
       <div className="mx-auto max-w-[520px]">
-        <div className="mb-4">
+        <div className="mb-4 space-y-1">
           <div className="lumi-section-title">Тарифы</div>
-          <div className="mt-1 lumi-title">Тарифы LUMI BOOK</div>
+          <div className="lumi-page-title">Тарифы LUMI BOOK</div>
           <div className="mt-1 lumi-secondary">
             Выберите формат, который подходит вашему ритму работы
           </div>

@@ -22,15 +22,13 @@ export function BottomTabs() {
       }}
     >
       <div
-        className="pointer-events-auto w-full rounded-t-[26px] border border-b-0 pt-2 shadow-dock"
+        className="pointer-events-auto w-full rounded-t-[28px] border-[1.5px] border-b-0 border-gold-400/35 bg-[var(--lumi-surface)] pt-2 shadow-dock"
         style={{
-          backgroundColor: 'var(--lumi-bg)',
-          borderColor: 'var(--lumi-border)',
           boxShadow:
-            '0 -14px 42px rgba(23, 23, 23, 0.07), inset 0 1px 0 rgba(255, 253, 248, 0.95)',
+            '0 -14px 48px rgba(23,23,23,0.12), 0 -6px 22px rgba(198,161,91,0.16), inset 0 1px 0 rgba(255,253,248,0.98)',
         }}
       >
-        <div className="mx-auto max-w-[520px] px-1 pb-2">
+        <div className="mx-auto max-w-[520px] px-1.5 pb-2.5 pt-1">
           <div className="grid grid-cols-5 items-stretch">
             {tabs.map(({ to, label, Icon }) => (
               <NavLink
@@ -38,9 +36,9 @@ export function BottomTabs() {
                 to={to}
                 className={({ isActive }) =>
                   cn(
-                    'group flex flex-col items-center justify-center gap-1.5 px-1 py-2.5',
+                    'group flex flex-col items-center justify-center gap-1.5 px-0.5 py-2',
                     'text-[14px] font-medium tracking-tight transition-colors duration-200',
-                    isActive ? 'text-ink-950' : 'text-ink-700/58',
+                    isActive ? 'text-ink-950' : 'text-ink-800/58',
                   )
                 }
               >
@@ -48,22 +46,24 @@ export function BottomTabs() {
                   <>
                     <div
                       className={cn(
-                        'flex h-10 w-12 items-center justify-center rounded-2xl transition-[background-color,box-shadow,transform,border-color] duration-200 ease-out active:scale-[var(--press-scale,0.99)]',
+                        'flex h-11 w-[52px] items-center justify-center rounded-2xl transition-[background-color,box-shadow,transform,border-color] duration-200 ease-out active:scale-[var(--press-scale,0.99)]',
                         isActive
-                          ? 'border border-gold-300/50 bg-[var(--lumi-surface)] shadow-[inset_0_1px_0_rgba(255,255,255,0.92),0_8px_22px_rgba(23,23,23,0.06)]'
-                          : 'border border-transparent bg-transparent group-hover:bg-white/50',
+                          ? 'border-[1.5px] border-gold-400/60 bg-gradient-to-b from-gold-200/40 to-[var(--lumi-surface)] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_8px_22px_rgba(198,161,91,0.22)]'
+                          : 'border-[1.5px] border-transparent bg-transparent group-hover:border-gold-400/20 group-hover:bg-white/40',
                       )}
                     >
                       <Icon
-                        size={22}
+                        size={23}
                         className={cn(
                           'transition-[color,opacity] duration-200 ease-out',
-                          isActive ? 'text-gold-400' : 'text-ink-800/72',
+                          isActive ? 'text-gold-400' : 'text-ink-900/78',
                         )}
-                        strokeWidth={1.85}
+                        strokeWidth={2}
                       />
                     </div>
-                    <span className="leading-none">{label}</span>
+                    <span className={cn('leading-none', isActive && 'font-semibold text-ink-950')}>
+                      {label}
+                    </span>
                   </>
                 )}
               </NavLink>
