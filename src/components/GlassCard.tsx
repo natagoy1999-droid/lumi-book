@@ -37,7 +37,9 @@ export function GlassCard({
         'ring-1 ring-black/[0.04] transition-[transform,background-color,border-color,box-shadow,opacity] duration-[240ms] ease-out',
         ink ? 'bg-ink-900/70 text-white' : 'text-ink-900',
         onClick &&
-          'touch-manipulation cursor-pointer select-none active:scale-[var(--press-scale,0.992)] active:opacity-[var(--press-opacity,0.94)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200/55 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7EF]',
+          'touch-manipulation cursor-pointer select-none active:scale-[var(--press-scale,0.992)] active:opacity-[var(--press-opacity,0.94)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-300/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7EF]',
+        onClick &&
+          'hover:shadow-[0_14px_44px_rgba(17,17,17,0.08)] hover:ring-1 hover:ring-gold-300/22',
         className,
       )}
       style={{

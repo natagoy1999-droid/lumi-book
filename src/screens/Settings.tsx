@@ -18,6 +18,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { GlassCard } from '../components/GlassCard'
 import { cn } from '../lib/cn'
+import { lumiPrimaryActionSm } from '../lib/lumiActionStyles'
 import { LumiButton } from '../components/ui/LumiButton'
 import { LumiInput } from '../components/ui/LumiInput'
 import { LumiModal } from '../components/ui/LumiModal'
@@ -148,8 +149,10 @@ function SettingsRow({ icon: Icon, title, subtitle, onClick }: SettingsRowProps)
       type="button"
       onClick={onClick}
       className={cn(
-        'flex w-full items-center gap-3.5 px-5 py-4 text-left transition-colors',
-        'hover:bg-white/35 active:bg-white/50',
+        'flex w-full items-center gap-3.5 px-5 py-4 text-left',
+        'transition-[background-color,box-shadow] duration-200 ease-out',
+        'hover:bg-white/40 hover:shadow-[inset_0_0_0_1px_rgba(198,165,106,0.16)] active:bg-white/55',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-300/35 focus-visible:ring-inset',
       )}
     >
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/50 shadow-sm">
@@ -256,7 +259,7 @@ export function Settings() {
         >
           <div className="lumi-title text-[26px] font-semibold tracking-tight text-ink-950">Настройки</div>
           <p className="mt-2 max-w-[34ch] text-[14px] leading-relaxed text-ink-700/60">
-            Спокойное управление аккаунтом и приложением.
+            Управление аккаунтом и приложением.
           </p>
         </motion.div>
 
@@ -295,14 +298,14 @@ export function Settings() {
                   <button
                     type="button"
                     onClick={() => nav('/login')}
-                    className="rounded-full bg-ink-950 px-5 py-2.5 text-[13px] font-medium text-paper-50 shadow-sm transition hover:bg-ink-950/90"
+                    className={cn(lumiPrimaryActionSm, '!rounded-full px-5 py-2.5 text-[13px]')}
                   >
                     Войти
                   </button>
                   <button
                     type="button"
                     onClick={() => nav('/signup')}
-                    className="rounded-full border border-black/[0.08] bg-white/50 px-5 py-2.5 text-[13px] font-medium text-ink-950 shadow-sm transition hover:bg-white/70"
+                    className="rounded-full border border-gold-300/30 bg-white/65 px-5 py-2.5 text-[13px] font-semibold text-ink-950 shadow-soft transition hover:border-gold-300/45 hover:bg-white/80"
                   >
                     Подключить аккаунт
                   </button>

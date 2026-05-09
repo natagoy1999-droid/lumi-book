@@ -265,8 +265,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: linear-gradient(180deg, #FFFDF8 0%, #FAF7EF 100%);
-  color: #1E1C19;
-  font-size: 17px;
+  color: #1a1916;
+  font-size: 18px;
+  line-height: 1.5;
 }
 
 .app-preparing {
@@ -281,7 +282,7 @@ body {
 }
 
 ::selection {
-  background: rgba(214, 178, 90, 0.22);
+  background: rgba(198, 165, 106, 0.24);
 }
 
 @layer base {
@@ -292,42 +293,44 @@ body {
 
 /* Typography primitives — plain CSS so tokens stay compatible with Tailwind @reference scopes */
 .lumi-caption {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
-  letter-spacing: -0.015em;
-  color: color-mix(in srgb, var(--color-ink-700, #534f49) 70%, transparent);
+  letter-spacing: -0.018em;
+  color: color-mix(in srgb, var(--color-ink-800, #2c2824) 78%, transparent);
 }
 
 .lumi-secondary {
-  font-size: 12px;
-  line-height: 1.45;
-  color: color-mix(in srgb, var(--color-ink-700, #534f49) 65%, transparent);
+  font-size: 13px;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  color: color-mix(in srgb, var(--color-ink-700, #4a433c) 62%, transparent);
 }
 
 .lumi-section-title {
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: -0.015em;
-  color: color-mix(in srgb, var(--color-ink-700, #534f49) 70%, transparent);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.018em;
+  color: color-mix(in srgb, var(--color-ink-800, #2c2824) 90%, transparent);
 }
 
 .lumi-card-title {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
-  letter-spacing: -0.015em;
-  color: var(--color-ink-950, #1e1c19);
+  letter-spacing: -0.02em;
+  color: var(--color-ink-950, #111111);
 }
 
 .lumi-body {
-  font-size: 16px;
+  font-size: 17px;
   line-height: 1.65;
-  color: color-mix(in srgb, var(--color-ink-900, #2d2a26) 75%, transparent);
+  letter-spacing: -0.012em;
+  color: color-mix(in srgb, var(--color-ink-900, #171717) 82%, transparent);
 }
 
 .lumi-title {
-  font-size: 32px;
+  font-size: 34px;
   font-weight: 600;
-  letter-spacing: -0.015em;
-  color: var(--color-ink-950, #1e1c19);
+  letter-spacing: -0.028em;
+  color: var(--color-ink-950, #111111);
 }
 

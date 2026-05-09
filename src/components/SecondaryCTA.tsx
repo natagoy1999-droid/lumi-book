@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { Sparkles } from 'lucide-react'
 
 import { cn } from '../lib/cn'
+import { lumiPrimaryActionSm } from '../lib/lumiActionStyles'
 import { glassBackdropFilter } from '../lib/glassStyles'
 
 export function SecondaryCTA({
@@ -22,12 +23,11 @@ export function SecondaryCTA({
       transition={{ type: 'spring', stiffness: 720, damping: 46, mass: 0.8 }}
       onClick={onClick}
       className={cn(
-        'inline-flex items-center gap-2 rounded-full px-4 py-2 text-[12px] font-semibold shadow-soft',
-        'border',
+        'inline-flex items-center gap-2 font-semibold',
         tone === 'gold'
-          ? 'bg-ink-950 text-paper-50 border-gold-200/60 shadow-glowGold'
-          : 'bg-white/55 text-ink-950 border-white/60',
-        compact && 'px-3 py-2 text-[11px]',
+          ? cn(lumiPrimaryActionSm, '!rounded-full px-4 py-2 text-[13px]')
+          : 'rounded-full border border-white/65 bg-white/68 px-4 py-2 text-[13px] text-ink-950 shadow-soft',
+        compact && 'px-3 py-2 text-[12px]',
       )}
       style={{
         backdropFilter:
@@ -35,7 +35,7 @@ export function SecondaryCTA({
         transform: 'scale(var(--compact-scale, 1))',
       }}
     >
-      <Sparkles size={14} className="text-gold-400" />
+      <Sparkles size={14} className="text-gold-300/90" />
       {label}
     </motion.button>
   )

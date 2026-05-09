@@ -14,9 +14,9 @@ export function LumiInput({ className, label, hint, ...props }: Props) {
       <input
         {...props}
         className={cn(
-          'min-h-[48px] w-full touch-manipulation rounded-3xl border border-white/60 bg-white/62 px-4 py-3.5 text-[15px] leading-snug text-ink-950 shadow-soft',
+          'min-h-[50px] w-full touch-manipulation rounded-3xl border border-white/60 bg-paper-50/90 px-4 py-3.5 text-[16px] leading-snug text-ink-950 caret-ink-950 shadow-soft',
           'outline-none transition-[border-color,box-shadow,background-color] duration-[240ms] ease-out',
-          'placeholder:text-ink-700/35 focus-visible:border-gold-200/40 focus-visible:ring-2 focus-visible:ring-gold-200/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7EF]',
+          'placeholder:text-ink-700/42 focus-visible:border-gold-300/35 focus-visible:ring-2 focus-visible:ring-gold-300/35 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7EF]',
           className,
         )}
       />

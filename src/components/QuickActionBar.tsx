@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { cn } from '../lib/cn'
+import { lumiPrimaryActionSm } from '../lib/lumiActionStyles'
 
 export type QuickAction = {
   id: string
@@ -33,7 +34,7 @@ export function QuickActionBar({
         className={cn('rounded-[26px] border px-3 py-2 shadow-soft', 'ring-1 ring-black/5')}
         style={{
           backgroundColor: '#FFFDF8',
-          borderColor: 'rgba(20,20,20,0.08)',
+          borderColor: 'rgba(198, 165, 106, 0.14)',
         }}
       >
         <div className="flex items-center justify-between gap-3">
@@ -56,13 +57,13 @@ export function QuickActionBar({
                 type="button"
                 onClick={a.onClick}
                 className={cn(
-                  'inline-flex items-center gap-2 whitespace-nowrap rounded-3xl px-4 py-3 text-[13px] font-semibold shadow-soft',
+                  'inline-flex items-center gap-2 whitespace-nowrap font-semibold',
                   a.tone === 'gold'
-                    ? 'bg-ink-950 text-paper-50 shadow-glowGold'
-                    : 'border border-white/60 bg-white/55 text-ink-950',
+                    ? lumiPrimaryActionSm
+                    : 'rounded-3xl border border-white/65 bg-white/68 px-4 py-3 text-[14px] text-ink-950 shadow-soft',
                 )}
               >
-                {Icon ? <Icon size={16} className="text-gold-400" /> : null}
+                {Icon ? <Icon size={16} className="text-gold-300/85" /> : null}
                 {a.label}
               </button>
             )

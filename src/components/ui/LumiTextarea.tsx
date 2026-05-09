@@ -14,9 +14,9 @@ export function LumiTextarea({ className, label, hint, ...props }: Props) {
       <textarea
         {...props}
         className={cn(
-          'w-full resize-none rounded-3xl border border-white/60 bg-white/60 px-4 py-3 text-[15px] leading-6 text-ink-950 shadow-soft',
+          'w-full resize-none rounded-3xl border border-white/60 bg-paper-50/90 px-4 py-3 text-[16px] leading-6 text-ink-950 caret-ink-950 shadow-soft',
           'outline-none transition-[border-color,box-shadow,background-color] duration-200 ease-out',
-          'placeholder:text-ink-700/35 focus-visible:ring-2 focus-visible:ring-gold-200/60',
+          'placeholder:text-ink-700/42 focus-visible:border-gold-300/35 focus-visible:ring-2 focus-visible:ring-gold-300/35 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7EF]',
           className,
         )}
       />

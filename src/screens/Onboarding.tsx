@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { GlassCard } from '../components/GlassCard'
+import { cn } from '../lib/cn'
+import { lumiPrimaryActionMd } from '../lib/lumiActionStyles'
 import { motion as motionTokens } from '../theme/motion'
 import { useStore } from '../state/store'
 import { useAuthStore } from '../store/authStore'
@@ -26,7 +28,7 @@ export function Onboarding() {
     () => [
       {
         title: 'LUMI BOOK',
-        text: 'Спокойная запись для мастеров — без суеты и лишних экранов.',
+        text: 'Запись для мастеров и клиентов — без суеты и лишних экранов.',
       },
       {
         title: 'В одном ритме',
@@ -136,7 +138,10 @@ export function Onboarding() {
                       nav('/auth', { replace: true })
                     }
                   }}
-                  className="touch-manipulation inline-flex min-h-[52px] flex-[1.35] items-center justify-center gap-2 rounded-3xl bg-ink-950 px-5 py-3.5 text-[14px] font-semibold text-paper-50 shadow-glowGold transition-colors duration-200 hover:bg-ink-950/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200/55 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7EF] active:scale-[var(--press-scale,0.992)]"
+                  className={cn(
+                    'touch-manipulation inline-flex min-h-[52px] flex-[1.35] items-center justify-center gap-2 active:scale-[var(--press-scale,0.992)]',
+                    lumiPrimaryActionMd,
+                  )}
                 >
                   {step < slides.length - 1 ? 'Далее' : 'Начать'}
                   <ArrowRight size={18} strokeWidth={2} />

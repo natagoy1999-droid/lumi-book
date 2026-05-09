@@ -25,9 +25,10 @@ export function BottomTabs() {
         transform: 'translateX(-50%)',
         width: '100%',
         maxWidth: 520,
-        backgroundColor: '#FAF7EF',
-        borderTop: '1px solid rgba(20,20,20,0.08)',
-        boxShadow: '0 -8px 24px rgba(0,0,0,0.06)',
+        backgroundColor: 'rgba(250, 247, 239, 0.94)',
+        borderTop: '1px solid rgba(198, 165, 106, 0.14)',
+        boxShadow:
+          '0 -12px 40px rgba(17, 17, 17, 0.08), 0 -1px 0 rgba(198, 165, 106, 0.1), inset 0 1px 0 rgba(255, 253, 248, 0.85)',
       }}
     >
       <div className="mx-auto max-w-[520px]">
@@ -39,8 +40,8 @@ export function BottomTabs() {
               className={({ isActive }) =>
                 cn(
                   'group flex flex-col items-center justify-center gap-1 px-1 py-3',
-                  'text-[12px] tracking-tightish',
-                  isActive ? 'text-ink-950' : 'text-ink-900/70',
+                  'text-[13px] tracking-tightish transition-colors duration-200',
+                  isActive ? 'text-ink-950' : 'text-ink-700/52',
                 )
               }
             >
@@ -50,15 +51,15 @@ export function BottomTabs() {
                     className={cn(
                       'flex h-9 w-11 items-center justify-center rounded-2xl transition-[background-color,box-shadow,transform] duration-200 ease-out active:scale-[var(--press-scale,0.99)]',
                       isActive
-                        ? 'bg-white/85 shadow-soft ring-1 ring-gold-200/50'
-                        : 'bg-white/0 group-hover:bg-white/55',
+                        ? 'bg-[#FFFCF8] shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_6px_20px_rgba(17,17,17,0.07)] ring-1 ring-gold-300/45'
+                        : 'bg-white/0 group-hover:bg-white/50',
                     )}
                   >
                     <Icon
                       size={21}
                       className={cn(
                         'transition-[color,transform,opacity] duration-200 ease-out',
-                        isActive ? 'text-ink-950' : 'text-ink-900/70',
+                        isActive ? 'text-ink-950' : 'text-ink-700/55',
                       )}
                       strokeWidth={1.8}
                     />

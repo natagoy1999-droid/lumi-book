@@ -6,14 +6,14 @@ export default {
     extend: {
       colors: {
         ink: {
-          // warm graphite (stronger contrast, less washed-out)
-          950: '#1E1C19',
-          900: '#2A2622',
-          800: '#3A332D',
-          700: '#4A413A',
+          // rich black + warm graphite (logo-inspired contrast; base UI stays light)
+          950: '#111111',
+          900: '#171717',
+          800: '#2C2824',
+          700: '#4A433C',
         },
         paper: {
-          50: '#FFFEFB',
+          50: '#FFFDFB',
           100: '#FBF7EF',
           200: '#F3EBDD',
         },
@@ -22,11 +22,11 @@ export default {
           100: '#F2EADD',
         },
         gold: {
-          50: '#FFF7E6',
-          100: '#FBE7B4',
-          200: '#E4C98E',
-          300: '#C6A062', // restrained premium gold
-          400: '#B58B4D',
+          50: '#FCF9F3',
+          100: '#F0E6D4',
+          200: '#D9C49A',
+          300: '#C6A56A', // muted champagne gold
+          400: '#A68954',
         },
         fog: {
           100: 'rgba(255,255,255,0.58)',
@@ -36,11 +36,16 @@ export default {
       },
       boxShadow: {
         soft:
-          '0 10px 28px rgba(30,28,25,0.10), 0 2px 8px rgba(30,28,25,0.06)',
+          '0 10px 30px rgba(17,17,17,0.09), 0 2px 10px rgba(17,17,17,0.05)',
         lift:
-          '0 18px 44px rgba(30,28,25,0.14), 0 6px 18px rgba(30,28,25,0.10)',
+          '0 20px 48px rgba(17,17,17,0.12), 0 8px 22px rgba(17,17,17,0.08)',
         glowGold:
-          '0 0 0 1px rgba(198,160,98,0.28), 0 12px 32px rgba(198,160,98,0.14)',
+          '0 0 0 1px rgba(198,165,106,0.28), 0 10px 36px rgba(198,165,106,0.11)',
+        luxury:
+          'inset 0 1px 0 rgba(255,255,255,0.92), 0 10px 32px rgba(17,17,17,0.07), 0 0 0 1px rgba(198,165,106,0.18)',
+        'luxury-md':
+          'inset 0 1px 0 rgba(255,255,255,0.88), 0 14px 40px rgba(17,17,17,0.09), 0 0 0 1px rgba(198,165,106,0.24)',
+        dock: '0 -12px 40px rgba(17,17,17,0.08), 0 -1px 0 rgba(198,165,106,0.12)',
         insetGlass: 'inset 0 1px 0 rgba(255,255,255,0.55)',
       },
       borderRadius: {
@@ -52,9 +57,10 @@ export default {
         glass: '18px',
       },
       fontSize: {
-        // small global readability lift for common utility sizes (non-breaking)
         xs: ['13px', { lineHeight: '18px' }],
         sm: ['15px', { lineHeight: '22px' }],
+        base: ['17px', { lineHeight: '26px' }],
+        lg: ['18px', { lineHeight: '28px' }],
       },
       fontFamily: {
         sans: [

@@ -6,6 +6,7 @@ import { GlassCard } from '../components/GlassCard'
 import { cn } from '../lib/cn'
 import { deriveClientCardSurface } from '../lib/clientCardSoftness'
 import { LumiButton } from '../components/ui/LumiButton'
+import { lumiPrimaryActionSm } from '../lib/lumiActionStyles'
 import { LumiEmptyState } from '../components/ui/LumiEmptyState'
 import { LumiInput } from '../components/ui/LumiInput'
 import { LumiModal } from '../components/ui/LumiModal'
@@ -70,7 +71,7 @@ export function Clients() {
           className="mb-4"
         >
           <div className="lumi-section-title">Клиенты</div>
-          <div className="mt-1 lumi-title">Лёгкая CRM</div>
+          <div className="mt-1 lumi-title">История клиентов</div>
         </motion.div>
 
         <GlassCard className="p-4">
@@ -87,7 +88,10 @@ export function Clients() {
             <button
               type="button"
               onClick={openNew}
-              className="inline-flex h-10 items-center gap-2 rounded-2xl bg-ink-950 px-4 text-[14px] font-semibold text-paper-50 shadow-glowGold"
+              className={cn(
+                'inline-flex h-10 items-center gap-2 !rounded-2xl px-4 text-[14px]',
+                lumiPrimaryActionSm,
+              )}
             >
               <Plus size={18} />
               Добавить
