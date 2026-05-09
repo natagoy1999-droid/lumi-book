@@ -248,11 +248,11 @@ export function PublicBooking() {
         </div>
 
         {remoteLoading ? (
-          <div className="rounded-[28px] border border-white/50 bg-white/50 px-6 py-10 text-center text-[14px] text-ink-700/70 shadow-soft backdrop-blur-glass">
+          <div className="lumi-card px-6 py-10 text-center text-[14px] text-ink-700/70 backdrop-blur-glass">
             Открываем календарь салона…
           </div>
         ) : unavailableRemote ? (
-          <div className="rounded-[28px] border border-white/50 bg-white/50 px-6 py-10 text-center shadow-soft backdrop-blur-glass">
+          <div className="lumi-card px-6 py-10 text-center backdrop-blur-glass">
             <div className="text-[16px] font-semibold tracking-tightish text-ink-950">
               Ссылка пока недоступна
             </div>
@@ -261,7 +261,7 @@ export function PublicBooking() {
             </p>
           </div>
         ) : (
-          <div className="rounded-[28px] border border-white/45 bg-white/45 p-7 shadow-soft backdrop-blur-glass">
+          <div className="lumi-card-nested p-7 backdrop-blur-glass">
             <AnimatePresence mode="wait" initial={false}>
               {step === 'master' ? (
                 <motion.div
@@ -286,7 +286,7 @@ export function PublicBooking() {
                         }}
                         className={cn(
                           'flex min-h-[54px] w-full touch-manipulation items-center justify-between gap-4 rounded-[22px] px-5 py-4 text-left transition-colors duration-200',
-                          'border border-white/55 bg-white/55 shadow-soft hover:bg-white/65 active:bg-white/72',
+                          'border border-white/60 bg-white/55 shadow-soft hover:bg-white/65 active:bg-white/72',
                           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200/45 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7EF]',
                           'active:scale-[var(--press-scale,0.992)]',
                         )}
@@ -326,7 +326,7 @@ export function PublicBooking() {
                           setStep('schedule')
                         }}
                         className={cn(
-                          'min-h-[54px] w-full touch-manipulation rounded-[22px] border border-white/55 bg-white/55 px-5 py-4 text-left shadow-soft transition-colors duration-200 hover:bg-white/65 active:bg-white/72',
+                          'min-h-[54px] w-full touch-manipulation rounded-[22px] border border-white/60 bg-white/55 px-5 py-4 text-left shadow-soft transition-colors duration-200 hover:bg-white/65 active:bg-white/72',
                           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200/45 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7EF]',
                           'active:scale-[var(--press-scale,0.992)]',
                         )}
@@ -399,7 +399,7 @@ export function PublicBooking() {
                                         'min-h-[48px] min-w-[78px] touch-manipulation rounded-full px-4 text-[14px] font-semibold tracking-tight transition-colors duration-200',
                                         active
                                           ? 'bg-ink-950 text-paper-50 shadow-[0_10px_32px_rgba(26,24,20,0.12)] ring-2 ring-gold-300/42 ring-offset-2 ring-offset-[#FAF7EF]/90'
-                                          : 'border border-white/55 bg-white/54 text-ink-950 shadow-soft hover:bg-white/72',
+                                          : 'border border-white/60 bg-white/54 text-ink-950 shadow-soft hover:bg-white/72',
                                         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200/45 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7EF]',
                                       )}
                                     >
@@ -554,7 +554,7 @@ export function PublicBooking() {
                 >
                   <motion.div
                     variants={successVariants.sparkle}
-                    className="mx-auto inline-flex rounded-full border border-gold-200/38 bg-white/72 px-5 py-2 text-[12px] font-medium tracking-wide text-ink-800/78 shadow-soft"
+                    className="mx-auto inline-flex rounded-full border border-white/60 bg-white/72 px-5 py-2 text-[12px] font-medium tracking-wide text-ink-800/78 shadow-soft"
                   >
                     Вы записаны ✨
                   </motion.div>

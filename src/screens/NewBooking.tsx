@@ -128,10 +128,10 @@ export function NewBooking() {
                         setOpenTime(true)
                       }}
                       className={cn(
-                        'min-w-[150px] rounded-3xl border px-4 py-3 text-left shadow-soft transition',
+                        'min-w-[150px] lumi-card px-4 py-3 text-left transition',
                         active
-                          ? 'border-white/60 bg-white/65'
-                          : 'border-white/45 bg-fog-200 hover:bg-white/55',
+                          ? 'ring-1 ring-gold-400/28 bg-white/70'
+                          : 'opacity-[0.97] hover:bg-white/60',
                       )}
                     >
                       <div className="text-[12px] font-medium text-ink-700/70">
@@ -149,19 +149,19 @@ export function NewBooking() {
             <GlassCard className="p-5">
               <div className="text-[12px] font-medium text-ink-700/70">Сводка</div>
               <div className="mt-3 grid grid-cols-2 gap-2 text-[13px] text-ink-700/70">
-                <div className="rounded-3xl border border-white/55 bg-white/55 px-4 py-3 shadow-soft">
+                <div className="lumi-card px-4 py-3">
                   <div className="text-[11px] font-medium uppercase tracking-[0.10em] text-ink-700/55">
                     Дата
                   </div>
                   <div className="mt-1 font-semibold text-ink-950">{dateISO}</div>
                 </div>
-                <div className="rounded-3xl border border-white/55 bg-white/55 px-4 py-3 shadow-soft">
+                <div className="lumi-card px-4 py-3">
                   <div className="text-[11px] font-medium uppercase tracking-[0.10em] text-ink-700/55">
                     Время
                   </div>
                   <div className="mt-1 font-semibold text-ink-950">{time ?? '—'}</div>
                 </div>
-                <div className="col-span-2 rounded-3xl border border-white/55 bg-white/55 px-4 py-3 shadow-soft">
+                <div className="col-span-2 lumi-card px-4 py-3">
                   <div className="text-[11px] font-medium uppercase tracking-[0.10em] text-ink-700/55">
                     Услуга
                   </div>
@@ -179,6 +179,9 @@ export function NewBooking() {
         open={openTime}
         title="Выберите время — Lumi откроет услуги"
         onClose={() => setOpenTime(false)}
+        variant="center"
+        surface="glass"
+        modalId="settings"
       >
         {slots.length ? (
           <div className="grid grid-cols-3 gap-2">
@@ -191,7 +194,7 @@ export function NewBooking() {
                   setOpenTime(false)
                   setOpenService(true)
                 }}
-                className="rounded-3xl border border-white/60 bg-white/55 px-3 py-3 text-[13px] font-semibold text-ink-950 shadow-soft"
+                className="lumi-card px-3 py-3 text-[13px] font-semibold text-ink-950"
               >
                 {t}
               </button>
@@ -208,6 +211,9 @@ export function NewBooking() {
         open={openService}
         title="Выберите услугу — Lumi сразу спросит клиента"
         onClose={() => setOpenService(false)}
+        variant="center"
+        surface="glass"
+        modalId="settings"
       >
         <div className="space-y-2">
           {state.services.map((s) => (
@@ -219,7 +225,7 @@ export function NewBooking() {
                 setOpenService(false)
                 setOpenClient(true)
               }}
-              className="w-full rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-left shadow-soft"
+              className="w-full lumi-card px-4 py-3 text-left"
             >
               <div className="flex items-center justify-between">
                 <div className="text-[14px] font-semibold tracking-tightish text-ink-950">
@@ -239,8 +245,8 @@ export function NewBooking() {
         open={openClient}
         title="Клиент — и готово"
         onClose={() => setOpenClient(false)}
-        modalId="settings"
-        variant="bottom"
+        modalId="client"
+        variant="center"
         surface="glass"
       >
         <div className="space-y-3">

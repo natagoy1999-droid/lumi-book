@@ -22,14 +22,14 @@ export function FocusCard({
       style={
         isGoldHero
           ? {
-              borderColor: '#C6A15B',
-              borderWidth: 1.5,
+              borderColor: 'rgba(198, 161, 91, 0.42)',
+              borderWidth: 1,
             }
           : undefined
       }
       className={cn(
         'min-h-[190px] p-6 sm:p-6',
-        isGoldHero ? 'shadow-heroGold ring-2 ring-gold-400/30' : 'shadow-luxury-md',
+        isGoldHero ? 'shadow-soft ring-1 ring-gold-400/28' : undefined,
         compact && 'p-5',
       )}
     >
@@ -78,7 +78,7 @@ export function FocusCard({
               'inline-flex w-full shrink-0 items-center justify-center gap-2 px-6 py-3.5 text-[15px] font-semibold tracking-tight transition-[filter,transform] duration-200 sm:w-auto',
               isGoldHero
                 ? 'rounded-full border border-gold-500/40 bg-[linear-gradient(180deg,#F4D98E_0%,#C6A15B_100%)] text-ink-950 shadow-[0_8px_26px_rgba(198,161,91,0.42)] hover:brightness-[1.04] active:scale-[var(--press-scale,0.992)]'
-                : 'rounded-3xl border border-gold-400/45 bg-paper-50 text-ink-950 shadow-luxury hover:border-gold-400/60 hover:shadow-luxury-md',
+                : 'lumi-card px-6 py-3.5 text-ink-950 hover:border-white/72 hover:shadow-lift',
               compact && 'px-5 py-3 text-[14px]',
             )}
           >
@@ -86,7 +86,7 @@ export function FocusCard({
             <ArrowRight size={18} className={cn(isGoldHero ? 'text-ink-950' : 'text-gold-400')} strokeWidth={2.25} />
           </button>
         ) : (
-          <div className="hidden h-11 w-11 shrink-0 rounded-2xl border border-gold-400/35 bg-[var(--lumi-bg)] shadow-soft sm:block" />
+          <div className="hidden h-11 w-11 shrink-0 rounded-2xl border border-white/60 bg-[var(--lumi-bg)] shadow-soft sm:block" />
         )}
       </div>
     </GlassCard>

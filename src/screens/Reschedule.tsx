@@ -289,7 +289,7 @@ export function Reschedule() {
                             setOpenConfirm(true)
                           }}
                           className={cn(
-                            'rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[14px] font-semibold text-ink-950 shadow-soft',
+                            'lumi-card px-4 py-3 text-[14px] font-semibold text-ink-950',
                             'hover:bg-white/65',
                           )}
                         >
@@ -312,7 +312,7 @@ export function Reschedule() {
       >
         <div className="space-y-3">
           {selected ? (
-            <div className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[13px] leading-6 text-ink-700/70 shadow-soft">
+            <div className="lumi-card px-4 py-3 text-[13px] leading-6 text-ink-700/70">
               Lumi отправит аккуратное предложение и будет мягко ждать подтверждения — без вашей рутины.
             </div>
           ) : null}
@@ -358,7 +358,7 @@ export function Reschedule() {
           <button
             type="button"
             onClick={() => setOpenConfirm(false)}
-            className="w-full rounded-3xl border border-white/60 bg-white/55 px-5 py-4 text-[15px] font-semibold text-ink-950 shadow-soft"
+            className="w-full lumi-card px-5 py-4 text-[15px] font-semibold text-ink-950"
           >
             Выбрать другое
           </button>

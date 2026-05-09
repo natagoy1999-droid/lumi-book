@@ -95,12 +95,12 @@ export function Clients() {
 
   return (
     <div
-      className="lumi-page"
+      className="lumi-page lumi-page-shell"
       style={{
         paddingTop: 'calc(1.75rem * (0.94 + var(--global-rhythm, 1) * 0.06))',
       }}
     >
-      <div className="mx-auto max-w-[520px]">
+      <div className="mx-auto w-full min-w-0 max-w-[520px]">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -111,22 +111,22 @@ export function Clients() {
           <div className="lumi-page-title">История клиентов</div>
         </motion.div>
 
-        <GlassCard className="p-4">
-          <div className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/60 shadow-soft">
+        <GlassCard className="min-w-0 p-4">
+          <div className="flex min-w-0 items-center gap-2">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/60 shadow-soft">
               <Search size={18} className="text-ink-800/75" />
             </div>
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Поиск по имени или телефону"
-              className="h-10 flex-1 rounded-2xl border border-white/60 bg-white/60 px-4 text-[15px] text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35"
+              className="h-10 min-w-0 flex-1 rounded-2xl border border-white/60 bg-white/60 px-4 text-[15px] text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35"
             />
             <button
               type="button"
               onClick={handleAddClient}
               className={cn(
-                'inline-flex h-10 items-center gap-2 !rounded-2xl px-4 text-[14px]',
+                'inline-flex h-10 shrink-0 items-center gap-2 !rounded-2xl px-4 text-[14px]',
                 lumiPrimaryActionSm,
               )}
             >
@@ -143,8 +143,7 @@ export function Clients() {
             hidden: { opacity: 1 },
             show: { opacity: 1, transition: { staggerChildren: 0.03, delayChildren: 0.02 } },
           }}
-          className="mt-3 flex flex-col"
-          style={{ gap: 'var(--cognitive-inline-stack)' }}
+          className="mt-3 flex min-w-0 flex-col gap-2.5"
         >
           {list.length ? (
             list.map((c) => {
@@ -158,55 +157,59 @@ export function Clients() {
                 })
               } catch {
                 card = {
-                  insightLine: 'Профиль ещё формируется',
+                  insightLine: '',
                   calm: 0.5,
                   preferQuietFollowUp: false,
                 }
               }
+              const insightText = card.insightLine.trim()
+              const hideInsightBlock =
+                !showInsight || (!insightText && !card.quietHint) || insightText === 'Профиль ещё формируется'
               return (
                 <motion.div
                   key={c.id}
+                  className="min-w-0"
                   variants={{
                     hidden: { opacity: 0, y: 4 },
                     show: { opacity: 1, y: 0, transition: { duration: 0.22, ease: [0.16, 1, 0.3, 1] } },
                   }}
                 >
                   <GlassCard
-                    className="p-5"
+                    className="min-w-0 p-4"
                     style={{
                       opacity: `calc(0.94 + var(--client-card-calm, 0.48) * 0.06 * ${card.calm.toFixed(3)})`,
                     }}
                     onClick={() => handleEditClient(c)}
                   >
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <div className="text-[16px] font-semibold tracking-tightish text-ink-950">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="text-[15px] font-semibold tracking-tightish text-ink-950">
                           {c.name?.trim() ? c.name : 'Без имени'}
                         </div>
-                        <div className="mt-1 text-[12px] text-ink-700/65">{c.phone ?? '—'}</div>
+                        <div className="mt-0.5 text-[12px] text-ink-700/65">{c.phone ?? '—'}</div>
                       </div>
-                      <div className="rounded-2xl border border-white/60 bg-white/55 px-3 py-2 text-right text-[12px] shadow-soft">
+                      <div className="shrink-0 rounded-xl border border-white/60 bg-white/55 px-2.5 py-1.5 text-right text-[11px] shadow-soft">
                         <div className="font-semibold text-ink-950">{money(c.totalSpent)} ₽</div>
                         <div className="text-ink-700/60">{c.visits ?? 0} визитов</div>
                       </div>
                     </div>
 
-                    {showInsight ? (
+                    {!hideInsightBlock ? (
                       <div
-                        className="mt-4 rounded-3xl border border-white/60 bg-white/50 px-4 py-3 shadow-soft"
+                        className="lumi-card-nested mt-2.5 px-3 py-2"
                         style={{
                           opacity: `calc(0.88 + var(--relationship-softness, 0.5) * 0.12 * ${card.calm.toFixed(3)})`,
                         }}
                       >
-                        <div className="inline-flex items-center gap-2 text-[12px] font-medium text-ink-700/70">
-                          <Sparkles size={16} className="text-gold-400" />
-                          Спокойная заметка
+                        <div className="inline-flex items-center gap-1.5 text-[11px] font-medium text-ink-700/70">
+                          <Sparkles size={14} className="shrink-0 text-gold-400" strokeWidth={1.75} />
+                          Заметка
                         </div>
-                        <div className="mt-1 text-[12px] leading-5 text-ink-700/70">
-                          {card.insightLine}
-                        </div>
+                        {insightText ? (
+                          <div className="mt-1 text-[12px] leading-snug text-ink-700/70">{card.insightLine}</div>
+                        ) : null}
                         {card.quietHint ? (
-                          <div className="mt-2 text-[11px] leading-5 text-ink-700/55">{card.quietHint}</div>
+                          <div className="mt-1 text-[11px] leading-snug text-ink-700/55">{card.quietHint}</div>
                         ) : null}
                       </div>
                     ) : null}
@@ -214,8 +217,7 @@ export function Clients() {
                     {c.notes ? (
                       <div
                         className={cn(
-                          'mt-4 rounded-3xl border border-white/60 bg-white/50 px-4 py-3',
-                          'text-[12px] leading-5 text-ink-700/70 shadow-soft',
+                          'lumi-card-nested mt-2.5 px-3 py-2 text-[12px] leading-snug text-ink-700/70',
                         )}
                       >
                         {c.notes}
@@ -253,7 +255,7 @@ export function Clients() {
       >
         {draft ? (
           <div className="space-y-3 pb-[env(safe-area-inset-bottom)]">
-            <div className="rounded-3xl border border-white/60 bg-white/55 p-4 text-[12px] leading-relaxed text-ink-700/65 shadow-soft">
+            <div className="lumi-card p-4 text-[12px] leading-relaxed text-ink-700/65">
               {isExistingClient
                 ? 'Измените данные или удалите карточку — записи останутся на месте.'
                 : 'Добавьте клиента вручную. Телефон и заметку можно заполнить позже.'}
@@ -297,7 +299,7 @@ export function Clients() {
                   .sort((a, b) => atLocalMs(b.dateISO, b.time) - atLocalMs(a.dateISO, a.time))
                 const last = hist.find((b) => b.status !== 'cancelled') ?? hist[0]
                 return (
-                  <div className="rounded-3xl border border-white/60 bg-white/55 p-4 shadow-soft">
+                  <div className="lumi-card p-4">
                     <div className="flex items-center justify-between gap-3">
                       <div className="text-[12px] font-medium text-ink-700/70">Профиль</div>
                       <div className="text-[12px] font-medium text-ink-700/60">
@@ -305,7 +307,7 @@ export function Clients() {
                       </div>
                     </div>
                     <div className="mt-2 grid grid-cols-2 gap-2">
-                      <div className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 shadow-soft">
+                      <div className="lumi-card px-4 py-3">
                         <div className="text-[11px] font-medium uppercase tracking-[0.10em] text-ink-700/55">
                           Последний визит
                         </div>
@@ -313,7 +315,7 @@ export function Clients() {
                           {last ? `${last.dateISO} • ${last.time ?? '—'}` : '—'}
                         </div>
                       </div>
-                      <div className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 shadow-soft">
+                      <div className="lumi-card px-4 py-3">
                         <div className="text-[11px] font-medium uppercase tracking-[0.10em] text-ink-700/55">
                           История
                         </div>
@@ -327,7 +329,7 @@ export function Clients() {
                         {hist.slice(0, 5).map((b) => (
                           <div
                             key={b.id}
-                            className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[12px] text-ink-700/70 shadow-soft"
+                            className="lumi-card px-4 py-3 text-[12px] text-ink-700/70"
                           >
                             <div className="font-semibold text-ink-950">
                               {b.dateISO} • {b.time ?? '—'}

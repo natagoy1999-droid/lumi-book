@@ -8,7 +8,7 @@ export function Skeleton({ className }: Props) {
   return (
     <div
       className={cn(
-        'relative overflow-hidden rounded-3xl border border-white/50 bg-white/45 shadow-soft',
+        'relative overflow-hidden lumi-card-nested bg-white/45',
         className,
       )}
     >

@@ -33,18 +33,18 @@ export function Signup() {
             onChange={(e) => setEmail(e.target.value)}
             inputMode="email"
             placeholder="Email"
-            className="w-full rounded-3xl border border-white/60 bg-white/60 px-4 py-3 text-[15px] text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35"
+            className="w-full lumi-card bg-white/60 px-4 py-3 text-[15px] text-ink-950 outline-none placeholder:text-ink-700/35"
           />
           <input
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             type="password"
             placeholder="Пароль"
-            className="w-full rounded-3xl border border-white/60 bg-white/60 px-4 py-3 text-[15px] text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35"
+            className="w-full lumi-card bg-white/60 px-4 py-3 text-[15px] text-ink-950 outline-none placeholder:text-ink-700/35"
           />
 
           {error ? (
-            <div className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[12px] text-ink-700/65 shadow-soft">
+            <div className="lumi-card px-4 py-3 text-[12px] text-ink-700/65">
               {error}
             </div>
           ) : null}
@@ -80,7 +80,7 @@ export function Signup() {
           <button
             type="button"
             onClick={() => nav('/auth')}
-            className="w-full rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[13px] font-semibold text-ink-950 shadow-soft"
+            className="w-full lumi-card px-4 py-3 text-[13px] font-semibold text-ink-950"
           >
             Назад
           </button>

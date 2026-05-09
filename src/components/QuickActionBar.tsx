@@ -61,7 +61,7 @@ export function QuickActionBar({
                   'inline-flex items-center gap-2 whitespace-nowrap font-semibold',
                   a.tone === 'gold'
                     ? lumiPrimaryActionSm
-                    : 'rounded-3xl border border-white/65 bg-white/68 px-4 py-3 text-[14px] text-ink-950 shadow-soft',
+                    : 'lumi-card bg-white/68 px-4 py-3 text-[14px] text-ink-950',
                 )}
               >
                 {Icon ? <Icon size={16} className="text-gold-300/85" /> : null}

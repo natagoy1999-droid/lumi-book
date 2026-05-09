@@ -78,8 +78,7 @@ function Widget({
   return (
     <div
       className={cn(
-        'rounded-3xl border-[1.5px] border-gold-400/30 px-4 py-4 shadow-luxury',
-        'border-l-[3px] border-l-gold-400',
+        'lumi-card px-4 py-4 border-l-[3px] border-l-gold-400/35',
         compact && 'px-3 py-3',
         colSpanFull && 'col-span-2',
         rebalanceFill && (compact ? 'min-h-[84px]' : 'min-h-[96px]'),
@@ -93,7 +92,7 @@ function Widget({
     >
       <div className="flex gap-3">
         <div
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-[1.5px] border-gold-400/50 bg-[var(--lumi-bg)] shadow-soft"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/60 bg-[var(--lumi-bg)] shadow-soft"
         >
           {icon}
         </div>

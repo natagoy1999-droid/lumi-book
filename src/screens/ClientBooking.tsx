@@ -158,8 +158,8 @@ export function ClientBooking() {
                           setStep('master')
                         }}
                         className={cn(
-                          'w-full rounded-3xl border px-4 py-4 text-left shadow-soft transition',
-                          active ? 'border-white/70 bg-white/75' : 'border-white/55 bg-white/55',
+                          'w-full lumi-card px-4 py-4 text-left transition',
+                          active && 'ring-1 ring-gold-400/28 bg-white/72',
                         )}
                       >
                         <div className="flex items-start justify-between gap-4">
@@ -197,8 +197,8 @@ export function ClientBooking() {
                           setStep('date')
                         }}
                         className={cn(
-                          'w-full rounded-3xl border px-4 py-4 text-left shadow-soft transition',
-                          active ? 'border-white/70 bg-white/75' : 'border-white/55 bg-white/55',
+                          'w-full lumi-card px-4 py-4 text-left transition',
+                          active && 'ring-1 ring-gold-400/28 bg-white/72',
                         )}
                       >
                         <div className="flex items-center justify-between gap-4">
@@ -248,7 +248,7 @@ export function ClientBooking() {
                     transition={{ type: 'spring', stiffness: 600, damping: 40 }}
                     onClick={() => setStep('time')}
                     className={cn(
-                      'mt-4 w-full rounded-3xl px-5 py-4 text-[15px] font-medium shadow-glowGold',
+                      'mt-4 w-full rounded-3xl px-5 py-4 text-[15px] font-medium shadow-soft ring-1 ring-gold-400/22',
                       hasAnySlotsInWindow && slots.length > 0
                         ? 'bg-ink-950 text-paper-50'
                         : 'cursor-not-allowed bg-ink-950/40 text-paper-50/80',
@@ -277,10 +277,8 @@ export function ClientBooking() {
                             type="button"
                             onClick={() => setTime(t)}
                             className={cn(
-                              'rounded-3xl border px-3 py-3 text-[13px] font-semibold shadow-soft transition',
-                              active
-                                ? 'border-white/70 bg-white/75 text-ink-950'
-                                : 'border-white/55 bg-white/55 text-ink-950',
+                              'lumi-card px-3 py-3 text-[13px] font-semibold transition',
+                              active && 'ring-1 ring-gold-400/28 bg-white/72 text-ink-950',
                             )}
                           >
                             {t}
@@ -350,7 +348,7 @@ export function ClientBooking() {
                   transition={{ duration: 0.28, ease: 'easeOut' }}
                   className="space-y-3"
                 >
-                  <div className="rounded-3xl border border-white/60 bg-white/55 px-4 py-4 text-[13px] leading-6 text-ink-700/70 shadow-soft">
+                  <div className="lumi-card px-4 py-4 text-[13px] leading-6 text-ink-700/70">
                     <div className="font-semibold text-ink-950">{service?.name}</div>
                     <div className="mt-1">
                       {master?.name} • {dateISO} • {time}
@@ -445,7 +443,7 @@ export function ClientBooking() {
                       setDateISO(todayISO())
                       setStep('service')
                     }}
-                    className="w-full rounded-3xl border border-white/60 bg-white/55 px-5 py-4 text-[15px] font-semibold text-ink-950 shadow-soft"
+                    className="w-full lumi-card px-5 py-4 text-[15px] font-semibold text-ink-950"
                   >
                     Записаться ещё раз
                   </button>

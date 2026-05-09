@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import { Sparkles } from 'lucide-react'
 
 import { cn } from '../lib/cn'
-import { glassBackdropFilter, glassBorderStyle, glassFill } from '../lib/glassStyles'
+import { glassBackdropFilter, glassFill } from '../lib/glassStyles'
 import type { SmartPinnedItem } from '../lib/pinningEngine'
 
 export function SmartPinnedItemView({ item }: { item: SmartPinnedItem }) {
@@ -14,18 +14,13 @@ export function SmartPinnedItemView({ item }: { item: SmartPinnedItem }) {
       exit={{ opacity: 0, y: -6, scale: 0.99 }}
       transition={{ type: 'spring', stiffness: 560, damping: 44, mass: 0.85 }}
       className={cn(
-        'rounded-3xl border px-4 py-3 shadow-soft',
-        item.tone === 'gold'
-          ? 'border-gold-200/60 ring-1 ring-gold-200/50'
-          : 'ring-1 ring-black/5',
+        'lumi-card px-4 py-3',
+        item.tone === 'gold' ? 'ring-1 ring-gold-400/28' : undefined,
       )}
       style={{
         backdropFilter: glassBackdropFilter('interactive'),
         backgroundColor: glassFill('interactive'),
-        borderColor:
-          item.tone === 'gold'
-            ? 'rgba(214, 178, 90, 0.38)'
-            : glassBorderStyle('interactive'),
+        borderColor: item.tone === 'gold' ? 'rgba(214, 178, 90, 0.35)' : 'rgba(255,255,255,0.6)',
         transform: 'scale(var(--compact-scale, 1))',
       }}
     >

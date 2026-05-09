@@ -23,7 +23,7 @@ import { useSessionContinuity } from '../state/sessionContinuity'
 import { useMessaging } from '../state/messaging'
 import { useAssistantUI } from '../state/assistant'
 import { todayISO, useStore } from '../state/store'
-import { glassBackdropFilter, glassBorderStyle, glassFill } from '../lib/glassStyles'
+import { glassBackdropFilter, glassFill } from '../lib/glassStyles'
 import { GlassCard } from './GlassCard'
 
 function breathing() {
@@ -259,13 +259,12 @@ export function AssistantLayer({ compact = false }: { compact?: boolean }) {
                 mass: 0.82 + layoutBalance * 0.06 + anticipationQ * 0.05,
               }}
               className={cn(
-                'relative overflow-hidden rounded-3xl border px-4 py-3 shadow-soft',
+                'relative overflow-hidden lumi-card px-4 py-3',
                 compact && 'px-3 py-2',
               )}
               style={{
                 backdropFilter: glassBackdropFilter('interactive'),
                 backgroundColor: glassFill('interactive'),
-                borderColor: glassBorderStyle('interactive'),
                 ...(c.kind === 'behavioral_whisper'
                   ? { opacity: withSocialQuietMul('var(--predictive-opacity, 0.82)') }
                   : c.kind === 'calm_reassurance'

@@ -128,10 +128,10 @@ export function MessageComposerSheet() {
                     type="button"
                     onClick={() => setChannel(c.id)}
                     className={cn(
-                      'flex-1 rounded-3xl border px-4 py-3 text-[13px] font-semibold shadow-soft transition',
+                      'flex-1 lumi-card px-4 py-3 text-[13px] font-semibold transition',
                       active
-                        ? 'border-white/60 bg-white/70 text-ink-950 ring-1 ring-gold-200/60'
-                        : 'border-white/55 bg-white/55 text-ink-800/70 hover:bg-white/65',
+                        ? 'bg-white/72 text-ink-950 ring-1 ring-gold-400/28'
+                        : 'text-ink-800/70 hover:bg-white/62',
                     )}
                   >
                     {c.label}
@@ -140,7 +140,7 @@ export function MessageComposerSheet() {
               })}
             </div>
 
-            <div className="rounded-[26px] border border-white/60 bg-white/55 p-4 shadow-soft">
+            <div className="lumi-card rounded-[26px] p-4">
               <div className="mb-2 inline-flex items-center gap-2 text-[12px] font-medium text-ink-700/70">
                 {showAmbientHints ? <Sparkles size={16} className="text-gold-400" /> : null}
                 AI message preview
@@ -165,7 +165,7 @@ export function MessageComposerSheet() {
                     // ignore
                   }
                 }}
-                className="inline-flex items-center justify-center gap-2 rounded-3xl border border-white/60 bg-white/55 px-4 py-4 text-[13px] font-semibold text-ink-950 shadow-soft"
+                className="inline-flex items-center justify-center gap-2 lumi-card px-4 py-4 text-[13px] font-semibold text-ink-950"
               >
                 <Copy size={16} />
                 Скопировать

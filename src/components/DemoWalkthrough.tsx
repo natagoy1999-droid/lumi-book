@@ -224,13 +224,12 @@ export function DemoWalkthrough() {
                 data-demo-walkthrough-modal="1"
                 className={cn(
                   'pointer-events-auto relative box-border flex max-h-[calc(100dvh-64px)] w-full flex-col overflow-hidden rounded-[28px]',
-                  'border-[1.5px] shadow-luxury-md',
+                  'border border-white/60 shadow-soft',
                 )}
                 style={{
                   width: 'min(520px, calc(100vw - 32px))',
                   maxHeight: 'calc(100dvh - 64px)',
                   backgroundColor: 'var(--lumi-surface)',
-                  borderColor: 'rgba(198,161,91,0.48)',
                   boxSizing: 'border-box',
                 }}
                 initial={{ opacity: 0, scale: 0.98 }}
@@ -266,12 +265,12 @@ export function DemoWalkthrough() {
                   </div>
                 </div>
 
-                <div className="shrink-0 border-t border-black/[0.06] px-6 pb-[calc(16px+env(safe-area-inset-bottom))] pt-4">
+                <div className="shrink-0 border-t border-white/25 px-6 pb-[calc(16px+env(safe-area-inset-bottom))] pt-4">
                   <div className="grid grid-cols-3 gap-2">
                     <button
                       type="button"
                       onClick={() => prev()}
-                      className="inline-flex items-center justify-center gap-2 rounded-3xl border border-white/60 bg-white/60 px-3 py-3.5 text-[13px] font-semibold text-ink-950 shadow-soft"
+                      className="inline-flex items-center justify-center gap-2 lumi-card bg-white/60 px-3 py-3.5 text-[13px] font-semibold text-ink-950"
                     >
                       <ArrowLeft size={16} />
                       Назад
@@ -294,7 +293,7 @@ export function DemoWalkthrough() {
                     <button
                       type="button"
                       onClick={() => stop()}
-                      className="rounded-3xl border border-white/60 bg-white/60 px-3 py-3.5 text-[13px] font-semibold text-ink-950 shadow-soft"
+                      className="lumi-card bg-white/60 px-3 py-3.5 text-[13px] font-semibold text-ink-950"
                     >
                       Закрыть
                     </button>

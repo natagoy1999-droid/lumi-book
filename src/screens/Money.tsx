@@ -86,12 +86,12 @@ export function Money() {
 
   return (
     <div
-      className="lumi-page"
+      className="lumi-page lumi-page-shell"
       style={{
         paddingTop: 'calc(1.75rem * (0.94 + var(--global-rhythm, 1) * 0.06))',
       }}
     >
-      <div className="mx-auto max-w-[520px]">
+      <div className="mx-auto w-full min-w-0 max-w-[520px]">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -102,8 +102,11 @@ export function Money() {
           <div className="lumi-page-title">Аналитика</div>
         </motion.div>
 
-        <div className="grid grid-cols-2" style={{ gap: 'var(--cognitive-grid-gap)' }}>
-          <GlassCard className="p-5">
+        <div
+          className="grid min-w-0 grid-cols-[repeat(2,minmax(0,1fr))]"
+          style={{ gap: 'var(--cognitive-grid-gap)' }}
+        >
+          <GlassCard className="min-w-0 p-5">
             <div className="text-[12px] font-medium text-ink-700/70">Сегодня</div>
             <div className="mt-2 text-[26px] font-semibold tracking-tightish text-ink-950">
               {money(day)} ₽
@@ -114,7 +117,7 @@ export function Money() {
             </div>
           </GlassCard>
 
-          <GlassCard className="p-5">
+          <GlassCard className="min-w-0 p-5">
             <div className="text-[12px] font-medium text-ink-700/70">Средний чек</div>
             <div className="mt-2 text-[26px] font-semibold tracking-tightish text-ink-950">
               {money(Math.round(avg))} ₽
@@ -123,15 +126,18 @@ export function Money() {
           </GlassCard>
         </div>
 
-        <div className="mt-3 grid grid-cols-2" style={{ gap: 'var(--cognitive-grid-gap)' }}>
-          <GlassCard className="p-5">
+        <div
+          className="mt-3 grid min-w-0 grid-cols-[repeat(2,minmax(0,1fr))]"
+          style={{ gap: 'var(--cognitive-grid-gap)' }}
+        >
+          <GlassCard className="min-w-0 p-5">
             <div className="text-[12px] font-medium text-ink-700/70">Неделя</div>
             <div className="mt-2 text-[22px] font-semibold tracking-tightish text-ink-950">
               {money(week)} ₽
             </div>
             <div className="mt-1 text-[12px] text-ink-700/60">Прогноз</div>
           </GlassCard>
-          <GlassCard className="p-5">
+          <GlassCard className="min-w-0 p-5">
             <div className="text-[12px] font-medium text-ink-700/70">Месяц</div>
             <div className="mt-2 text-[22px] font-semibold tracking-tightish text-ink-950">
               {money(month)} ₽
@@ -140,9 +146,9 @@ export function Money() {
           </GlassCard>
         </div>
 
-        <div className="mt-3 flex flex-col" style={{ gap: 'var(--cognitive-inline-stack)' }}>
+        <div className="mt-3 flex min-w-0 flex-col" style={{ gap: 'var(--cognitive-inline-stack)' }}>
           {hasAnalytics ? (
-            <GlassCard className="p-5">
+            <GlassCard className="min-w-0 p-5">
               <div className="inline-flex items-center gap-2 text-[12px] font-medium text-ink-700/70">
                 {showAmbientHints ? <Sparkles size={16} className="text-gold-400" /> : null}
                 Популярные услуги
@@ -156,13 +162,13 @@ export function Money() {
                 {top.map((s) => (
                   <div
                     key={s.id}
-                    className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 shadow-soft"
+                    className="lumi-card px-4 py-3"
                   >
                     <div className="flex items-center justify-between">
                       <div className="text-[14px] font-semibold tracking-tightish text-ink-950">
                         {s.name}
                       </div>
-                      <div className="text-[12px] font-medium text-ink-700/65">
+                      <div className="shrink-0 text-[12px] font-medium text-ink-700/65">
                         {money(s.price)} ₽
                       </div>
                     </div>

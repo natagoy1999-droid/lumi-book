@@ -1,10 +1,11 @@
 import { AnimatePresence, motion } from 'framer-motion'
+import { X } from 'lucide-react'
 import type { PropsWithChildren } from 'react'
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 import { cn } from '../lib/cn'
-import { glassBackdropFilter, glassBorderStyle, glassFill } from '../lib/glassStyles'
+import { glassBackdropFilter, glassFill } from '../lib/glassStyles'
 import { coerceModalId, useModalManager, type ModalId } from '../state/modalManager'
 import { motion as motionTokens } from '../theme/motion'
 
@@ -117,7 +118,7 @@ export function Sheet({
                   role="dialog"
                   aria-modal="true"
                   className={cn(
-                    'pointer-events-auto relative box-border flex flex-col overflow-y-auto overscroll-contain rounded-[28px] border-[1.5px] shadow-luxury-md',
+                    'pointer-events-auto relative box-border flex flex-col overflow-y-auto overscroll-contain rounded-[28px] border border-white/60 shadow-soft',
                     className,
                   )}
                   style={{
@@ -127,7 +128,7 @@ export function Sheet({
                     boxSizing: 'border-box',
                     backdropFilter: surface === 'glass' ? glassBackdropFilter('interactive') : 'none',
                     backgroundColor: surface === 'glass' ? glassFill('interactive') : 'var(--lumi-surface)',
-                    borderColor: surface === 'glass' ? glassBorderStyle('interactive') : 'rgba(198,161,91,0.45)',
+                    borderColor: 'rgba(255,255,255,0.6)',
                   }}
                   initial={{ opacity: 0, scale: 0.98 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -136,9 +137,26 @@ export function Sheet({
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="box-border min-h-0 flex-1 p-6">
-                    {title ? (
-                      <div className="mb-4 text-[15px] font-semibold tracking-tight text-ink-900">{title}</div>
-                    ) : null}
+                    <div
+                      className={cn(
+                        'mb-4 flex items-start gap-3',
+                        title ? 'justify-between' : 'justify-end',
+                      )}
+                    >
+                      {title ? (
+                        <div className="min-w-0 flex-1 pr-2 text-[15px] font-semibold tracking-tight text-ink-900">
+                          {title}
+                        </div>
+                      ) : null}
+                      <button
+                        type="button"
+                        aria-label="Закрыть"
+                        onClick={onClose}
+                        className="inline-flex h-10 w-10 shrink-0 touch-manipulation items-center justify-center rounded-2xl border border-white/60 bg-white/55 text-ink-950 shadow-soft"
+                      >
+                        <X size={18} strokeWidth={1.75} />
+                      </button>
+                    </div>
                     {children}
                   </div>
                 </motion.div>
@@ -194,7 +212,7 @@ export function Sheet({
                   role="dialog"
                   aria-modal="true"
                   className={cn(
-                    'pointer-events-auto box-border max-h-[calc(100dvh-64px)] w-full overflow-hidden rounded-[28px] border-[1.5px] shadow-luxury-md',
+                    'pointer-events-auto box-border max-h-[calc(100dvh-64px)] w-full overflow-hidden rounded-[28px] border border-white/60 shadow-soft',
                     className,
                   )}
                   style={{
@@ -202,7 +220,7 @@ export function Sheet({
                     maxHeight: 'calc(100dvh - 64px)',
                     backdropFilter: surface === 'glass' ? glassBackdropFilter('interactive') : 'none',
                     backgroundColor: surface === 'glass' ? glassFill('interactive') : 'var(--lumi-surface)',
-                    borderColor: surface === 'glass' ? glassBorderStyle('interactive') : 'rgba(198,161,91,0.42)',
+                    borderColor: 'rgba(255,255,255,0.6)',
                   }}
                   initial={{ y: 14, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}

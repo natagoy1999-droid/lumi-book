@@ -113,22 +113,16 @@ export function Calendar() {
           <div className="lumi-page-title">Календарь</div>
         </motion.div>
 
-        <GlassCard
-          materialTier="interactive"
-          className={cn(
-            'border-[0.5px] border-gold-400/14 shadow-[0_20px_56px_-30px_rgba(45,35,20,0.14)] ring-1 ring-gold-400/[0.07]',
-            'rounded-[24px] p-6 sm:p-7 sm:rounded-[28px]',
-          )}
-        >
+        <GlassCard materialTier="interactive" className="p-6 sm:p-7">
           <div className="flex items-center justify-between gap-3 pb-8 pt-0.5">
             <button
               type="button"
               aria-label="Предыдущий месяц"
               onClick={goPrevMonth}
               className={cn(
-                'inline-flex h-8 w-8 shrink-0 touch-manipulation items-center justify-center rounded-[11px] border-[0.5px] transition duration-200',
-                'border-gold-400/14 bg-[color-mix(in_srgb,var(--lumi-surface)_94%,transparent)] text-ink-800/55',
-                'hover:border-gold-400/24 hover:bg-[var(--lumi-surface)] hover:text-ink-950',
+                'inline-flex h-8 w-8 shrink-0 touch-manipulation items-center justify-center rounded-[11px] border border-white/55 transition duration-200',
+                'bg-[color-mix(in_srgb,var(--lumi-surface)_94%,transparent)] text-ink-800/55',
+                'hover:border-white/70 hover:bg-[var(--lumi-surface)] hover:text-ink-950',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400/28 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--lumi-bg)]',
               )}
             >
@@ -144,9 +138,9 @@ export function Calendar() {
               aria-label="Следующий месяц"
               onClick={goNextMonth}
               className={cn(
-                'inline-flex h-8 w-8 shrink-0 touch-manipulation items-center justify-center rounded-[11px] border-[0.5px] transition duration-200',
-                'border-gold-400/14 bg-[color-mix(in_srgb,var(--lumi-surface)_94%,transparent)] text-ink-800/55',
-                'hover:border-gold-400/24 hover:bg-[var(--lumi-surface)] hover:text-ink-950',
+                'inline-flex h-8 w-8 shrink-0 touch-manipulation items-center justify-center rounded-[11px] border border-white/55 transition duration-200',
+                'bg-[color-mix(in_srgb,var(--lumi-surface)_94%,transparent)] text-ink-800/55',
+                'hover:border-white/70 hover:bg-[var(--lumi-surface)] hover:text-ink-950',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400/28 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--lumi-bg)]',
               )}
             >
@@ -191,7 +185,7 @@ export function Calendar() {
                   aria-current={isTodayCell ? 'date' : undefined}
                   onClick={() => setDateISO(iso)}
                   className={cn(
-                    'relative flex aspect-square min-h-[3rem] touch-manipulation flex-col items-center justify-center rounded-[14px] border-[0.5px] transition-[background-color,border-color,box-shadow,transform] duration-200 ease-out',
+                    'relative flex aspect-square min-h-[3rem] touch-manipulation flex-col items-center justify-center rounded-[14px] border transition-[background-color,border-color,box-shadow,transform] duration-200 ease-out',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--lumi-bg)]',
                     active
                       ? cn(
@@ -201,10 +195,10 @@ export function Calendar() {
                             'ring-2 ring-gold-400/35 ring-offset-2 ring-offset-[color-mix(in_srgb,var(--lumi-gold-mid)_22%,var(--lumi-surface))]',
                         )
                       : cn(
-                          'border-gold-400/[0.09] bg-[var(--lumi-surface)] shadow-none',
-                          'hover:border-gold-400/18 hover:bg-[color-mix(in_srgb,var(--lumi-surface)_86%,var(--lumi-gold-soft)_14%)]',
+                          'border-white/44 bg-[var(--lumi-surface)] shadow-none',
+                          'hover:border-white/56 hover:bg-[color-mix(in_srgb,var(--lumi-surface)_92%,white)]',
                           isTodayCell &&
-                            'border-gold-400/48 ring-2 ring-gold-400/22 ring-offset-2 ring-offset-[var(--lumi-surface)] shadow-[0_14px_42px_-18px_rgba(198,161,91,0.32)]',
+                            'border-gold-400/45 ring-2 ring-gold-400/22 ring-offset-2 ring-offset-[var(--lumi-surface)] shadow-[0_14px_42px_-18px_rgba(198,161,91,0.28)]',
                         ),
                   )}
                 >
@@ -233,17 +227,11 @@ export function Calendar() {
         </GlassCard>
 
         <div
-          className="mt-11 flex flex-col border-t border-gold-400/[0.06] pt-9"
+          className="mt-11 flex flex-col border-t border-white/25 pt-9"
           style={{ gap: 'var(--cognitive-inline-stack)' }}
         >
           {showAmbientHints ? (
-            <GlassCard
-              materialTier="ambient"
-              className={cn(
-                'border-[0.5px] border-gold-400/[0.09] bg-[color-mix(in_srgb,var(--lumi-bg)_55%,var(--lumi-surface)_45%)] p-4 shadow-[0_6px_32px_-20px_rgba(45,35,20,0.06)] ring-1 ring-gold-400/[0.04]',
-                'rounded-[18px]',
-              )}
-            >
+            <GlassCard materialTier="ambient" className="p-4">
               <div className="inline-flex items-center gap-2.5 text-[12px] font-medium leading-snug text-ink-700/62">
                 <Sparkles size={15} className="shrink-0 text-gold-400/90" strokeWidth={1.75} />
                 Выберите дату — и Lumi сама откроет окна времени
@@ -251,13 +239,7 @@ export function Calendar() {
             </GlassCard>
           ) : null}
 
-          <GlassCard
-            materialTier="ambient"
-            className={cn(
-              'border-[0.5px] border-gold-400/[0.09] bg-[color-mix(in_srgb,var(--lumi-surface)_70%,var(--lumi-bg)_30%)] p-5 shadow-[0_10px_40px_-24px_rgba(45,35,20,0.08)] ring-1 ring-gold-400/[0.04]',
-              'rounded-[20px]',
-            )}
-          >
+          <GlassCard materialTier="ambient" className="p-5">
             <div className="text-[10px] font-medium uppercase tracking-[0.08em] text-ink-700/40">
               Расписание
             </div>
@@ -272,10 +254,7 @@ export function Calendar() {
                 }}
               >
                 {bookings.map((b) => (
-                  <div
-                    key={b.id}
-                    className="rounded-[14px] border-[0.5px] border-gold-400/[0.08] bg-[color-mix(in_srgb,var(--lumi-surface)_82%,white)] px-4 py-3.5 shadow-[0_2px_20px_-12px_rgba(45,35,20,0.05)]"
-                  >
+                  <div key={b.id} className="lumi-card-nested px-4 py-3.5">
                     <div className="flex items-center justify-between">
                       <div className="text-[14px] font-semibold tracking-tightish text-ink-950">
                         {b.time} • {getClient(b.clientId)?.name ?? b.clientName ?? 'Клиент'}
@@ -287,12 +266,12 @@ export function Calendar() {
                     <div className="mt-1 text-[12px] text-ink-700/60">
                       {getService(b.serviceId)?.name ?? b.serviceName ?? 'Услуга'}
                       {b.status === 'pending_confirm' ? (
-                        <span className="ml-2 inline-flex items-center rounded-full border border-gold-200/60 bg-white/55 px-2 py-0.5 text-[11px] font-medium text-ink-800/70">
+                        <span className="ml-2 inline-flex items-center rounded-full border border-white/55 bg-white/50 px-2 py-0.5 text-[11px] font-medium text-ink-800/70">
                           ждём подтверждение
                         </span>
                       ) : null}
                       {b.status === 'reschedule_pending' ? (
-                        <span className="ml-2 inline-flex items-center rounded-full border border-gold-200/60 bg-white/55 px-2 py-0.5 text-[11px] font-medium text-ink-800/70">
+                        <span className="ml-2 inline-flex items-center rounded-full border border-white/55 bg-white/50 px-2 py-0.5 text-[11px] font-medium text-ink-800/70">
                           перенос
                         </span>
                       ) : null}
@@ -306,7 +285,7 @@ export function Calendar() {
                 ))}
               </div>
             ) : (
-              <div className="mt-4 rounded-[14px] border-[0.5px] border-gold-400/[0.07] bg-[color-mix(in_srgb,var(--lumi-surface)_88%,var(--lumi-bg)_12%)] px-4 py-4 text-[13px] leading-relaxed text-ink-700/65 shadow-[inset_0_1px_0_rgba(255,253,248,0.5)]">
+              <div className="lumi-card-nested mt-4 px-4 py-4 text-[13px] leading-relaxed text-ink-700/65">
                 <div className="font-semibold tracking-tight text-ink-950">Свободный день</div>
                 <div className="mt-1 text-[13px] leading-relaxed text-ink-700/62">
                   Записей на эту дату пока нет — можно добавить или оставить окна свободными.

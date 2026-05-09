@@ -126,7 +126,7 @@ export function Onboarding() {
                   type="button"
                   onClick={() => setStep((x) => Math.max(0, x - 1))}
                   disabled={step === 0}
-                  className="touch-manipulation min-h-[52px] flex-1 rounded-3xl border border-white/58 bg-white/55 px-4 py-3.5 text-[14px] font-semibold text-ink-950 shadow-soft transition-colors duration-200 hover:bg-white/68 disabled:pointer-events-none disabled:opacity-45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200/55 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7EF] active:scale-[var(--press-scale,0.992)]"
+                  className="touch-manipulation min-h-[52px] flex-1 lumi-card px-4 py-3.5 text-[14px] font-semibold text-ink-950 transition-colors duration-200 hover:bg-white/68 disabled:pointer-events-none disabled:opacity-45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200/55 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7EF] active:scale-[var(--press-scale,0.992)]"
                 >
                   Назад
                 </button>
@@ -151,7 +151,7 @@ export function Onboarding() {
               <button
                 type="button"
                 onClick={() => nav('/book')}
-                className="touch-manipulation min-h-[48px] w-full rounded-3xl border border-white/58 bg-white/52 py-3 text-[14px] font-semibold text-ink-900/85 shadow-soft transition-colors duration-200 hover:bg-white/65 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200/55 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7EF] active:scale-[var(--press-scale,0.992)]"
+                className="touch-manipulation min-h-[48px] w-full lumi-card bg-white/52 py-3 text-[14px] font-semibold text-ink-900/85 transition-colors duration-200 hover:bg-white/65 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200/55 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7EF] active:scale-[var(--press-scale,0.992)]"
               >
                 Я клиент — онлайн-запись
               </button>

@@ -14,6 +14,9 @@
   --lumi-gold-cta-bottom: #c6a15b;
   --lumi-border: rgba(198, 161, 91, 0.38);
   --lumi-border-strong: rgba(198, 161, 91, 0.52);
+  /* Card shells — match Clients / История клиентов */
+  --lumi-card-border: rgba(255, 255, 255, 0.6);
+  --lumi-card-shadow: 0 10px 30px rgba(17, 17, 17, 0.09), 0 2px 10px rgba(17, 17, 17, 0.05);
   --lumi-gradient-primary: linear-gradient(180deg, var(--lumi-gold-cta-top) 0%, var(--lumi-gold-cta-bottom) 100%);
   --lumi-gradient-subtle: linear-gradient(180deg, rgba(241, 225, 184, 0.55) 0%, rgba(198, 161, 91, 0.12) 100%);
   --safe-top: env(safe-area-inset-top, 0px);
@@ -295,6 +298,20 @@ body {
   color: var(--lumi-ink);
 }
 
+/**
+ * Shared horizontal inset + bottom clearance for tabbed app screens (matches Today/Calendar px-5 + BottomTabs).
+ */
+.lumi-page-shell {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  padding-bottom: var(--app-bottom-pad, calc(116px + env(safe-area-inset-bottom)));
+}
+
 .app-preparing {
   opacity: 0;
   transition: opacity 380ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -379,6 +396,21 @@ body {
 @media (min-width: 768px) {
   .lumi-title {
     font-size: 28px !important;
+  }
+}
+
+@layer components {
+  .lumi-card {
+    border-radius: 1.875rem;
+    border: 1px solid var(--lumi-card-border);
+    background-color: color-mix(in srgb, var(--lumi-surface) 42%, rgba(255, 255, 255, 0.56));
+    box-shadow: var(--lumi-card-shadow);
+  }
+  .lumi-card-nested {
+    border-radius: 1.875rem;
+    border: 1px solid var(--lumi-card-border);
+    background-color: color-mix(in srgb, var(--lumi-surface) 36%, rgba(255, 255, 255, 0.5));
+    box-shadow: var(--lumi-card-shadow);
   }
 }
 

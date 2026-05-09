@@ -720,7 +720,7 @@ export function SmartReminders({ hideWhenEmpty = false }: { hideWhenEmpty?: bool
           </div>
           <div className="text-[12px] text-ink-700/55">Появляется только по делу</div>
         </div>
-        <div className="mt-4 rounded-3xl border border-white/60 bg-white/55 px-4 py-3 shadow-soft">
+        <div className="lumi-card mt-4 px-4 py-3">
           <div className="text-[14px] font-semibold tracking-tightish text-ink-950">
             Сегодня всё спокойно
           </div>
@@ -799,7 +799,7 @@ function ReminderCard({
         if (Math.abs(info.offset.x) > 88 || Math.abs(info.velocity.x) > 900) onDismiss()
       }}
       className={cn(
-        'relative rounded-3xl border border-white/60 bg-white/55 px-4 py-3 shadow-soft',
+        'relative lumi-card px-4 py-3',
         'backdrop-blur-glass',
         toneRing,
       )}

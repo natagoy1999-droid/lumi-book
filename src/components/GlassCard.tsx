@@ -33,13 +33,13 @@ export function GlassCard({
       onClick={onClick}
       onKeyDown={onKeyDown}
       className={cn(
-        'relative overflow-hidden rounded-3xl border-[1.5px] shadow-luxury',
-        'transition-[transform,background-color,border-color,box-shadow,opacity] duration-[240ms] ease-out',
-        ink ? 'border-white/14 bg-ink-900/70 text-white' : 'border-[var(--lumi-border)] text-ink-900',
-        !ink && 'ring-1 ring-gold-400/18',
+        'relative overflow-hidden rounded-3xl transition-[transform,background-color,border-color,box-shadow,opacity] duration-[240ms] ease-out',
+        ink
+          ? 'border border-white/14 bg-ink-900/70 text-white shadow-none'
+          : 'border border-white/60 text-ink-900 shadow-soft',
         onClick &&
-          'touch-manipulation cursor-pointer select-none active:scale-[var(--press-scale,0.992)] active:opacity-[var(--press-opacity,0.94)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--lumi-bg)]',
-        onClick && 'hover:shadow-luxury-md hover:border-gold-400/55',
+          'touch-manipulation cursor-pointer select-none active:scale-[var(--press-scale,0.992)] active:opacity-[var(--press-opacity,0.94)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400/35 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--lumi-bg)]',
+        onClick && !ink && 'hover:border-white/72 hover:shadow-lift',
         className,
       )}
       style={{

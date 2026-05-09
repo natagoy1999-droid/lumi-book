@@ -248,8 +248,11 @@ export function Settings() {
   }
 
   return (
-    <div className="lumi-page" style={{ paddingTop: 'calc(1.75rem * (0.94 + var(--global-rhythm, 1) * 0.06))' }}>
-      <div className="mx-auto max-w-[520px]">
+    <div
+      className="lumi-page lumi-page-shell"
+      style={{ paddingTop: 'calc(1.75rem * (0.94 + var(--global-rhythm, 1) * 0.06))' }}
+    >
+      <div className="mx-auto w-full min-w-0 max-w-[520px]">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -262,11 +265,11 @@ export function Settings() {
           </p>
         </motion.div>
 
-        <div className="space-y-8">
-          <section>
+        <div className="min-w-0 space-y-8">
+          <section className="min-w-0">
             <SectionLabel>Аккаунт</SectionLabel>
-            <GlassCard className="p-6">
-              <div className="flex gap-4">
+            <GlassCard className="min-w-0 p-6">
+              <div className="flex min-w-0 gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-white/55 shadow-sm">
                   <UserRound size={22} strokeWidth={1.6} className="text-ink-800/65" />
                 </div>
@@ -313,10 +316,10 @@ export function Settings() {
             </GlassCard>
           </section>
 
-          <section>
+          <section className="min-w-0">
             <SectionLabel>Тариф</SectionLabel>
             <GlassCard
-              className="cursor-pointer p-6 transition hover:bg-white/25"
+              className="min-w-0 cursor-pointer p-6 transition hover:bg-white/25"
               onClick={() => nav('/pricing')}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -325,7 +328,7 @@ export function Settings() {
                 }
               }}
             >
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex min-w-0 items-start justify-between gap-4">
                 <div className="min-w-0">
                   <div className="text-[18px] font-semibold tracking-tight text-ink-950">{tariffPrimary}</div>
                   <p className="mt-2 text-[13px] leading-relaxed text-ink-700/58">{tariffSecondary}</p>
@@ -343,9 +346,9 @@ export function Settings() {
             </GlassCard>
           </section>
 
-          <section>
+          <section className="min-w-0">
             <SectionLabel>Планирование</SectionLabel>
-            <GlassCard className={cn('overflow-hidden p-0', 'divide-y divide-black/[0.06]')}>
+            <GlassCard className={cn('min-w-0 overflow-hidden p-0', 'divide-y divide-white/25')}>
               <SettingsRow
                 icon={Clock}
                 title="Рабочие часы"
@@ -367,9 +370,9 @@ export function Settings() {
             </GlassCard>
           </section>
 
-          <section>
+          <section className="min-w-0">
             <SectionLabel>Коммуникации</SectionLabel>
-            <GlassCard className={cn('overflow-hidden p-0', 'divide-y divide-black/[0.06]')}>
+            <GlassCard className={cn('min-w-0 overflow-hidden p-0', 'divide-y divide-white/25')}>
               <SettingsRow
                 icon={MessageSquare}
                 title="SMS, WhatsApp, Max"
@@ -397,10 +400,10 @@ export function Settings() {
             </GlassCard>
           </section>
 
-          <section>
+          <section className="min-w-0">
             <SectionLabel>Помощь</SectionLabel>
-            <GlassCard className="p-6">
-              <div className="flex gap-3">
+            <GlassCard className="min-w-0 p-6">
+              <div className="flex min-w-0 gap-3">
                 <HelpCircle size={22} strokeWidth={1.6} className="mt-0.5 shrink-0 text-ink-800/55" />
                 <div className="min-w-0 flex-1">
                   <div className="text-[16px] font-medium tracking-tight text-ink-950">Быстрое знакомство</div>
@@ -422,7 +425,7 @@ export function Settings() {
                     Открыть обзор
                   </LumiButton>
 
-                  <div className="my-6 border-t border-black/[0.06]" />
+                  <div className="my-6 border-t border-white/25" />
 
                   <button
                     type="button"
@@ -501,7 +504,7 @@ export function Settings() {
                       })
                     }}
                     className={cn(
-                      'rounded-3xl border px-3 py-3 text-[13px] font-semibold shadow-soft',
+                      'lumi-card px-3 py-3 text-[13px] font-semibold',
                       active ? 'border-white/70 bg-white/75 text-ink-950' : 'border-white/55 bg-white/55 text-ink-700/75',
                     )}
                   >
@@ -545,7 +548,7 @@ export function Settings() {
                 key={m.id}
                 type="button"
                 onClick={() => setMasterEdit({ ...m })}
-                className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 shadow-soft"
+                className="lumi-card px-4 py-3"
               >
                 <div className="flex items-center justify-between gap-3">
                   <div className="text-[14px] font-semibold tracking-tightish text-ink-950">
@@ -564,7 +567,7 @@ export function Settings() {
           )}
         </div>
 
-        <div className="mt-4 rounded-3xl border border-white/60 bg-white/55 p-4 shadow-soft">
+        <div className="mt-4 lumi-card p-4">
           <div className="text-[12px] font-medium text-ink-700/70">Добавить мастера</div>
           <div className="mt-2 space-y-2">
             <LumiInput
@@ -577,7 +580,7 @@ export function Settings() {
                 type="button"
                 onClick={() => setMasterDraft((s) => ({ ...s, color: 'gold' }))}
                 className={cn(
-                  'rounded-3xl border px-4 py-3 text-[13px] font-semibold shadow-soft',
+                  'lumi-card px-4 py-3 text-[13px] font-semibold',
                   masterDraft.color === 'gold'
                     ? 'border-white/70 bg-white/75 text-ink-950'
                     : 'border-white/55 bg-white/55 text-ink-700/75',
@@ -589,7 +592,7 @@ export function Settings() {
                 type="button"
                 onClick={() => setMasterDraft((s) => ({ ...s, color: 'ink' }))}
                 className={cn(
-                  'rounded-3xl border px-4 py-3 text-[13px] font-semibold shadow-soft',
+                  'lumi-card px-4 py-3 text-[13px] font-semibold',
                   masterDraft.color === 'ink'
                     ? 'border-white/70 bg-white/75 text-ink-950'
                     : 'border-white/55 bg-white/55 text-ink-700/75',
@@ -636,7 +639,7 @@ export function Settings() {
                 key={s.id}
                 type="button"
                 onClick={() => setServiceEdit({ ...s })}
-                className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 shadow-soft"
+                className="lumi-card px-4 py-3"
               >
                 <div className="flex items-center justify-between gap-3">
                   <div className="text-[14px] font-semibold tracking-tightish text-ink-950">
@@ -656,7 +659,7 @@ export function Settings() {
           )}
         </div>
 
-        <div className="mt-4 rounded-3xl border border-white/60 bg-white/55 p-4 shadow-soft">
+        <div className="mt-4 lumi-card p-4">
           <div className="text-[12px] font-medium text-ink-700/70">Добавить услугу</div>
           <div className="mt-2 space-y-2">
             <LumiInput
@@ -731,7 +734,7 @@ export function Settings() {
                   type="button"
                   onClick={() => setMasterEdit((s) => (s ? { ...s, color: 'gold' } : s))}
                   className={cn(
-                    'rounded-3xl border px-4 py-3 text-[13px] font-semibold shadow-soft',
+                    'lumi-card px-4 py-3 text-[13px] font-semibold',
                     masterEdit.color === 'gold'
                       ? 'border-white/70 bg-white/75 text-ink-950'
                       : 'border-white/55 bg-white/55 text-ink-700/75',
@@ -743,7 +746,7 @@ export function Settings() {
                   type="button"
                   onClick={() => setMasterEdit((s) => (s ? { ...s, color: 'ink' } : s))}
                   className={cn(
-                    'rounded-3xl border px-4 py-3 text-[13px] font-semibold shadow-soft',
+                    'lumi-card px-4 py-3 text-[13px] font-semibold',
                     masterEdit.color === 'ink'
                       ? 'border-white/70 bg-white/75 text-ink-950'
                       : 'border-white/55 bg-white/55 text-ink-700/75',
@@ -862,7 +865,7 @@ export function Settings() {
                 dispatch({ type: 'deleteService', serviceId: serviceEdit.id })
                 setServiceEdit(null)
               }}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-3xl border border-red-200/70 bg-white/55 px-4 py-3 text-[13px] font-semibold text-red-700 shadow-soft"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-3xl border border-red-200/55 bg-white/55 px-4 py-3 text-[13px] font-semibold text-red-700 shadow-soft"
             >
               <Trash2 size={18} />
               Удалить услугу
@@ -900,7 +903,7 @@ export function Settings() {
                     setSettingsDraft((s) => ({ ...s, channels: { ...s.channels, [k]: !s.channels[k] } }))
                   }
                   className={cn(
-                    'w-full rounded-3xl border px-4 py-3 text-left text-[13px] font-semibold shadow-soft',
+                    'w-full lumi-card px-4 py-3 text-left text-[13px] font-semibold',
                     active ? 'border-white/70 bg-white/75 text-ink-950' : 'border-white/55 bg-white/55 text-ink-700/75',
                   )}
                 >
@@ -920,7 +923,7 @@ export function Settings() {
                     type="button"
                     onClick={() => setSettingsDraft((s) => ({ ...s, channels: { ...s.channels, default: c } }))}
                     className={cn(
-                      'rounded-3xl border px-3 py-3 text-[13px] font-semibold shadow-soft',
+                      'lumi-card px-3 py-3 text-[13px] font-semibold',
                       active ? 'border-white/70 bg-white/75 text-ink-950' : 'border-white/55 bg-white/55 text-ink-700/75',
                     )}
                   >
@@ -944,7 +947,7 @@ export function Settings() {
             <button
               type="button"
               onClick={() => setActivePanel(null)}
-              className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[13px] font-semibold text-ink-950 shadow-soft"
+              className="lumi-card px-4 py-3 text-[13px] font-semibold text-ink-950"
             >
               Отмена
             </button>
@@ -965,7 +968,7 @@ export function Settings() {
             type="button"
             onClick={() => setSettingsDraft((s) => ({ ...s, reminders: { ...s.reminders, enabled: !s.reminders.enabled } }))}
             className={cn(
-              'w-full rounded-3xl border px-4 py-3 text-left text-[13px] font-semibold shadow-soft',
+              'w-full lumi-card px-4 py-3 text-left text-[13px] font-semibold',
               settingsDraft.reminders.enabled ? 'border-white/70 bg-white/75 text-ink-950' : 'border-white/55 bg-white/55 text-ink-700/75',
             )}
           >
@@ -979,14 +982,14 @@ export function Settings() {
                 setSettingsDraft((s) => ({ ...s, reminders: { ...s.reminders, hoursBefore: Number(e.target.value) || 0 } }))
               }
               inputMode="numeric"
-              className="w-full rounded-3xl border border-white/60 bg-white/60 px-4 py-3 text-[14px] text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35"
+              className="w-full lumi-card bg-white/60 px-4 py-3 text-[14px] text-ink-950 outline-none placeholder:text-ink-700/35"
             />
           </div>
           <button
             type="button"
             onClick={() => setSettingsDraft((s) => ({ ...s, reminders: { ...s.reminders, repeat: !s.reminders.repeat } }))}
             className={cn(
-              'w-full rounded-3xl border px-4 py-3 text-left text-[13px] font-semibold shadow-soft',
+              'w-full lumi-card px-4 py-3 text-left text-[13px] font-semibold',
               settingsDraft.reminders.repeat ? 'border-white/70 bg-white/75 text-ink-950' : 'border-white/55 bg-white/55 text-ink-700/75',
             )}
           >
@@ -1006,7 +1009,7 @@ export function Settings() {
             <button
               type="button"
               onClick={() => setActivePanel(null)}
-              className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[13px] font-semibold text-ink-950 shadow-soft"
+              className="lumi-card px-4 py-3 text-[13px] font-semibold text-ink-950"
             >
               Отмена
             </button>
@@ -1037,7 +1040,7 @@ export function Settings() {
                 value={settingsDraft.templates[k]}
                 onChange={(e) => setSettingsDraft((s) => ({ ...s, templates: { ...s.templates, [k]: e.target.value } }))}
                 rows={3}
-                className="w-full resize-none rounded-3xl border border-white/60 bg-white/60 px-4 py-3 text-[13px] leading-5 text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35"
+                className="w-full resize-none lumi-card bg-white/60 px-4 py-3 text-[13px] leading-5 text-ink-950 outline-none placeholder:text-ink-700/35"
               />
             </div>
           ))}
@@ -1055,7 +1058,7 @@ export function Settings() {
             <button
               type="button"
               onClick={() => setActivePanel(null)}
-              className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[13px] font-semibold text-ink-950 shadow-soft"
+              className="lumi-card px-4 py-3 text-[13px] font-semibold text-ink-950"
             >
               Отмена
             </button>
@@ -1076,7 +1079,7 @@ export function Settings() {
             type="button"
             onClick={() => setSettingsDraft((s) => ({ ...s, payments: { ...s.payments, prepayEnabled: !s.payments.prepayEnabled } }))}
             className={cn(
-              'w-full rounded-3xl border px-4 py-3 text-left text-[13px] font-semibold shadow-soft',
+              'w-full lumi-card px-4 py-3 text-left text-[13px] font-semibold',
               settingsDraft.payments.prepayEnabled ? 'border-white/70 bg-white/75 text-ink-950' : 'border-white/55 bg-white/55 text-ink-700/75',
             )}
           >
@@ -1091,7 +1094,7 @@ export function Settings() {
               }
               inputMode="numeric"
               placeholder="0"
-              className="w-full rounded-3xl border border-white/60 bg-white/60 px-4 py-3 text-[14px] text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35"
+              className="w-full lumi-card bg-white/60 px-4 py-3 text-[14px] text-ink-950 outline-none placeholder:text-ink-700/35"
             />
           </div>
           <div className="space-y-1">
@@ -1101,7 +1104,7 @@ export function Settings() {
               onChange={(e) => setSettingsDraft((s) => ({ ...s, payments: { ...s.payments, paymentComment: e.target.value } }))}
               rows={3}
               placeholder="Опционально"
-              className="w-full resize-none rounded-3xl border border-white/60 bg-white/60 px-4 py-3 text-[13px] leading-5 text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35"
+              className="w-full resize-none lumi-card bg-white/60 px-4 py-3 text-[13px] leading-5 text-ink-950 outline-none placeholder:text-ink-700/35"
             />
           </div>
           <div className="grid grid-cols-2 gap-2">
@@ -1118,7 +1121,7 @@ export function Settings() {
             <button
               type="button"
               onClick={() => setActivePanel(null)}
-              className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[13px] font-semibold text-ink-950 shadow-soft"
+              className="lumi-card px-4 py-3 text-[13px] font-semibold text-ink-950"
             >
               Отмена
             </button>
@@ -1142,7 +1145,7 @@ export function Settings() {
           <button
             type="button"
             onClick={() => dispatch({ type: 'seedDemoData' })}
-            className="w-full rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[13px] font-semibold text-ink-950 shadow-soft"
+            className="w-full lumi-card px-4 py-3 text-[13px] font-semibold text-ink-950"
           >
             Заполнить примерами
           </button>
@@ -1156,7 +1159,7 @@ export function Settings() {
           <button
             type="button"
             onClick={() => setActivePanel(null)}
-            className="w-full rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[13px] font-semibold text-ink-950 shadow-soft"
+            className="w-full lumi-card px-4 py-3 text-[13px] font-semibold text-ink-950"
           >
             Отмена
           </button>

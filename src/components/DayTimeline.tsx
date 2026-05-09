@@ -51,7 +51,7 @@ export function DayTimeline() {
       </div>
 
       <div className="mt-4">
-        <div className="relative h-24 overflow-hidden rounded-[26px] border border-white/55 bg-white/45 shadow-soft">
+        <div className="lumi-card-nested relative h-24 overflow-hidden rounded-[26px]">
           <motion.div
             aria-hidden
             className="absolute inset-0"
@@ -95,7 +95,7 @@ export function DayTimeline() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ type: 'spring', stiffness: 520, damping: 44 }}
                 className={cn(
-                  'absolute top-4 h-16 rounded-3xl border border-white/60 bg-ink-950/90 shadow-glowGold',
+                  'absolute top-4 h-16 rounded-3xl border border-white/55 bg-ink-950/88 shadow-soft ring-1 ring-gold-400/25',
                 )}
                 style={{ left: `${left}%`, width: `${width}%` }}
               >
@@ -111,7 +111,7 @@ export function DayTimeline() {
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-2">
-          <div className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 shadow-soft">
+          <div className="lumi-card px-4 py-3">
             <div className="text-[11px] font-medium uppercase tracking-[0.10em] text-ink-700/55">
               Записей
             </div>
@@ -119,7 +119,7 @@ export function DayTimeline() {
               {bookings.length}
             </div>
           </div>
-          <div className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 shadow-soft">
+          <div className="lumi-card px-4 py-3">
             <div className="text-[11px] font-medium uppercase tracking-[0.10em] text-ink-700/55">
               Лучшее окно
             </div>
@@ -130,12 +130,12 @@ export function DayTimeline() {
         </div>
 
         {bookings[0] ? (
-          <div className="mt-3 rounded-3xl border border-white/60 bg-white/50 px-4 py-3 text-[12px] leading-5 text-ink-700/70 shadow-soft">
+          <div className="lumi-card-nested mt-3 px-4 py-3 text-[12px] leading-5 text-ink-700/70">
             Сегодня: {getService(bookings[0].serviceId)?.name ?? 'услуга'} • первый клиент в{' '}
             <span className="font-semibold text-ink-950">{bookings[0].time}</span>
           </div>
         ) : (
-          <div className="mt-3 rounded-3xl border border-white/60 bg-white/50 px-4 py-3 text-[12px] leading-5 text-ink-700/70 shadow-soft">
+          <div className="lumi-card-nested mt-3 px-4 py-3 text-[12px] leading-5 text-ink-700/70">
             Сегодня свободно и спокойно. Lumi может предложить премиальные окна вашим клиентам.
           </div>
         )}

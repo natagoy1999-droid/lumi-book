@@ -167,9 +167,9 @@ export function Today() {
                 type="button"
                 onClick={() => nav(ROUTE_APP_CALENDAR)}
                 className={cn(
-                  'inline-flex items-center gap-2.5 rounded-3xl border border-gold-300/45 px-4 py-2.5',
-                  'text-[14px] font-semibold text-ink-950 shadow-luxury transition-[box-shadow,background-color] duration-200',
-                  'bg-[var(--lumi-surface)] hover:border-gold-300/60 hover:shadow-luxury-md',
+                  'inline-flex items-center gap-2.5 rounded-3xl border border-white/60 bg-white/55 px-4 py-2.5',
+                  'text-[14px] font-semibold text-ink-950 shadow-soft transition-[box-shadow,border-color] duration-200',
+                  'hover:border-white/72 hover:shadow-lift',
                 )}
               >
                 <CalendarDays size={18} strokeWidth={1.75} className="text-gold-400" />
@@ -193,9 +193,7 @@ export function Today() {
                   <div className="mt-2 text-[12px] text-ink-800/48">Лента дня</div>
                 )}
               </div>
-              <div
-                className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full border-[1.5px] border-gold-400/55 bg-[var(--lumi-bg)] shadow-glowGold"
-              >
+              <div className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full border border-white/60 bg-[var(--lumi-bg)] shadow-soft">
                 <CalendarDays size={24} strokeWidth={1.85} className="text-gold-400" />
               </div>
             </div>
@@ -214,9 +212,7 @@ export function Today() {
                   <div className="mt-2 text-[12px] text-ink-800/48">Сводка</div>
                 )}
               </div>
-              <div
-                className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full border-[1.5px] border-gold-400/55 bg-[var(--lumi-bg)] shadow-glowGold"
-              >
+              <div className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full border border-white/60 bg-[var(--lumi-bg)] shadow-soft">
                 <Wallet size={24} strokeWidth={1.85} className="text-gold-400" />
               </div>
             </div>
@@ -274,10 +270,7 @@ export function Today() {
                   </div>
                 ) : null}
               </div>
-              <div
-                className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border shadow-luxury"
-                style={{ borderColor: 'var(--lumi-border)', backgroundColor: 'var(--lumi-surface)' }}
-              >
+              <div className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/60 bg-[var(--lumi-surface)] shadow-soft">
                 <ArrowRight size={19} className="text-gold-400" strokeWidth={2} />
               </div>
             </div>

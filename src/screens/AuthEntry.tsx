@@ -44,14 +44,14 @@ export function AuthEntry() {
           <button
             type="button"
             onClick={() => nav('/login')}
-            className="w-full rounded-3xl border border-white/60 bg-white/60 px-5 py-4 text-[15px] font-semibold text-ink-950 shadow-soft"
+            className="w-full lumi-card bg-white/60 px-5 py-4 text-[15px] font-semibold text-ink-950"
           >
             Войти
           </button>
           <button
             type="button"
             onClick={() => nav('/signup')}
-            className="w-full rounded-3xl border border-white/60 bg-white/55 px-5 py-4 text-[15px] font-semibold text-ink-950 shadow-soft"
+            className="w-full lumi-card px-5 py-4 text-[15px] font-semibold text-ink-950"
           >
             Создать аккаунт
           </button>

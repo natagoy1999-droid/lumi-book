@@ -183,7 +183,7 @@ export function Pricing() {
         <button
           type="button"
           onClick={() => nav(ROUTE_APP_SETTINGS)}
-          className="mt-4 w-full rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[13px] font-semibold text-ink-950 shadow-soft"
+          className="mt-4 w-full lumi-card px-4 py-3 text-[13px] font-semibold text-ink-950"
         >
           Назад в настройки
         </button>
@@ -198,7 +198,7 @@ export function Pricing() {
       >
         {pick ? (
           <div className="space-y-3">
-            <div className="rounded-3xl border border-white/60 bg-white/60 p-4 text-[12px] leading-5 text-ink-700/70 shadow-soft">
+            <div className="lumi-card bg-white/60 p-4 text-[12px] leading-5 text-ink-700/70">
               Вы выбрали <span className="font-semibold text-ink-950">{pick.name}</span> •{' '}
               <span className="font-semibold text-ink-950">{pick.price}</span>
               <div className="mt-2 text-ink-700/65">
@@ -229,7 +229,7 @@ export function Pricing() {
               <button
                 type="button"
                 onClick={() => setPick(null)}
-                className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[13px] font-semibold text-ink-950 shadow-soft"
+                className="lumi-card px-4 py-3 text-[13px] font-semibold text-ink-950"
               >
                 Отмена
               </button>
@@ -245,7 +245,7 @@ export function Pricing() {
         variant="center"
         surface="solid"
       >
-        <div className="rounded-3xl border border-white/60 bg-white/60 p-4 text-[13px] font-semibold text-ink-950 shadow-soft">
+        <div className="lumi-card bg-white/60 p-4 text-[13px] font-semibold text-ink-950">
           Тариф активирован
         </div>
       </Sheet>

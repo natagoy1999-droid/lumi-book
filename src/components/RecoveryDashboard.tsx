@@ -67,7 +67,7 @@ export function RecoveryDashboard() {
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-2">
-        <div className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 shadow-soft">
+        <div className="lumi-card px-4 py-3">
           <div className="text-[11px] font-medium uppercase tracking-[0.10em] text-ink-700/55">
             На возврат
           </div>
@@ -76,7 +76,7 @@ export function RecoveryDashboard() {
           </div>
           <div className="mt-1 text-[12px] text-ink-700/60">клиентов</div>
         </div>
-        <div className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 shadow-soft">
+        <div className="lumi-card px-4 py-3">
           <div className="text-[11px] font-medium uppercase tracking-[0.10em] text-ink-700/55">
             Потенциал
           </div>
@@ -90,7 +90,7 @@ export function RecoveryDashboard() {
         </div>
       </div>
 
-      <div className="mt-3 rounded-3xl border border-white/60 bg-white/50 px-4 py-3 shadow-soft">
+      <div className="lumi-card-nested mt-3 px-4 py-3">
         <div className="inline-flex items-center gap-2 text-[12px] font-medium text-ink-700/70">
           <Wand2 size={16} className="text-gold-400" />
           Активные chains
@@ -108,7 +108,7 @@ export function RecoveryDashboard() {
           <div
             key={o.name}
             className={cn(
-              'rounded-3xl border border-white/60 bg-white/55 px-4 py-3 shadow-soft',
+              'lumi-card px-4 py-3',
             )}
           >
             <div className="flex items-center justify-between gap-3">

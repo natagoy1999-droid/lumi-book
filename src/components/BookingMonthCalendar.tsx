@@ -110,10 +110,7 @@ export function BookingMonthCalendar({
 
   return (
     <div
-      className={cn(
-        'mx-auto w-full max-w-[340px] rounded-[24px] border border-[var(--lumi-border)] bg-[var(--lumi-surface)] p-4 shadow-luxury',
-        className,
-      )}
+      className={cn('mx-auto w-full max-w-[340px] lumi-card p-4 rounded-[24px]', className)}
     >
       <div className="flex items-center justify-between gap-2">
         <button
@@ -122,9 +119,9 @@ export function BookingMonthCalendar({
           disabled={!canGoPrev}
           onClick={goPrev}
           className={cn(
-            'inline-flex h-11 min-w-[44px] shrink-0 touch-manipulation items-center justify-center rounded-2xl border border-gold-400/38 bg-white/75 text-ink-900 shadow-soft transition',
+            'inline-flex h-11 min-w-[44px] shrink-0 touch-manipulation items-center justify-center rounded-2xl border border-white/60 bg-white/75 text-ink-900 shadow-soft transition',
             canGoPrev
-              ? 'hover:border-gold-400/55 hover:bg-white/92 active:scale-[var(--press-scale,0.98)]'
+              ? 'hover:border-white/75 hover:bg-white/92 active:scale-[var(--press-scale,0.98)]'
               : 'cursor-not-allowed opacity-35',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-300/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--lumi-surface)]',
           )}
@@ -140,9 +137,9 @@ export function BookingMonthCalendar({
           disabled={!canGoNext}
           onClick={goNext}
           className={cn(
-            'inline-flex h-11 min-w-[44px] shrink-0 touch-manipulation items-center justify-center rounded-2xl border border-gold-400/38 bg-white/75 text-ink-900 shadow-soft transition',
+            'inline-flex h-11 min-w-[44px] shrink-0 touch-manipulation items-center justify-center rounded-2xl border border-white/60 bg-white/75 text-ink-900 shadow-soft transition',
             canGoNext
-              ? 'hover:border-gold-400/55 hover:bg-white/92 active:scale-[var(--press-scale,0.98)]'
+              ? 'hover:border-white/75 hover:bg-white/92 active:scale-[var(--press-scale,0.98)]'
               : 'cursor-not-allowed opacity-35',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-300/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--lumi-surface)]',
           )}
@@ -199,7 +196,7 @@ export function BookingMonthCalendar({
                 isSelected &&
                   'border-[1.5px] border-gold-400/65 bg-gradient-to-b from-gold-200/42 to-[var(--lumi-surface)] text-ink-950 shadow-[0_10px_28px_rgba(198,161,91,0.22)]',
                 !isSelected &&
-                  'border border-transparent bg-white/35 text-ink-950 hover:border-gold-400/22 hover:bg-white/65 active:scale-[var(--press-scale,0.98)]',
+                  'border border-transparent bg-white/35 text-ink-950 hover:border-white/50 hover:bg-white/65 active:scale-[var(--press-scale,0.98)]',
                 isToday &&
                   !isSelected &&
                   'ring-2 ring-gold-400/48 ring-offset-2 ring-offset-[var(--lumi-surface)]',
