@@ -1,35 +1,72 @@
-import { motion } from 'framer-motion'
-import { Check, Sparkles } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { ArrowRight } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { GlassCard } from '../components/GlassCard'
+import { motion as motionTokens } from '../theme/motion'
 import { useStore } from '../state/store'
+import { useAuthStore } from '../store/authStore'
 
 export function Onboarding() {
   const { dispatch } = useStore()
   const nav = useNavigate()
-  const [choice, setChoice] = useState<'lumi' | 'empty'>('lumi')
-  const title = useMemo(() => (choice === 'lumi' ? 'Премиум демо-салон' : 'Пустой салон'), [choice])
   const [logoOk, setLogoOk] = useState(true)
+  const mode = useAuthStore((s) => s.mode)
+  const [step, setStep] = useState(0)
+
+  useEffect(() => {
+    if (mode === 'auth') {
+      dispatch({ type: 'finishOnboarding' })
+      nav('/today', { replace: true })
+    }
+  }, [dispatch, mode, nav])
+
+  const slides = useMemo(
+    () => [
+      {
+        title: 'LUMI BOOK',
+        text: 'Спокойная запись для мастеров — без суеты и лишних экранов.',
+      },
+      {
+        title: 'В одном ритме',
+        text: 'Клиенты, напоминания и расписание собираются вместе, чтобы день оставался вашим.',
+      },
+      {
+        title: 'Без хаоса',
+        text: 'Меньше переключений — больше внимания к людям и деталям.',
+      },
+    ],
+    [],
+  )
+  const s = slides[Math.max(0, Math.min(slides.length - 1, step))]
 
   return (
-    <div className="px-5 pt-10">
+    <div
+      className="px-5"
+      style={{
+        paddingTop: 'calc(var(--safe-top, 0px) + 2.25rem)',
+        paddingBottom: 'calc(2rem + env(safe-area-inset-bottom))',
+      }}
+    >
       <div className="mx-auto max-w-[520px]">
         <motion.div
-          initial={{ opacity: 0, y: 14 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ type: 'spring', stiffness: 520, damping: 44 }}
-          className="mb-7"
+          transition={{
+            duration: motionTokens.duration.slow,
+            ease: motionTokens.ease.out,
+          }}
+          className="mb-10"
         >
-          <div className="mb-5">
-            <div className="inline-flex items-center justify-center rounded-[28px] border border-white/55 bg-white/60 p-4 shadow-lift backdrop-blur-glass">
+          <div className="mb-7 flex justify-center">
+            <div className="inline-flex items-center justify-center rounded-[28px] border border-white/55 bg-white/58 px-5 py-5 shadow-lift backdrop-blur-glass">
               {logoOk ? (
                 <img
                   src="/lumi-logo-transparent.png"
                   alt="LUMI BOOK"
                   className="h-auto object-contain"
-                  style={{ width: 180, maxWidth: '70vw' }}
+                  style={{ width: 172, maxWidth: '68vw' }}
                   draggable={false}
                   onError={() => setLogoOk(false)}
                 />
@@ -40,123 +77,82 @@ export function Onboarding() {
               )}
             </div>
           </div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/50 bg-fog-200 px-3 py-1 text-[12px] font-medium text-ink-700/80 shadow-soft backdrop-blur-glass">
-            <Sparkles size={16} className="text-gold-400" />
-            Lumi Assistant • умная запись
-          </div>
 
-          <div className="mt-4 text-[34px] font-semibold tracking-tightish text-ink-950">
-            LUMI BOOK
-          </div>
-          <div className="mt-2 text-[15px] leading-6 text-ink-700/70">
-            Нажали — дальше всё само.
-            <br />
-            Спокойная запись, красивые окна, и мягкие напоминания клиентам.
+          <div className="relative min-h-[7.5rem]">
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={step}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{
+                  duration: motionTokens.duration.slow,
+                  ease: motionTokens.ease.calm,
+                }}
+              >
+                <h1 className="text-[32px] font-semibold leading-[1.12] tracking-tightish text-ink-950">
+                  {s.title}
+                </h1>
+                <p className="mt-4 max-w-[400px] text-[16px] leading-[1.6] text-ink-900/68">{s.text}</p>
+              </motion.div>
+            </AnimatePresence>
           </div>
         </motion.div>
 
-        <div className="space-y-3">
-          <GlassCard className="p-5">
-            <div className="text-[13px] font-medium text-ink-700/75">Демо окружение</div>
-            <div className="mt-3 space-y-2">
+        <div className="space-y-4">
+          <GlassCard className="p-6">
+            <div className="flex items-center justify-between gap-3">
+              <div className="text-[12px] font-medium tracking-tightish text-ink-700/65">
+                {step + 1} из {slides.length}
+              </div>
               <button
                 type="button"
-                onClick={() => setChoice('lumi')}
-                className="w-full rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-left shadow-soft"
+                onClick={() => {
+                  dispatch({ type: 'finishOnboarding' })
+                  nav('/auth', { replace: true })
+                }}
+                className="touch-manipulation rounded-2xl border border-white/55 bg-white/52 px-4 py-2.5 text-[12px] font-semibold text-ink-800/90 shadow-soft transition-colors duration-200 hover:bg-white/65 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200/55 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7EF] active:opacity-[var(--press-opacity,0.94)] active:scale-[var(--press-scale,0.992)]"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <div className="text-[15px] font-semibold tracking-tightish text-ink-950">
-                      Премиум демо-салон
-                    </div>
-                    <div className="mt-1 text-[12px] leading-5 text-ink-700/65">
-                      Реалистичные клиенты, история записей, переносы, ожидания подтверждений,
-                      follow-ups, завтра занято, свободные “гепы”.
-                    </div>
-                  </div>
-                  {choice === 'lumi' ? (
-                    <div className="mt-1 inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-white/70 shadow-soft ring-1 ring-gold-200/60">
-                      <Check size={16} className="text-gold-400" />
-                    </div>
-                  ) : (
-                    <div className="mt-1 h-9 w-9 rounded-2xl bg-white/55" />
-                  )}
-                </div>
+                Пропустить
               </button>
+            </div>
 
+            <div className="mt-6 flex flex-col gap-3">
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setStep((x) => Math.max(0, x - 1))}
+                  disabled={step === 0}
+                  className="touch-manipulation min-h-[52px] flex-1 rounded-3xl border border-white/58 bg-white/55 px-4 py-3.5 text-[14px] font-semibold text-ink-950 shadow-soft transition-colors duration-200 hover:bg-white/68 disabled:pointer-events-none disabled:opacity-45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200/55 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7EF] active:scale-[var(--press-scale,0.992)]"
+                >
+                  Назад
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (step < slides.length - 1) setStep((x) => x + 1)
+                    else {
+                      dispatch({ type: 'finishOnboarding' })
+                      nav('/auth', { replace: true })
+                    }
+                  }}
+                  className="touch-manipulation inline-flex min-h-[52px] flex-[1.35] items-center justify-center gap-2 rounded-3xl bg-ink-950 px-5 py-3.5 text-[14px] font-semibold text-paper-50 shadow-glowGold transition-colors duration-200 hover:bg-ink-950/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200/55 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7EF] active:scale-[var(--press-scale,0.992)]"
+                >
+                  {step < slides.length - 1 ? 'Далее' : 'Начать'}
+                  <ArrowRight size={18} strokeWidth={2} />
+                </button>
+              </div>
               <button
                 type="button"
-                onClick={() => setChoice('empty')}
-                className="w-full rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-left shadow-soft"
+                onClick={() => nav('/book')}
+                className="touch-manipulation min-h-[48px] w-full rounded-3xl border border-white/58 bg-white/52 py-3 text-[14px] font-semibold text-ink-900/85 shadow-soft transition-colors duration-200 hover:bg-white/65 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200/55 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7EF] active:scale-[var(--press-scale,0.992)]"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <div className="text-[15px] font-semibold tracking-tightish text-ink-950">
-                      Пустой салон
-                    </div>
-                    <div className="mt-1 text-[12px] leading-5 text-ink-700/65">
-                      Начать с нуля и создать первую запись вручную.
-                    </div>
-                  </div>
-                  {choice === 'empty' ? (
-                    <div className="mt-1 inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-white/70 shadow-soft ring-1 ring-gold-200/60">
-                      <Check size={16} className="text-gold-400" />
-                    </div>
-                  ) : (
-                    <div className="mt-1 h-9 w-9 rounded-2xl bg-white/55" />
-                  )}
-                </div>
+                Я клиент — онлайн-запись
               </button>
             </div>
           </GlassCard>
-
-          <GlassCard className="p-5">
-            <div className="text-[13px] font-medium text-ink-700/75">Первые 30 секунд</div>
-            <div className="mt-3 space-y-2 text-[15px] text-ink-950">
-              <div className="flex items-start gap-2">
-                <div className="mt-2 h-1.5 w-1.5 rounded-full bg-gold-300" />
-                Откройте Today и нажмите на мягкий action в доке
-              </div>
-              <div className="flex items-start gap-2">
-                <div className="mt-2 h-1.5 w-1.5 rounded-full bg-gold-300" />
-                Посмотрите перенос — слоты уже готовы
-              </div>
-              <div className="flex items-start gap-2">
-                <div className="mt-2 h-1.5 w-1.5 rounded-full bg-gold-300" />
-                Откройте Composer: текст уже подготовлен (mock-send)
-              </div>
-            </div>
-          </GlassCard>
-
-          <motion.button
-            type="button"
-            whileTap={{ scale: 0.985 }}
-            transition={{ type: 'spring', stiffness: 600, damping: 40 }}
-            onClick={() => {
-              if (choice === 'lumi') dispatch({ type: 'seedDemoData' })
-              if (choice === 'empty') dispatch({ type: 'resetAllData' })
-              dispatch({ type: 'finishOnboarding' })
-              nav('/today', { replace: true })
-            }}
-            className="w-full rounded-3xl bg-ink-950 px-5 py-4 text-[15px] font-medium text-paper-50 shadow-glowGold"
-          >
-            Начать • {title}
-          </motion.button>
-
-          <button
-            type="button"
-            onClick={() => nav('/book')}
-            className="w-full rounded-3xl border border-white/60 bg-white/60 px-5 py-4 text-[15px] font-semibold text-ink-950 shadow-soft"
-          >
-            Записаться клиенту
-          </button>
-
-          <div className="px-1 text-center text-[12px] leading-5 text-ink-700/60">
-            Можно в любой момент переключить демо в Настройках → Seed demo / Reset.
-          </div>
         </div>
       </div>
     </div>
   )
 }
-

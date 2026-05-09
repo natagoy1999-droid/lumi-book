@@ -7,6 +7,10 @@ import { GlassCard } from '../components/GlassCard'
 import { Sheet } from '../components/Sheet'
 import { SwipeBack } from '../components/SwipeBack'
 import { cn } from '../lib/cn'
+import { LumiButton } from '../components/ui/LumiButton'
+import { LumiInput } from '../components/ui/LumiInput'
+import { LumiModal } from '../components/ui/LumiModal'
+import { LumiTextarea } from '../components/ui/LumiTextarea'
 import { useCognitiveUI } from '../state/cognitiveUI'
 import { todayISO, useStore, type Client, type Service } from '../state/store'
 import { uid as uidMsg, useMessaging } from '../state/messaging'
@@ -235,42 +239,38 @@ export function NewBooking() {
         </div>
       </Sheet>
 
-      <Sheet open={openClient} title="Клиент — и готово" onClose={() => setOpenClient(false)}>
+      <LumiModal
+        open={openClient}
+        title="Клиент — и готово"
+        onClose={() => setOpenClient(false)}
+        modalId="settings"
+        variant="bottom"
+        surface="glass"
+      >
         <div className="space-y-3">
-          <div className="space-y-1">
-            <div className="text-[12px] font-medium text-ink-700/70">Имя</div>
-            <input
-              value={clientName}
-              onChange={(e) => setClientName(e.target.value)}
-              placeholder="Например, Мария"
-              className="w-full rounded-3xl border border-white/60 bg-white/60 px-4 py-3 text-[14px] text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35"
-            />
-          </div>
-          <div className="space-y-1">
-            <div className="text-[12px] font-medium text-ink-700/70">Телефон</div>
-            <input
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              inputMode="tel"
-              placeholder="+7 ___ ___-__-__"
-              className="w-full rounded-3xl border border-white/60 bg-white/60 px-4 py-3 text-[14px] text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35"
-            />
-          </div>
-          <div className="space-y-1">
-            <div className="text-[12px] font-medium text-ink-700/70">Комментарий</div>
-            <input
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              placeholder="Опционально"
-              className="w-full rounded-3xl border border-white/60 bg-white/60 px-4 py-3 text-[14px] text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35"
-            />
-          </div>
+          <LumiInput
+            label="Имя"
+            value={clientName}
+            onChange={(e) => setClientName(e.target.value)}
+            placeholder="Например, Мария"
+          />
+          <LumiInput
+            label="Телефон"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            inputMode="tel"
+            placeholder="+7 ___ ___-__-__"
+          />
+          <LumiTextarea
+            label="Комментарий"
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            rows={2}
+            placeholder="Опционально"
+          />
 
-          <motion.button
-            type="button"
+          <LumiButton
             disabled={!canCreate || !time || !service}
-            whileTap={{ scale: 0.985 }}
-            transition={{ type: 'spring', stiffness: 600, damping: 40 }}
             onClick={() => {
               if (!service || !time) return
               const now = Date.now()
@@ -323,37 +323,28 @@ export function NewBooking() {
               setOpenClient(false)
               setOpenSuccess(true)
             }}
-            className={cn(
-              'mt-2 w-full rounded-3xl px-5 py-4 text-[15px] font-medium shadow-glowGold',
-              canCreate && time && service
-                ? 'bg-ink-950 text-paper-50'
-                : 'bg-ink-950/40 text-paper-50/80',
-            )}
           >
             Создать — и уведомить клиента
-          </motion.button>
+          </LumiButton>
 
           <div className="text-center text-[12px] leading-5 text-ink-700/60">
             После создания Lumi автоматически отправит сообщение и будет мягко напоминать.
           </div>
         </div>
-      </Sheet>
+      </LumiModal>
 
       <AnimatePresence>
         {openSuccess ? (
-          <motion.div
-            className="fixed inset-0 z-[80] grid place-items-center bg-ink-950/25 px-5"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+          <LumiModal
+            open={openSuccess}
+            title={undefined}
+            onClose={() => setOpenSuccess(false)}
+            modalId="settings"
+            variant="center"
+            surface="solid"
+            className="p-0"
           >
-            <motion.div
-              initial={{ y: 18, opacity: 0, scale: 0.98 }}
-              animate={{ y: 0, opacity: 1, scale: 1 }}
-              exit={{ y: 18, opacity: 0, scale: 0.98 }}
-              transition={{ type: 'spring', stiffness: 520, damping: 44 }}
-              className="w-full max-w-[520px] rounded-[30px] border border-white/50 bg-fog-100 p-6 shadow-lift backdrop-blur-glass ring-1 ring-black/5"
-            >
+            <div className="p-6">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <div className="inline-flex items-center gap-2 rounded-full bg-white/60 px-3 py-1 text-[12px] font-medium text-ink-700/80 shadow-soft">
@@ -371,23 +362,20 @@ export function NewBooking() {
               </div>
 
               <div className="mt-5 grid grid-cols-2 gap-2">
-                <button
-                  type="button"
+                <LumiButton
+                  variant="secondary"
+                  size="sm"
+                  fullWidth
                   onClick={() => nav('/calendar', { replace: true })}
-                  className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[13px] font-semibold text-ink-950 shadow-soft"
                 >
                   В календарь
-                </button>
-                <button
-                  type="button"
-                  onClick={() => nav('/today', { replace: true })}
-                  className="rounded-3xl bg-ink-950 px-4 py-3 text-[13px] font-semibold text-paper-50 shadow-glowGold"
-                >
+                </LumiButton>
+                <LumiButton size="sm" fullWidth onClick={() => nav('/today', { replace: true })}>
                   На сегодня
-                </button>
+                </LumiButton>
               </div>
-            </motion.div>
-          </motion.div>
+            </div>
+          </LumiModal>
         ) : null}
       </AnimatePresence>
     </SwipeBack>

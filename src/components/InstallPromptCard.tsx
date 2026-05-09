@@ -1,16 +1,23 @@
 import { Download, Sparkles } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { cn } from '../lib/cn'
 import { useInstall } from '../state/install'
 
 export function InstallPromptCard({ compact = false }: { compact?: boolean }) {
-  const { available, installed, deferred, markInstalled } = useInstall()
+  const { available, installed, deferred, markInstalled, canShowPrompt, noteShown } = useInstall()
   const [busy, setBusy] = useState(false)
   const [logoOk, setLogoOk] = useState(true)
 
-  const hidden = useMemo(() => installed || !available || !deferred, [available, deferred, installed])
+  const hidden = useMemo(
+    () => installed || !available || !deferred || !canShowPrompt(),
+    [available, canShowPrompt, deferred, installed],
+  )
   if (hidden) return null
+
+  useEffect(() => {
+    noteShown()
+  }, [noteShown])
 
   return (
     <div className={cn(compact ? '' : 'px-5')}>
@@ -44,10 +51,10 @@ export function InstallPromptCard({ compact = false }: { compact?: boolean }) {
               Установить как приложение
             </div>
             <div className="mt-1 text-[14px] font-semibold tracking-tightish text-ink-950">
-              Быстрее. Тише. Как native.
+              Тише. Удобнее. Как приложение.
             </div>
             <div className="mt-1 text-[12px] leading-5 text-ink-700/65">
-              Добавьте LUMI BOOK на экран — будет открываться в standalone режиме.
+              Добавить LUMI BOOK на экран домой?
             </div>
           </div>
 

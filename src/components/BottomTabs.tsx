@@ -46,7 +46,7 @@ export function BottomTabs() {
                 <>
                   <div
                     className={cn(
-                      'flex h-9 w-11 items-center justify-center rounded-2xl transition',
+                      'flex h-9 w-11 items-center justify-center rounded-2xl transition-[background-color,box-shadow,transform] duration-200 ease-out active:scale-[var(--press-scale,0.99)]',
                       isActive
                         ? 'bg-white/85 shadow-soft ring-1 ring-gold-200/50'
                         : 'bg-white/0 group-hover:bg-white/55',
@@ -54,7 +54,10 @@ export function BottomTabs() {
                   >
                     <Icon
                       size={21}
-                      className={cn('transition', isActive ? 'text-ink-950' : 'text-ink-900/70')}
+                      className={cn(
+                        'transition-[color,transform,opacity] duration-200 ease-out',
+                        isActive ? 'text-ink-950' : 'text-ink-900/70',
+                      )}
                       strokeWidth={1.8}
                     />
                   </div>

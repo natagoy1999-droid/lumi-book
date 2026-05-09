@@ -12,6 +12,8 @@ export type Master = { id: string; name: string; color: 'gold' | 'ink' }
 export type Service = { id: string; name: string; minutes: number; price: number }
 export type Client = {
   id: string
+  /** Future workspace ownership (Supabase) */
+  userId?: string
   name: string
   phone: string
   notes?: string
@@ -57,6 +59,8 @@ export type BookingStatus =
   | 'followup_needed'
 export type Booking = {
   id: string
+  /** Future workspace ownership (Supabase) */
+  userId?: string
   clientId: string
   masterId: string
   serviceId: string

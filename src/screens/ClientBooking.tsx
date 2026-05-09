@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom'
 
 import { GlassCard } from '../components/GlassCard'
 import { cn } from '../lib/cn'
+import { LumiButton } from '../components/ui/LumiButton'
+import { LumiInput } from '../components/ui/LumiInput'
 import { todayISO, useStore, type Client, type Master, type Service } from '../state/store'
 
 type Step = 'service' | 'master' | 'date' | 'time' | 'client' | 'confirm' | 'success'
@@ -323,39 +325,23 @@ export function ClientBooking() {
                   transition={{ duration: 0.28, ease: 'easeOut' }}
                   className="space-y-3"
                 >
-                  <div className="space-y-1">
-                    <div className="text-[12px] font-medium text-ink-700/70">Имя</div>
-                    <input
-                      value={clientName}
-                      onChange={(e) => setClientName(e.target.value)}
-                      placeholder="Например, Мария"
-                      className="w-full rounded-3xl border border-white/60 bg-white/60 px-4 py-3 text-[14px] text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <div className="text-[12px] font-medium text-ink-700/70">Телефон</div>
-                    <input
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      inputMode="tel"
-                      placeholder="+7 ___ ___-__-__"
-                      className="w-full rounded-3xl border border-white/60 bg-white/60 px-4 py-3 text-[14px] text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35"
-                    />
-                  </div>
+                  <LumiInput
+                    label="Имя"
+                    value={clientName}
+                    onChange={(e) => setClientName(e.target.value)}
+                    placeholder="Например, Мария"
+                  />
+                  <LumiInput
+                    label="Телефон"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    inputMode="tel"
+                    placeholder="+7 ___ ___-__-__"
+                  />
 
-                  <motion.button
-                    type="button"
-                    disabled={!canClient}
-                    whileTap={{ scale: 0.985 }}
-                    transition={{ type: 'spring', stiffness: 600, damping: 40 }}
-                    onClick={() => setStep('confirm')}
-                    className={cn(
-                      'w-full rounded-3xl px-5 py-4 text-[15px] font-medium shadow-glowGold',
-                      canClient ? 'bg-ink-950 text-paper-50' : 'bg-ink-950/40 text-paper-50/80',
-                    )}
-                  >
+                  <LumiButton disabled={!canClient} onClick={() => setStep('confirm')}>
                     Продолжить
-                  </motion.button>
+                  </LumiButton>
                 </motion.div>
               ) : null}
 

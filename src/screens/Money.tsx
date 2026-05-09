@@ -3,6 +3,7 @@ import { ArrowUpRight, Sparkles } from 'lucide-react'
 import { useMemo } from 'react'
 
 import { GlassCard } from '../components/GlassCard'
+import { LumiEmptyState } from '../components/ui/LumiEmptyState'
 import { useCognitiveUI } from '../state/cognitiveUI'
 import { todayISO, useStore } from '../state/store'
 
@@ -57,6 +58,10 @@ export function Money() {
     return done.length ? total / done.length : 0
   }, [state.bookings])
 
+  const hasAnalytics = useMemo(() => {
+    return state.bookings.some((b) => b.status !== 'draft' && b.status !== 'cancelled')
+  }, [state.bookings])
+
   const top = useMemo(
     () => {
       const counts = new Map<string, { count: number; sum: number }>()
@@ -81,7 +86,7 @@ export function Money() {
 
   return (
     <div
-      className="px-5"
+      className="lumi-page"
       style={{
         paddingTop: 'calc(1.75rem * (0.94 + var(--global-rhythm, 1) * 0.06))',
       }}
@@ -93,12 +98,8 @@ export function Money() {
           transition={{ type: 'spring', stiffness: 520, damping: 44 }}
           className="mb-4"
         >
-          <div className="text-[12px] font-medium tracking-tightish text-ink-700/70">
-            Деньги
-          </div>
-          <div className="mt-1 text-[32px] font-semibold tracking-tightish text-ink-950">
-            Аналитика
-          </div>
+          <div className="lumi-section-title">Деньги</div>
+          <div className="mt-1 lumi-title">Аналитика</div>
         </motion.div>
 
         <div className="grid grid-cols-2" style={{ gap: 'var(--cognitive-grid-gap)' }}>
@@ -140,38 +141,45 @@ export function Money() {
         </div>
 
         <div className="mt-3 flex flex-col" style={{ gap: 'var(--cognitive-inline-stack)' }}>
-          <GlassCard className="p-5">
-            <div className="inline-flex items-center gap-2 text-[12px] font-medium text-ink-700/70">
-              {showAmbientHints ? <Sparkles size={16} className="text-gold-400" /> : null}
-              Популярные услуги
-            </div>
-            <div
-              className="mt-4 flex flex-col"
-              style={{
-                gap: 'calc(0.5rem * var(--global-rhythm, 1) * (1 - var(--global-cognitive-load, 0) * 0.05))',
-              }}
-            >
-              {top.map((s) => (
-                <div
-                  key={s.id}
-                  className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 shadow-soft"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="text-[14px] font-semibold tracking-tightish text-ink-950">
-                      {s.name}
+          {hasAnalytics ? (
+            <GlassCard className="p-5">
+              <div className="inline-flex items-center gap-2 text-[12px] font-medium text-ink-700/70">
+                {showAmbientHints ? <Sparkles size={16} className="text-gold-400" /> : null}
+                Популярные услуги
+              </div>
+              <div
+                className="mt-4 flex flex-col"
+                style={{
+                  gap: 'calc(0.5rem * var(--global-rhythm, 1) * (1 - var(--global-cognitive-load, 0) * 0.05))',
+                }}
+              >
+                {top.map((s) => (
+                  <div
+                    key={s.id}
+                    className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 shadow-soft"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="text-[14px] font-semibold tracking-tightish text-ink-950">
+                        {s.name}
+                      </div>
+                      <div className="text-[12px] font-medium text-ink-700/65">
+                        {money(s.price)} ₽
+                      </div>
                     </div>
-                    <div className="text-[12px] font-medium text-ink-700/65">
-                      {money(s.price)} ₽
+                    <div className="mt-1 text-[12px] text-ink-700/60">{s.minutes} мин</div>
+                    <div className="mt-1 text-[12px] text-ink-700/55">
+                      Записей: {('count' in s ? s.count : 0)}
                     </div>
                   </div>
-                  <div className="mt-1 text-[12px] text-ink-700/60">{s.minutes} мин</div>
-                  <div className="mt-1 text-[12px] text-ink-700/55">
-                    Записей: {('count' in s ? s.count : 0)}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </GlassCard>
+                ))}
+              </div>
+            </GlassCard>
+          ) : (
+            <LumiEmptyState
+              title="Аналитика появится после первых записей."
+              desc="Когда вы начнёте вести записи, здесь появятся спокойные итоги по дню, неделе и месяцу."
+            />
+          )}
         </div>
       </div>
     </div>

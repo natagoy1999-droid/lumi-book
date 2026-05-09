@@ -243,6 +243,15 @@
       (1 - var(--global-cognitive-load, 0) * 0.018) *
       (1 + var(--behavioral-readiness, 0) * 0.016)
   );
+
+  /* motion — unified, calm, native-like */
+  --motion-fast: 180ms;
+  --motion-normal: 220ms;
+  --motion-slow: 260ms;
+  --ease-premium-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-premium-inout: cubic-bezier(0.4, 0, 0.2, 1);
+  --press-scale: 0.99;
+  --press-opacity: 0.92;
 }
 
 html,
@@ -270,6 +279,58 @@ body {
 @layer base {
   * {
     -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Premium UI roles — keep styling consistent without redesign */
+@layer components {
+  .lumi-page {
+    @apply px-5;
+    padding-top: calc(1.75rem * (0.94 + var(--global-rhythm, 1) * 0.06));
+  }
+
+  .lumi-stack {
+    @apply space-y-3;
+  }
+
+  .lumi-section {
+    @apply space-y-2;
+  }
+
+  .lumi-title {
+    @apply text-[32px] font-semibold tracking-tightish text-ink-950;
+  }
+
+  .lumi-section-title {
+    @apply text-[12px] font-medium tracking-tightish text-ink-700/70;
+  }
+
+  .lumi-card-title {
+    @apply text-[15px] font-semibold tracking-tightish text-ink-950;
+  }
+
+  .lumi-body {
+    @apply text-[16px] leading-6 text-ink-900/75;
+  }
+
+  .lumi-secondary {
+    @apply text-[12px] leading-5 text-ink-700/65;
+  }
+
+  .lumi-caption {
+    @apply text-[12px] font-medium tracking-tightish text-ink-700/70;
+  }
+
+  .lumi-input {
+    @apply w-full rounded-3xl border border-white/60 bg-white/60 px-4 py-3 text-[15px] text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35;
+  }
+
+  .lumi-btn-primary {
+    @apply w-full rounded-3xl bg-ink-950 px-5 py-4 text-[15px] font-medium text-paper-50 shadow-glowGold disabled:opacity-70;
+  }
+
+  .lumi-btn-secondary {
+    @apply w-full rounded-3xl border border-white/60 bg-white/60 px-5 py-4 text-[15px] font-semibold text-ink-950 shadow-soft;
   }
 }
 

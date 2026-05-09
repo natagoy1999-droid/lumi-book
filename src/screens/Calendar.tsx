@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { GlassCard } from '../components/GlassCard'
 import { cn } from '../lib/cn'
+import { LumiEmptyState } from '../components/ui/LumiEmptyState'
 import { useCognitiveUI } from '../state/cognitiveUI'
 import { todayISO, useStore } from '../state/store'
 
@@ -148,17 +149,17 @@ export function Calendar() {
                       {getService(b.serviceId)?.name ?? b.serviceName ?? 'Услуга'}
                       {b.status === 'pending_confirm' ? (
                         <span className="ml-2 inline-flex items-center rounded-full border border-gold-200/60 bg-white/55 px-2 py-0.5 text-[11px] font-medium text-ink-800/70">
-                          pending
+                          ждём подтверждение
                         </span>
                       ) : null}
                       {b.status === 'reschedule_pending' ? (
                         <span className="ml-2 inline-flex items-center rounded-full border border-gold-200/60 bg-white/55 px-2 py-0.5 text-[11px] font-medium text-ink-800/70">
-                          reschedule
+                          перенос
                         </span>
                       ) : null}
                       {b.status === 'cancelled' ? (
                         <span className="ml-2 inline-flex items-center rounded-full border border-white/60 bg-white/45 px-2 py-0.5 text-[11px] font-medium text-ink-700/60">
-                          cancelled
+                          отменено
                         </span>
                       ) : null}
                     </div>
@@ -166,8 +167,13 @@ export function Calendar() {
                 ))}
               </div>
             ) : (
-              <div className="mt-3 text-[13px] text-ink-700/65">
-                На этот день пока тишина. Хотите — Lumi предложит клиентам свободные окна.
+              <div className="mt-3">
+                <LumiEmptyState
+                  title="Сегодня спокойно — записей пока нет."
+                  desc="Можно добавить запись вручную или оставить день свободным."
+                  actionLabel="Создать запись"
+                  onAction={() => nav('/calendar/new')}
+                />
               </div>
             )}
           </GlassCard>

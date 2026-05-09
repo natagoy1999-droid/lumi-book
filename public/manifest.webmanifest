@@ -1,12 +1,14 @@
 {
   "name": "LUMI BOOK",
   "short_name": "LUMI",
-  "description": "Calm luxury salon booking — demo-ready.",
+  "description": "Спокойная система записи для мастеров.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "background_color": "#FBF7EF",
   "theme_color": "#FBF7EF",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "/lumi-icon.svg",

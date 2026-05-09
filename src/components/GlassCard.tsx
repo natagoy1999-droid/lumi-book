@@ -31,9 +31,10 @@ export function GlassCard({
       onClick={onClick}
       className={cn(
         'relative overflow-hidden rounded-3xl border shadow-soft',
-        'ring-1 ring-black/5',
+        'ring-1 ring-black/[0.04] transition-[transform,background-color,border-color,box-shadow,opacity] duration-[240ms] ease-out',
         ink ? 'bg-ink-900/70 text-white' : 'text-ink-900',
-        onClick && 'cursor-pointer select-none',
+        onClick &&
+          'touch-manipulation cursor-pointer select-none active:scale-[var(--press-scale,0.992)] active:opacity-[var(--press-opacity,0.94)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200/55 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7EF]',
         className,
       )}
       style={{

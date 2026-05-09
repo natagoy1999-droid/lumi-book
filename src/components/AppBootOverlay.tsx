@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import { glassBackdropFilter, glassBorderStyle, glassFill } from '../lib/glassStyles'
 
@@ -7,12 +7,7 @@ export function AppBootOverlay({ active }: { active: boolean }) {
   const [logoOk, setLogoOk] = useState(true)
 
   const timings = useMemo(() => {
-    return { fadeMs: 340 }
-  }, [])
-
-  useEffect(() => {
-    // TEMP: verify asset path in runtime
-    console.log("Logo path:", "/lumi-logo-transparent.png")
+    return { fadeMs: 420 }
   }, [])
 
   return (
@@ -63,21 +58,21 @@ export function AppBootOverlay({ active }: { active: boolean }) {
                 )}
               </motion.div>
               <div className="text-[12px] font-medium tracking-tightish text-ink-700/70">
-                Calm luxury booking
+                Спокойная запись • LUMI BOOK
               </div>
             </div>
 
             <div className="mt-5">
               <div className="h-1.5 w-full overflow-hidden rounded-full bg-ink-950/10">
                 <motion.div
-                  className="h-full w-1/2 rounded-full bg-gradient-to-r from-gold-200/60 via-gold-300/60 to-gold-200/40"
-                  initial={{ x: '-40%' }}
-                  animate={{ x: '160%' }}
-                  transition={{ duration: 0.92, ease: 'easeInOut', repeat: Infinity }}
+                  className="h-full w-[42%] rounded-full bg-gradient-to-r from-gold-200/50 via-gold-300/45 to-gold-200/35"
+                  initial={{ x: '-55%' }}
+                  animate={{ x: '260%' }}
+                  transition={{ duration: 1.45, ease: [0.45, 0, 0.2, 1], repeat: Infinity }}
                 />
               </div>
-              <div className="mt-3 text-[12px] leading-5 text-ink-700/60">
-                Мягко поднимаем данные и ритм интерфейса…
+              <div className="mt-3 text-[12px] leading-[1.55] text-ink-700/58">
+                Собираем ваш спокойный рабочий ритм…
               </div>
             </div>
           </motion.div>

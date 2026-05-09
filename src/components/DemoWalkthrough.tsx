@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom'
 
 import { cn } from '../lib/cn'
 import { useDemoMode } from '../state/demoMode'
+import { useModalManager } from '../state/modalManager'
+import { z } from '../theme/elevation'
 
 type StepModel = {
   idx: number
@@ -118,17 +120,25 @@ export function DemoWalkthrough() {
   const stop = useDemoMode((s) => s.stop)
   const step = useDemoMode((s) => s.step)
   const model = useStepModel()
+  const modal = useModalManager()
 
   const show = Boolean(active && model?.title && model?.cta && model?.subtitle)
 
   useEffect(() => {
     if (!show) return
+    modal.open('walkthrough')
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     return () => {
       document.body.style.overflow = prev
+      if (useModalManager.getState().active === 'walkthrough') useModalManager.getState().close()
     }
-  }, [show])
+  }, [modal, show])
+
+  useEffect(() => {
+    if (!show) return
+    if (modal.active !== 'walkthrough') stop()
+  }, [modal.active, show, stop])
 
   useEffect(() => {
     if (!active) return
@@ -157,10 +167,10 @@ export function DemoWalkthrough() {
         <>
           <motion.button
             aria-label="Close"
-            className="fixed inset-0 z-[100] cursor-default"
+            className="fixed inset-0 cursor-default"
             style={{
               backgroundColor: 'rgba(14, 16, 22, 0.30)',
-              backdropFilter: 'blur(6px)',
+              zIndex: z.backdrop,
             }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -171,11 +181,12 @@ export function DemoWalkthrough() {
           <motion.div
             role="dialog"
             aria-modal="true"
-            className="fixed bottom-0 left-0 right-0 z-[120] mx-auto max-w-[520px]"
+            className="fixed bottom-0 left-0 right-0 mx-auto max-w-[520px]"
             data-demo-walkthrough-modal="1"
             style={{
               width: 'calc(100% - 32px)',
               paddingBottom: 'calc(14px + var(--safe-bottom))',
+              zIndex: z.modal,
             }}
             initial={{ y: 26, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}

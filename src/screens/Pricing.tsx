@@ -57,16 +57,16 @@ const plans: PlanModel[] = [
   },
   {
     id: 'premium_ai',
-    name: 'Premium AI',
+    name: 'Премиум AI',
     price: '6 990 ₽ / месяц',
-    desc: 'Для премиальных салонов',
+    desc: 'Для студий, где важен ритм и сервис',
     features: [
       'безлимит мастеров',
       'безлимит клиентов',
-      'AI assistant',
-      'smart recovery',
-      'predictive scheduling',
-      'advanced analytics',
+      'умные подсказки',
+      'мягкий возврат клиентов',
+      'поддержка сценариев',
+      'расширенная аналитика',
       'персональные сценарии',
       'ранний доступ к новым функциям',
     ],
@@ -78,7 +78,7 @@ function planLabel(p: SubscriptionPlan) {
   if (p === 'start') return 'Старт'
   if (p === 'pro') return 'Профи'
   if (p === 'studio') return 'Студия'
-  return 'Premium AI'
+  return 'Премиум AI'
 }
 
 export function Pricing() {
@@ -94,12 +94,15 @@ export function Pricing() {
   }, [sub.status])
 
   return (
-    <div className="px-5" style={{ paddingTop: 'calc(1.75rem * (0.94 + var(--global-rhythm, 1) * 0.06))' }}>
+    <div
+      className="lumi-page"
+      style={{ paddingTop: 'calc(1.75rem * (0.94 + var(--global-rhythm, 1) * 0.06))' }}
+    >
       <div className="mx-auto max-w-[520px]">
         <div className="mb-4">
-          <div className="text-[12px] font-medium tracking-tightish text-ink-700/70">Тарифы</div>
-          <div className="mt-1 text-[32px] font-semibold tracking-tightish text-ink-950">Тарифы LUMI BOOK</div>
-          <div className="mt-1 text-[12px] leading-5 text-ink-700/65">
+          <div className="lumi-section-title">Тарифы</div>
+          <div className="mt-1 lumi-title">Тарифы LUMI BOOK</div>
+          <div className="mt-1 lumi-secondary">
             Выберите формат, который подходит вашему ритму работы
           </div>
           {badge ? (

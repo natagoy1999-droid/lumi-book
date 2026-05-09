@@ -1,13 +1,9 @@
-import { AnimatePresence, MotionConfig, motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import type { ReactNode } from 'react'
 import { useEffect, useMemo, useRef } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
-import { BottomTabs } from './components/BottomTabs'
-import { AppBootOverlay } from './components/AppBootOverlay'
-import { InstallPromptCard } from './components/InstallPromptCard'
-import { MessageComposerSheet } from './components/MessageComposerSheet'
-import { DemoWalkthrough } from './components/DemoWalkthrough'
+import { AppShell } from './components/AppShell'
 import { applyMaterialFromStore } from './lib/globalMaterial'
 import { hydratePresenceMemory } from './lib/presenceMemory'
 import {
@@ -34,8 +30,14 @@ import { Reschedule } from './screens/Reschedule'
 import { Settings } from './screens/Settings'
 import { Today } from './screens/Today'
 import { ClientBooking } from './screens/ClientBooking'
+import { PublicBooking } from './screens/PublicBooking'
 import { Pricing } from './screens/Pricing'
+import { Login } from './screens/Login'
+import { Signup } from './screens/Signup'
+import { AuthEntry } from './screens/AuthEntry'
+import { Workspace } from './screens/Workspace'
 import { StoreProvider, todayISO, useStore } from './state/store'
+import { motion as motionTokens } from './theme/motion'
 
 function Page({ children }: { children: ReactNode }) {
   const firstPaintDone = useAppHydration((s) => s.firstPaintDone)
@@ -44,11 +46,11 @@ function Page({ children }: { children: ReactNode }) {
 
   return (
     <motion.main
-      className="min-h-[100svh]"
-      initial={firstPaintDone ? { opacity: 0 } : false}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.25, ease: 'easeOut' }}
+      className="min-h-[100dvh] min-h-[100svh]"
+      initial={firstPaintDone ? { opacity: 0, y: 4 } : false}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -3 }}
+      transition={{ duration: motionTokens.duration.slow, ease: motionTokens.ease.out }}
       style={{
         paddingBottom: 'var(--app-bottom-pad, 0px)',
       }}
@@ -180,8 +182,6 @@ function GlobalMaterialSync() {
 function Shell() {
   const loc = useLocation()
   const { state } = useStore()
-  const ready = useAppHydration((s) => s.ready)
-  const firstPaintDone = useAppHydration((s) => s.firstPaintDone)
 
   useEffect(() => {
     const t = window.setTimeout(() => {
@@ -211,28 +211,12 @@ function Shell() {
     return () => window.clearTimeout(t)
   }, [loc.pathname, loc.search])
 
-  const hideTabs =
-    loc.pathname.startsWith('/onboarding') ||
-    loc.pathname.startsWith('/calendar/new') ||
-    loc.pathname.startsWith('/client-booking') ||
-    loc.pathname.startsWith('/book')
-
   return (
-    <div
-      className="mx-auto max-w-[520px]"
-      style={{
-        background: '#FAF7EF',
-        // Global reserve so content never hides under BottomTabs.
-        ['--app-bottom-pad' as any]:
-          hideTabs ? '0px' : 'calc(120px + env(safe-area-inset-bottom))',
-      }}
-    >
+    <>
       <GlobalMaterialSync />
-      <AppBootOverlay active={!ready} />
-      <div className={ready ? 'app-ready' : 'app-preparing'}>
-      <MotionConfig reducedMotion={firstPaintDone ? 'never' : 'always'}>
-      {ready ? (
-        <AnimatePresence mode="wait" initial={false}>
+      <AppShell
+        screenContent={
+          <AnimatePresence mode="wait" initial={false}>
           <Routes location={loc} key={loc.pathname + loc.search}>
           <Route
             path="/"
@@ -249,6 +233,38 @@ function Shell() {
             element={
               <Page>
                 <Onboarding />
+              </Page>
+            }
+          />
+          <Route
+            path="/auth"
+            element={
+              <Page>
+                <AuthEntry />
+              </Page>
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <Page>
+                <Login />
+              </Page>
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <Page>
+                <Signup />
+              </Page>
+            }
+          />
+          <Route
+            path="/workspace"
+            element={
+              <Page>
+                <Workspace />
               </Page>
             }
           />
@@ -309,6 +325,14 @@ function Shell() {
             }
           />
           <Route
+            path="/book/:workspace"
+            element={
+              <Page>
+                <PublicBooking />
+              </Page>
+            }
+          />
+          <Route
             path="/book"
             element={
               <Page>
@@ -330,16 +354,10 @@ function Shell() {
           />
           <Route path="*" element={<Navigate to="/today" replace />} />
           </Routes>
-        </AnimatePresence>
-      ) : null}
-
-      {loc.pathname === '/today' ? <InstallPromptCard /> : null}
-      {hideTabs ? null : <BottomTabs />}
-      <MessageComposerSheet />
-      <DemoWalkthrough />
-      </MotionConfig>
-      </div>
-    </div>
+          </AnimatePresence>
+        }
+      />
+    </>
   )
 }
 

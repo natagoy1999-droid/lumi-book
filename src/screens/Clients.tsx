@@ -1,11 +1,15 @@
 import { motion } from 'framer-motion'
-import { Plus, Sparkles, Search, Trash2 } from 'lucide-react'
+import { Plus, Sparkles, Search, Trash2, Users } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
 import { GlassCard } from '../components/GlassCard'
-import { Sheet } from '../components/Sheet'
 import { cn } from '../lib/cn'
 import { deriveClientCardSurface } from '../lib/clientCardSoftness'
+import { LumiButton } from '../components/ui/LumiButton'
+import { LumiEmptyState } from '../components/ui/LumiEmptyState'
+import { LumiInput } from '../components/ui/LumiInput'
+import { LumiModal } from '../components/ui/LumiModal'
+import { LumiTextarea } from '../components/ui/LumiTextarea'
 import { useCognitiveUI } from '../state/cognitiveUI'
 import { useCommunicationCalmIntel } from '../state/communicationCalmIntel'
 import { useMessaging } from '../state/messaging'
@@ -53,7 +57,7 @@ export function Clients() {
 
   return (
     <div
-      className="px-5"
+      className="lumi-page"
       style={{
         paddingTop: 'calc(1.75rem * (0.94 + var(--global-rhythm, 1) * 0.06))',
       }}
@@ -65,12 +69,8 @@ export function Clients() {
           transition={{ type: 'spring', stiffness: 520, damping: 44 }}
           className="mb-4"
         >
-          <div className="text-[12px] font-medium tracking-tightish text-ink-700/70">
-            Клиенты
-          </div>
-          <div className="mt-1 text-[32px] font-semibold tracking-tightish text-ink-950">
-            Лёгкая CRM
-          </div>
+          <div className="lumi-section-title">Клиенты</div>
+          <div className="mt-1 lumi-title">Лёгкая CRM</div>
         </motion.div>
 
         <GlassCard className="p-4">
@@ -82,12 +82,12 @@ export function Clients() {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Поиск по имени или телефону"
-              className="h-10 flex-1 rounded-2xl border border-white/60 bg-white/60 px-4 text-[14px] text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35"
+              className="h-10 flex-1 rounded-2xl border border-white/60 bg-white/60 px-4 text-[15px] text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35"
             />
             <button
               type="button"
               onClick={openNew}
-              className="inline-flex h-10 items-center gap-2 rounded-2xl bg-ink-950 px-4 text-[13px] font-semibold text-paper-50 shadow-glowGold"
+              className="inline-flex h-10 items-center gap-2 rounded-2xl bg-ink-950 px-4 text-[14px] font-semibold text-paper-50 shadow-glowGold"
             >
               <Plus size={18} />
               Добавить
@@ -95,7 +95,16 @@ export function Clients() {
           </div>
         </GlassCard>
 
-        <div className="mt-3 flex flex-col" style={{ gap: 'var(--cognitive-inline-stack)' }}>
+        <motion.div
+          initial="hidden"
+          animate="show"
+          variants={{
+            hidden: { opacity: 1 },
+            show: { opacity: 1, transition: { staggerChildren: 0.03, delayChildren: 0.02 } },
+          }}
+          className="mt-3 flex flex-col"
+          style={{ gap: 'var(--cognitive-inline-stack)' }}
+        >
           {list.length ? (
             list.map((c) => {
               const card = deriveClientCardSurface({
@@ -105,86 +114,89 @@ export function Clients() {
                 socialQuietness,
               })
               return (
-                <GlassCard
+                <motion.div
                   key={c.id}
-                  className="p-5"
-                  style={{
-                    opacity: `calc(0.94 + var(--client-card-calm, 0.48) * 0.06 * ${card.calm.toFixed(3)})`,
-                  }}
-                  onClick={() => {
-                    setDraft({ ...c })
-                    setOpenEdit(true)
+                  variants={{
+                    hidden: { opacity: 0, y: 4 },
+                    show: { opacity: 1, y: 0, transition: { duration: 0.22, ease: [0.16, 1, 0.3, 1] } },
                   }}
                 >
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <div className="text-[16px] font-semibold tracking-tightish text-ink-950">
-                        {c.name}
+                  <GlassCard
+                    className="p-5"
+                    style={{
+                      opacity: `calc(0.94 + var(--client-card-calm, 0.48) * 0.06 * ${card.calm.toFixed(3)})`,
+                    }}
+                    onClick={() => {
+                      setDraft({ ...c })
+                      setOpenEdit(true)
+                    }}
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <div className="text-[16px] font-semibold tracking-tightish text-ink-950">
+                          {c.name}
+                        </div>
+                        <div className="mt-1 text-[12px] text-ink-700/65">{c.phone}</div>
                       </div>
-                      <div className="mt-1 text-[12px] text-ink-700/65">{c.phone}</div>
+                      <div className="rounded-2xl border border-white/60 bg-white/55 px-3 py-2 text-right text-[12px] shadow-soft">
+                        <div className="font-semibold text-ink-950">{money(c.totalSpent)} ₽</div>
+                        <div className="text-ink-700/60">{c.visits} визитов</div>
+                      </div>
                     </div>
-                    <div className="rounded-2xl border border-white/60 bg-white/55 px-3 py-2 text-right text-[12px] shadow-soft">
-                      <div className="font-semibold text-ink-950">{money(c.totalSpent)} ₽</div>
-                      <div className="text-ink-700/60">{c.visits} визитов</div>
-                    </div>
-                  </div>
 
-                  {showInsight ? (
-                    <div
-                      className="mt-4 rounded-3xl border border-white/60 bg-white/50 px-4 py-3 shadow-soft"
-                      style={{
-                        opacity: `calc(0.88 + var(--relationship-softness, 0.5) * 0.12 * ${card.calm.toFixed(3)})`,
-                      }}
-                    >
-                      <div className="inline-flex items-center gap-2 text-[12px] font-medium text-ink-700/70">
-                        <Sparkles size={16} className="text-gold-400" />
-                        AI insight
+                    {showInsight ? (
+                      <div
+                        className="mt-4 rounded-3xl border border-white/60 bg-white/50 px-4 py-3 shadow-soft"
+                        style={{
+                          opacity: `calc(0.88 + var(--relationship-softness, 0.5) * 0.12 * ${card.calm.toFixed(3)})`,
+                        }}
+                      >
+                        <div className="inline-flex items-center gap-2 text-[12px] font-medium text-ink-700/70">
+                          <Sparkles size={16} className="text-gold-400" />
+                          Спокойная заметка
+                        </div>
+                        <div className="mt-1 text-[12px] leading-5 text-ink-700/70">
+                          {card.insightLine}
+                        </div>
+                        {card.quietHint ? (
+                          <div className="mt-2 text-[11px] leading-5 text-ink-700/55">{card.quietHint}</div>
+                        ) : null}
                       </div>
-                      <div className="mt-1 text-[12px] leading-5 text-ink-700/70">
-                        {card.insightLine}
-                      </div>
-                      {card.quietHint ? (
-                        <div className="mt-2 text-[11px] leading-5 text-ink-700/55">{card.quietHint}</div>
-                      ) : null}
-                    </div>
-                  ) : null}
+                    ) : null}
 
-                  {c.notes ? (
-                    <div
-                      className={cn(
-                        'mt-4 rounded-3xl border border-white/60 bg-white/50 px-4 py-3',
-                        'text-[12px] leading-5 text-ink-700/70 shadow-soft',
-                      )}
-                    >
-                      {c.notes}
-                    </div>
-                  ) : null}
-                </GlassCard>
+                    {c.notes ? (
+                      <div
+                        className={cn(
+                          'mt-4 rounded-3xl border border-white/60 bg-white/50 px-4 py-3',
+                          'text-[12px] leading-5 text-ink-700/70 shadow-soft',
+                        )}
+                      >
+                        {c.notes}
+                      </div>
+                    ) : null}
+                  </GlassCard>
+                </motion.div>
               )
             })
           ) : (
-            <GlassCard className="p-5">
-              <div className="text-[14px] font-semibold text-ink-950">Пока пусто</div>
-              <div className="mt-1 text-[12px] leading-5 text-ink-700/65">
-                Клиенты появятся автоматически после первых записей — без ручного ввода.
-              </div>
-              <button
-                type="button"
-                onClick={openNew}
-                className="mt-4 inline-flex items-center gap-2 rounded-3xl bg-ink-950 px-4 py-3 text-[13px] font-semibold text-paper-50 shadow-glowGold"
-              >
-                <Plus size={18} />
-                Добавить клиента
-              </button>
-            </GlassCard>
+            <LumiEmptyState
+              title="Пока пусто"
+              desc="Клиенты появятся автоматически после первых записей — без ручного ввода."
+              icon={<Users size={18} className="text-gold-400" />}
+              actionLabel="Добавить клиента"
+              onAction={openNew}
+            />
           )}
-        </div>
+        </motion.div>
       </div>
 
-      <Sheet
+      <LumiModal
         open={openEdit}
         title={draft?.name?.trim() ? `Клиент • ${draft.name}` : 'Новый клиент'}
         onClose={() => setOpenEdit(false)}
+        modalId="settings"
+        variant="center"
+        surface="solid"
       >
         {draft ? (
           <div className="space-y-3">
@@ -192,35 +204,26 @@ export function Clients() {
               Нажмите на карточку клиента, чтобы изменить данные. Удаление безопасно — записи не сломаются.
             </div>
 
-            <div className="space-y-1">
-              <div className="text-[12px] font-medium text-ink-700/70">Имя</div>
-              <input
-                value={draft.name}
-                onChange={(e) => setDraft((s) => (s ? { ...s, name: e.target.value } : s))}
-                placeholder="Например, Мария"
-                className="w-full rounded-3xl border border-white/60 bg-white/60 px-4 py-3 text-[14px] text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35"
-              />
-            </div>
-            <div className="space-y-1">
-              <div className="text-[12px] font-medium text-ink-700/70">Телефон</div>
-              <input
-                value={draft.phone}
-                onChange={(e) => setDraft((s) => (s ? { ...s, phone: e.target.value } : s))}
-                inputMode="tel"
-                placeholder="+7 ___ ___-__-__"
-                className="w-full rounded-3xl border border-white/60 bg-white/60 px-4 py-3 text-[14px] text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35"
-              />
-            </div>
-            <div className="space-y-1">
-              <div className="text-[12px] font-medium text-ink-700/70">Заметки</div>
-              <textarea
-                value={draft.notes ?? ''}
-                onChange={(e) => setDraft((s) => (s ? { ...s, notes: e.target.value } : s))}
-                rows={3}
-                placeholder="Опционально"
-                className="w-full resize-none rounded-3xl border border-white/60 bg-white/60 px-4 py-3 text-[14px] text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35"
-              />
-            </div>
+            <LumiInput
+              label="Имя"
+              value={draft.name}
+              onChange={(e) => setDraft((s) => (s ? { ...s, name: e.target.value } : s))}
+              placeholder="Например, Мария"
+            />
+            <LumiInput
+              label="Телефон"
+              value={draft.phone}
+              onChange={(e) => setDraft((s) => (s ? { ...s, phone: e.target.value } : s))}
+              inputMode="tel"
+              placeholder="+7 ___ ___-__-__"
+            />
+            <LumiTextarea
+              label="Заметки"
+              value={draft.notes ?? ''}
+              onChange={(e) => setDraft((s) => (s ? { ...s, notes: e.target.value } : s))}
+              rows={3}
+              placeholder="Опционально"
+            />
 
             {(() => {
               const hist = state.bookings
@@ -273,8 +276,7 @@ export function Clients() {
               )
             })()}
 
-            <button
-              type="button"
+            <LumiButton
               onClick={() => {
                 const name = draft.name.trim()
                 const phone = draft.phone.trim()
@@ -292,34 +294,30 @@ export function Clients() {
                 })
                 setOpenEdit(false)
               }}
-              className="w-full rounded-3xl bg-ink-950 px-5 py-4 text-[15px] font-medium text-paper-50 shadow-glowGold"
             >
               Сохранить
-            </button>
+            </LumiButton>
 
             <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setOpenEdit(false)}
-                className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[13px] font-semibold text-ink-950 shadow-soft"
-              >
+              <LumiButton variant="secondary" size="sm" fullWidth onClick={() => setOpenEdit(false)}>
                 Отмена
-              </button>
-              <button
-                type="button"
+              </LumiButton>
+              <LumiButton
+                variant="destructive"
+                size="sm"
+                fullWidth
                 onClick={() => {
                   dispatch({ type: 'deleteClient', clientId: draft.id })
                   setOpenEdit(false)
                 }}
-                className="inline-flex items-center justify-center gap-2 rounded-3xl border border-red-200/70 bg-white/55 px-4 py-3 text-[13px] font-semibold text-red-700 shadow-soft"
               >
                 <Trash2 size={18} />
-                Удалить клиента
-              </button>
+                Удалить
+              </LumiButton>
             </div>
           </div>
         ) : null}
-      </Sheet>
+      </LumiModal>
     </div>
   )
 }

@@ -16,8 +16,13 @@ import { useNavigate } from 'react-router-dom'
 import { GlassCard } from '../components/GlassCard'
 import { cn } from '../lib/cn'
 import { Sheet } from '../components/Sheet'
+import { LumiButton } from '../components/ui/LumiButton'
+import { LumiInput } from '../components/ui/LumiInput'
+import { LumiModal } from '../components/ui/LumiModal'
+import { LumiEmptyState } from '../components/ui/LumiEmptyState'
 import { TRIAL_DAYS, useStore, type AppSettings, type Master, type Service } from '../state/store'
 import { useDemoMode } from '../state/demoMode'
+import { useAuthStore } from '../store/authStore'
 
 const groups = [
   {
@@ -50,18 +55,23 @@ export function Settings() {
   const nav = useNavigate()
   const { state, dispatch } = useStore()
   const startDemo = useDemoMode((s) => s.start)
+  const authMode = useAuthStore((s) => s.mode)
+  const authUser = useAuthStore((s) => s.user)
   const mastersCountHint = useMemo(() => `${state.masters.length} мастера`, [state.masters.length])
   const servicesCountHint = useMemo(() => `${state.services.length} услуги`, [state.services.length])
 
-  const [openWorkHours, setOpenWorkHours] = useState(false)
-  const [openMasters, setOpenMasters] = useState(false)
-  const [openServices, setOpenServices] = useState(false)
-  const [openChannels, setOpenChannels] = useState(false)
-  const [openReminders, setOpenReminders] = useState(false)
-  const [openTemplates, setOpenTemplates] = useState(false)
-  const [openPayments, setOpenPayments] = useState(false)
-  const [openDemo, setOpenDemo] = useState(false)
-  const [openDemoData, setOpenDemoData] = useState(false)
+  const [activePanel, setActivePanel] = useState<
+    | null
+    | 'workHours'
+    | 'masters'
+    | 'services'
+    | 'channels'
+    | 'reminders'
+    | 'templates'
+    | 'payments'
+    | 'demo'
+    | 'demoData'
+  >(null)
 
   const [masterEdit, setMasterEdit] = useState<Master | null>(null)
   const [serviceEdit, setServiceEdit] = useState<Service | null>(null)
@@ -91,7 +101,7 @@ export function Settings() {
     if (sub.plan === 'start') return 'Старт'
     if (sub.plan === 'pro') return 'Профи'
     if (sub.plan === 'studio') return 'Студия'
-    return 'Premium AI'
+    return 'Премиум AI'
   }, [sub.plan])
 
   const planLimits = useMemo(() => {
@@ -111,7 +121,7 @@ export function Settings() {
   }, [planLimits.clients, planLimits.masters, state.clients.length, state.masters.length])
 
   return (
-    <div className="px-5 pt-7">
+    <div className="lumi-page" style={{ paddingTop: 'calc(1.75rem * (0.94 + var(--global-rhythm, 1) * 0.06))' }}>
       <div className="mx-auto max-w-[520px]">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -119,15 +129,23 @@ export function Settings() {
           transition={{ type: 'spring', stiffness: 520, damping: 44 }}
           className="mb-4"
         >
-          <div className="text-[12px] font-medium tracking-tightish text-ink-700/70">
-            Настройки
-          </div>
-          <div className="mt-1 text-[32px] font-semibold tracking-tightish text-ink-950">
-            Очень просто
-          </div>
+          <div className="lumi-section-title">Настройки</div>
+          <div className="mt-1 lumi-title">Очень просто</div>
         </motion.div>
 
         <div className="space-y-3">
+          <GlassCard className="p-5">
+            <div className="lumi-section-title">Режим приложения</div>
+            <div className="mt-2 text-[14px] font-semibold tracking-tightish text-ink-950">
+              {authMode === 'auth' ? 'Аккаунт подключён' : 'Демо‑режим'}
+            </div>
+            <div className="mt-1 lumi-secondary">
+              {authMode === 'auth'
+                ? `ID: ${authUser?.id ?? '—'}`
+                : 'Работает локально: без обязательного входа.'}
+            </div>
+          </GlassCard>
+
           <GlassCard
             className="p-5"
             onClick={() => {
@@ -162,7 +180,7 @@ export function Settings() {
           <GlassCard
             className="p-5"
             onClick={() => {
-              setOpenDemo(true)
+              setActivePanel('demo')
             }}
           >
             <div className="text-[12px] font-medium text-ink-700/70">Демо</div>
@@ -196,25 +214,25 @@ export function Settings() {
                     onClick={() => {
                       if (it.label === 'Рабочие часы') {
                         setSettingsDraft(state.settings)
-                        setOpenWorkHours(true)
+                        setActivePanel('workHours')
                       }
-                      if (it.label === 'Мастера') setOpenMasters(true)
-                      if (it.label === 'Услуги и цены') setOpenServices(true)
+                      if (it.label === 'Мастера') setActivePanel('masters')
+                      if (it.label === 'Услуги и цены') setActivePanel('services')
                       if (it.label === 'SMS / WhatsApp / Max') {
                         setSettingsDraft(state.settings)
-                        setOpenChannels(true)
+                        setActivePanel('channels')
                       }
                       if (it.label === 'Напоминания') {
                         setSettingsDraft(state.settings)
-                        setOpenReminders(true)
+                        setActivePanel('reminders')
                       }
                       if (it.label === 'Шаблоны сообщений') {
                         setSettingsDraft(state.settings)
-                        setOpenTemplates(true)
+                        setActivePanel('templates')
                       }
                       if (it.label === 'Прайс и предоплата') {
                         setSettingsDraft(state.settings)
-                        setOpenPayments(true)
+                        setActivePanel('payments')
                       }
                     }}
                     className={cn(
@@ -251,7 +269,7 @@ export function Settings() {
           <GlassCard
             className="p-5"
             onClick={() => {
-              setOpenDemoData(true)
+              setActivePanel('demoData')
             }}
           >
             <div className="text-[12px] font-medium text-ink-700/70">Демо-данные</div>
@@ -285,43 +303,38 @@ export function Settings() {
         </div>
       </div>
 
-      <Sheet
-        open={openWorkHours}
+      <LumiModal
+        open={activePanel === 'workHours'}
         title="Рабочие часы"
-        onClose={() => setOpenWorkHours(false)}
+        onClose={() => setActivePanel(null)}
         variant="center"
         surface="solid"
+        modalId="settings"
       >
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-1">
-              <div className="text-[12px] font-medium text-ink-700/70">Начало</div>
-              <input
-                value={settingsDraft.workHours.start}
-                onChange={(e) =>
-                  setSettingsDraft((s) => ({
-                    ...s,
-                    workHours: { ...s.workHours, start: e.target.value },
-                  }))
-                }
-                placeholder="10:00"
-                className="w-full rounded-3xl border border-white/60 bg-white/60 px-4 py-3 text-[14px] text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35"
-              />
-            </div>
-            <div className="space-y-1">
-              <div className="text-[12px] font-medium text-ink-700/70">Конец</div>
-              <input
-                value={settingsDraft.workHours.end}
-                onChange={(e) =>
-                  setSettingsDraft((s) => ({
-                    ...s,
-                    workHours: { ...s.workHours, end: e.target.value },
-                  }))
-                }
-                placeholder="20:00"
-                className="w-full rounded-3xl border border-white/60 bg-white/60 px-4 py-3 text-[14px] text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35"
-              />
-            </div>
+            <LumiInput
+              label="Начало"
+              value={settingsDraft.workHours.start}
+              onChange={(e) =>
+                setSettingsDraft((s) => ({
+                  ...s,
+                  workHours: { ...s.workHours, start: e.target.value },
+                }))
+              }
+              placeholder="10:00"
+            />
+            <LumiInput
+              label="Конец"
+              value={settingsDraft.workHours.end}
+              onChange={(e) =>
+                setSettingsDraft((s) => ({
+                  ...s,
+                  workHours: { ...s.workHours, end: e.target.value },
+                }))
+              }
+              placeholder="20:00"
+            />
           </div>
           <div className="space-y-2">
             <div className="text-[12px] font-medium text-ink-700/70">Выходные дни</div>
@@ -362,61 +375,64 @@ export function Settings() {
           </div>
 
           <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
+            <LumiButton
+              size="sm"
+              fullWidth
               onClick={() => {
                 dispatch({ type: 'updateSettings', settings: { workHours: settingsDraft.workHours } })
-                setOpenWorkHours(false)
+                setActivePanel(null)
               }}
-              className="rounded-3xl bg-ink-950 px-4 py-3 text-[13px] font-semibold text-paper-50 shadow-glowGold"
             >
               Сохранить
-            </button>
-            <button
-              type="button"
-              onClick={() => setOpenWorkHours(false)}
-              className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[13px] font-semibold text-ink-950 shadow-soft"
-            >
+            </LumiButton>
+            <LumiButton variant="secondary" size="sm" fullWidth onClick={() => setActivePanel(null)}>
               Отмена
-            </button>
+            </LumiButton>
           </div>
         </div>
-      </Sheet>
+      </LumiModal>
 
-      <Sheet
-        open={openMasters}
+      <LumiModal
+        open={activePanel === 'masters'}
         title="Мастера"
-        onClose={() => setOpenMasters(false)}
+        onClose={() => setActivePanel(null)}
         variant="center"
         surface="solid"
+        modalId="settings"
       >
         <div className="space-y-2">
-          {state.masters.map((m) => (
-            <button
-              key={m.id}
-              type="button"
-              onClick={() => setMasterEdit({ ...m })}
-              className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 shadow-soft"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <div className="text-[14px] font-semibold tracking-tightish text-ink-950">
-                  {m.name}
+          {state.masters.length ? (
+            state.masters.map((m) => (
+              <button
+                key={m.id}
+                type="button"
+                onClick={() => setMasterEdit({ ...m })}
+                className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 shadow-soft"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="text-[14px] font-semibold tracking-tightish text-ink-950">
+                    {m.name}
+                  </div>
+                  <div className="text-[12px] font-medium text-ink-700/65">{m.color}</div>
                 </div>
-                <div className="text-[12px] font-medium text-ink-700/65">{m.color}</div>
-              </div>
-              <div className="mt-1 text-[11px] text-ink-700/45">Нажмите, чтобы изменить</div>
-            </button>
-          ))}
+                <div className="mt-1 text-[11px] text-ink-700/45">Нажмите, чтобы изменить</div>
+              </button>
+            ))
+          ) : (
+            <LumiEmptyState
+              title="Мастера появятся здесь после добавления."
+              desc="Добавьте первого мастера — и можно начинать запись."
+            />
+          )}
         </div>
 
         <div className="mt-4 rounded-3xl border border-white/60 bg-white/55 p-4 shadow-soft">
           <div className="text-[12px] font-medium text-ink-700/70">Добавить мастера</div>
           <div className="mt-2 space-y-2">
-            <input
+            <LumiInput
               value={masterDraft.name}
               onChange={(e) => setMasterDraft((s) => ({ ...s, name: e.target.value }))}
               placeholder="Имя"
-              className="w-full rounded-3xl border border-white/60 bg-white/60 px-4 py-3 text-[14px] text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35"
             />
             <div className="grid grid-cols-2 gap-2">
               <button
@@ -444,81 +460,87 @@ export function Settings() {
                 Ink
               </button>
             </div>
-            <button
-              type="button"
+            <LumiButton
+              variant="primary"
+              size="sm"
               onClick={() => {
                 const name = masterDraft.name.trim()
                 if (name.length < 2) return
                 dispatch({ type: 'upsertMaster', master: { ...masterDraft, name } })
                 setMasterDraft({ id: `m_${uid()}`, name: '', color: 'gold' })
               }}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-3xl bg-ink-950 px-4 py-3 text-[13px] font-semibold text-paper-50 shadow-glowGold"
             >
               <Plus size={18} />
               Добавить
-            </button>
+            </LumiButton>
           </div>
         </div>
-      </Sheet>
+      </LumiModal>
 
-      <Sheet
-        open={openServices}
+      <LumiModal
+        open={activePanel === 'services'}
         title="Услуги и цены"
-        onClose={() => setOpenServices(false)}
+        onClose={() => setActivePanel(null)}
         variant="center"
         surface="solid"
+        modalId="settings"
       >
         <div className="space-y-2">
-          {state.services.map((s) => (
-            <button
-              key={s.id}
-              type="button"
-              onClick={() => setServiceEdit({ ...s })}
-              className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 shadow-soft"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <div className="text-[14px] font-semibold tracking-tightish text-ink-950">
-                  {s.name}
+          {state.services.length ? (
+            state.services.map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => setServiceEdit({ ...s })}
+                className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 shadow-soft"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="text-[14px] font-semibold tracking-tightish text-ink-950">
+                    {s.name}
+                  </div>
+                  <div className="text-[12px] font-medium text-ink-700/65">{s.price} ₽</div>
                 </div>
-                <div className="text-[12px] font-medium text-ink-700/65">{s.price} ₽</div>
-              </div>
-              <div className="mt-1 text-[12px] text-ink-700/60">{s.minutes} мин</div>
-              <div className="mt-1 text-[11px] text-ink-700/45">Нажмите, чтобы изменить</div>
-            </button>
-          ))}
+                <div className="mt-1 text-[12px] text-ink-700/60">{s.minutes} мин</div>
+                <div className="mt-1 text-[11px] text-ink-700/45">Нажмите, чтобы изменить</div>
+              </button>
+            ))
+          ) : (
+            <LumiEmptyState
+              title="Добавьте первую услугу, чтобы начать запись."
+              desc="Название, длительность и цена — этого достаточно."
+            />
+          )}
         </div>
 
         <div className="mt-4 rounded-3xl border border-white/60 bg-white/55 p-4 shadow-soft">
           <div className="text-[12px] font-medium text-ink-700/70">Добавить услугу</div>
           <div className="mt-2 space-y-2">
-            <input
+            <LumiInput
               value={serviceDraft.name}
               onChange={(e) => setServiceDraft((s) => ({ ...s, name: e.target.value }))}
               placeholder="Название"
-              className="w-full rounded-3xl border border-white/60 bg-white/60 px-4 py-3 text-[14px] text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35"
             />
             <div className="grid grid-cols-2 gap-2">
-              <input
+              <LumiInput
                 value={String(serviceDraft.minutes)}
                 onChange={(e) =>
                   setServiceDraft((s) => ({ ...s, minutes: Number(e.target.value) || 0 }))
                 }
                 inputMode="numeric"
                 placeholder="Минут"
-                className="w-full rounded-3xl border border-white/60 bg-white/60 px-4 py-3 text-[14px] text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35"
               />
-              <input
+              <LumiInput
                 value={String(serviceDraft.price)}
                 onChange={(e) =>
                   setServiceDraft((s) => ({ ...s, price: Number(e.target.value) || 0 }))
                 }
                 inputMode="numeric"
                 placeholder="Цена"
-                className="w-full rounded-3xl border border-white/60 bg-white/60 px-4 py-3 text-[14px] text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35"
               />
             </div>
-            <button
-              type="button"
+            <LumiButton
+              variant="primary"
+              size="sm"
               onClick={() => {
                 const name = serviceDraft.name.trim()
                 if (name.length < 2) return
@@ -530,30 +552,29 @@ export function Settings() {
                 })
                 setServiceDraft({ id: `s_${uid()}`, name: '', minutes: 60, price: 2000 })
               }}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-3xl bg-ink-950 px-4 py-3 text-[13px] font-semibold text-paper-50 shadow-glowGold"
             >
               <Plus size={18} />
               Добавить
-            </button>
+            </LumiButton>
           </div>
         </div>
-      </Sheet>
+      </LumiModal>
 
-      <Sheet
+      <LumiModal
         open={Boolean(masterEdit)}
         title="Редактировать мастера"
         onClose={() => setMasterEdit(null)}
         variant="center"
         surface="solid"
+        modalId="settings"
       >
         {masterEdit ? (
           <div className="space-y-3">
             <div className="space-y-2">
-              <input
+              <LumiInput
                 value={masterEdit.name}
                 onChange={(e) => setMasterEdit((s) => (s ? { ...s, name: e.target.value } : s))}
                 placeholder="Имя мастера"
-                className="w-full rounded-3xl border border-white/60 bg-white/60 px-4 py-3 text-[14px] text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35"
               />
               <div className="grid grid-cols-2 gap-2">
                 <button
@@ -584,44 +605,35 @@ export function Settings() {
             </div>
 
             <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
+              <LumiButton
+                size="sm"
+                fullWidth
                 onClick={() => {
                   const name = masterEdit.name.trim()
                   if (name.length < 2) return
                   dispatch({ type: 'upsertMaster', master: { ...masterEdit, name } })
                   setMasterEdit(null)
                 }}
-                className="rounded-3xl bg-ink-950 px-4 py-3 text-[13px] font-semibold text-paper-50 shadow-glowGold"
               >
                 Сохранить
-              </button>
-              <button
-                type="button"
-                onClick={() => setMasterEdit(null)}
-                className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[13px] font-semibold text-ink-950 shadow-soft"
-              >
+              </LumiButton>
+              <LumiButton variant="secondary" size="sm" fullWidth onClick={() => setMasterEdit(null)}>
                 Отмена
-              </button>
+              </LumiButton>
             </div>
 
-            <button
-              type="button"
+            <LumiButton
+              variant="destructive"
+              size="sm"
               disabled={state.masters.length <= 1}
               onClick={() => {
                 dispatch({ type: 'deleteMaster', masterId: masterEdit.id })
                 setMasterEdit(null)
               }}
-              className={cn(
-                'inline-flex w-full items-center justify-center gap-2 rounded-3xl border px-4 py-3 text-[13px] font-semibold shadow-soft',
-                state.masters.length <= 1
-                  ? 'border-white/60 bg-white/45 text-ink-700/45'
-                  : 'border-red-200/70 bg-white/55 text-red-700',
-              )}
             >
               <Trash2 size={18} />
               Удалить мастера
-            </button>
+            </LumiButton>
             {state.masters.length <= 1 ? (
               <div className="text-[12px] leading-5 text-ink-700/55">
                 Нельзя удалить последнего мастера — это нужно для календаря и записей.
@@ -629,26 +641,26 @@ export function Settings() {
             ) : null}
           </div>
         ) : null}
-      </Sheet>
+      </LumiModal>
 
-      <Sheet
+      <LumiModal
         open={Boolean(serviceEdit)}
         title="Редактировать услугу"
         onClose={() => setServiceEdit(null)}
         variant="center"
         surface="solid"
+        modalId="settings"
       >
         {serviceEdit ? (
           <div className="space-y-3">
             <div className="space-y-2">
-              <input
+              <LumiInput
                 value={serviceEdit.name}
                 onChange={(e) => setServiceEdit((s) => (s ? { ...s, name: e.target.value } : s))}
                 placeholder="Название услуги"
-                className="w-full rounded-3xl border border-white/60 bg-white/60 px-4 py-3 text-[14px] text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35"
               />
               <div className="grid grid-cols-2 gap-2">
-                <input
+                <LumiInput
                   value={String(serviceEdit.minutes)}
                   onChange={(e) =>
                     setServiceEdit((s) =>
@@ -657,9 +669,8 @@ export function Settings() {
                   }
                   inputMode="numeric"
                   placeholder="Длительность, мин"
-                  className="w-full rounded-3xl border border-white/60 bg-white/60 px-4 py-3 text-[14px] text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35"
                 />
-                <input
+                <LumiInput
                   value={String(serviceEdit.price)}
                   onChange={(e) =>
                     setServiceEdit((s) =>
@@ -668,14 +679,14 @@ export function Settings() {
                   }
                   inputMode="numeric"
                   placeholder="Цена, ₽"
-                  className="w-full rounded-3xl border border-white/60 bg-white/60 px-4 py-3 text-[14px] text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
+              <LumiButton
+                size="sm"
+                fullWidth
                 onClick={() => {
                   const name = serviceEdit.name.trim()
                   if (name.length < 2) return
@@ -687,17 +698,12 @@ export function Settings() {
                   })
                   setServiceEdit(null)
                 }}
-                className="rounded-3xl bg-ink-950 px-4 py-3 text-[13px] font-semibold text-paper-50 shadow-glowGold"
               >
                 Сохранить
-              </button>
-              <button
-                type="button"
-                onClick={() => setServiceEdit(null)}
-                className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[13px] font-semibold text-ink-950 shadow-soft"
-              >
+              </LumiButton>
+              <LumiButton variant="secondary" size="sm" fullWidth onClick={() => setServiceEdit(null)}>
                 Отмена
-              </button>
+              </LumiButton>
             </div>
 
             <button
@@ -716,12 +722,12 @@ export function Settings() {
             </div>
           </div>
         ) : null}
-      </Sheet>
+      </LumiModal>
 
       <Sheet
-        open={openChannels}
+        open={activePanel === 'channels'}
         title="SMS / WhatsApp / Max"
-        onClose={() => setOpenChannels(false)}
+        onClose={() => setActivePanel(null)}
         variant="center"
         surface="solid"
       >
@@ -778,7 +784,7 @@ export function Settings() {
               type="button"
               onClick={() => {
                 dispatch({ type: 'updateSettings', settings: { channels: settingsDraft.channels } })
-                setOpenChannels(false)
+                setActivePanel(null)
               }}
               className="rounded-3xl bg-ink-950 px-4 py-3 text-[13px] font-semibold text-paper-50 shadow-glowGold"
             >
@@ -786,7 +792,7 @@ export function Settings() {
             </button>
             <button
               type="button"
-              onClick={() => setOpenChannels(false)}
+              onClick={() => setActivePanel(null)}
               className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[13px] font-semibold text-ink-950 shadow-soft"
             >
               Отмена
@@ -796,9 +802,9 @@ export function Settings() {
       </Sheet>
 
       <Sheet
-        open={openReminders}
+        open={activePanel === 'reminders'}
         title="Напоминания"
-        onClose={() => setOpenReminders(false)}
+        onClose={() => setActivePanel(null)}
         variant="center"
         surface="solid"
       >
@@ -839,7 +845,7 @@ export function Settings() {
               type="button"
               onClick={() => {
                 dispatch({ type: 'updateSettings', settings: { reminders: settingsDraft.reminders } })
-                setOpenReminders(false)
+                setActivePanel(null)
               }}
               className="rounded-3xl bg-ink-950 px-4 py-3 text-[13px] font-semibold text-paper-50 shadow-glowGold"
             >
@@ -847,7 +853,7 @@ export function Settings() {
             </button>
             <button
               type="button"
-              onClick={() => setOpenReminders(false)}
+              onClick={() => setActivePanel(null)}
               className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[13px] font-semibold text-ink-950 shadow-soft"
             >
               Отмена
@@ -857,9 +863,9 @@ export function Settings() {
       </Sheet>
 
       <Sheet
-        open={openTemplates}
+        open={activePanel === 'templates'}
         title="Шаблоны сообщений"
-        onClose={() => setOpenTemplates(false)}
+        onClose={() => setActivePanel(null)}
         variant="center"
         surface="solid"
       >
@@ -887,7 +893,7 @@ export function Settings() {
               type="button"
               onClick={() => {
                 dispatch({ type: 'updateSettings', settings: { templates: settingsDraft.templates } })
-                setOpenTemplates(false)
+                setActivePanel(null)
               }}
               className="rounded-3xl bg-ink-950 px-4 py-3 text-[13px] font-semibold text-paper-50 shadow-glowGold"
             >
@@ -895,7 +901,7 @@ export function Settings() {
             </button>
             <button
               type="button"
-              onClick={() => setOpenTemplates(false)}
+              onClick={() => setActivePanel(null)}
               className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[13px] font-semibold text-ink-950 shadow-soft"
             >
               Отмена
@@ -905,9 +911,9 @@ export function Settings() {
       </Sheet>
 
       <Sheet
-        open={openPayments}
+        open={activePanel === 'payments'}
         title="Прайс и предоплата"
-        onClose={() => setOpenPayments(false)}
+        onClose={() => setActivePanel(null)}
         variant="center"
         surface="solid"
       >
@@ -949,7 +955,7 @@ export function Settings() {
               type="button"
               onClick={() => {
                 dispatch({ type: 'updateSettings', settings: { payments: settingsDraft.payments } })
-                setOpenPayments(false)
+                setActivePanel(null)
               }}
               className="rounded-3xl bg-ink-950 px-4 py-3 text-[13px] font-semibold text-paper-50 shadow-glowGold"
             >
@@ -957,7 +963,7 @@ export function Settings() {
             </button>
             <button
               type="button"
-              onClick={() => setOpenPayments(false)}
+              onClick={() => setActivePanel(null)}
               className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[13px] font-semibold text-ink-950 shadow-soft"
             >
               Отмена
@@ -967,9 +973,9 @@ export function Settings() {
       </Sheet>
 
       <Sheet
-        open={openDemo}
+        open={activePanel === 'demo'}
         title="Демо"
-        onClose={() => setOpenDemo(false)}
+        onClose={() => setActivePanel(null)}
         variant="center"
         surface="solid"
       >
@@ -986,7 +992,7 @@ export function Settings() {
           </button>
           <button
             type="button"
-            onClick={() => setOpenDemo(false)}
+            onClick={() => setActivePanel(null)}
             className="w-full rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[13px] font-semibold text-ink-950 shadow-soft"
           >
             Отмена
@@ -995,9 +1001,9 @@ export function Settings() {
       </Sheet>
 
       <Sheet
-        open={openDemoData}
+        open={activePanel === 'demoData'}
         title="Демо-данные"
-        onClose={() => setOpenDemoData(false)}
+        onClose={() => setActivePanel(null)}
         variant="center"
         surface="solid"
       >
@@ -1018,7 +1024,7 @@ export function Settings() {
           </button>
           <button
             type="button"
-            onClick={() => setOpenDemoData(false)}
+            onClick={() => setActivePanel(null)}
             className="w-full rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[13px] font-semibold text-ink-950 shadow-soft"
           >
             Отмена

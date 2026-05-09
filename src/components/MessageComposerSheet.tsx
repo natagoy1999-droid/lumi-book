@@ -12,6 +12,7 @@ import { useCognitiveUI } from '../state/cognitiveUI'
 import { useInteractionTelemetry } from '../state/interactionTelemetry'
 import { useSessionContinuity } from '../state/sessionContinuity'
 import { useStore } from '../state/store'
+import { useModalManager } from '../state/modalManager'
 import { Sheet } from './Sheet'
 
 const channels: Array<{ id: MessageChannel; label: string }> = [
@@ -26,6 +27,7 @@ export function MessageComposerSheet() {
   const energySnap = useEnergyIntel((s) => s.snapshot)
   const predictiveAmbient = usePredictiveIntel((s) => s.composerAmbientHint)
   const { composer, closeComposer, setChannel, setText, send } = useMessaging()
+  const modal = useModalManager()
   const { getClient, dispatch } = useStore()
   const [justSent, setJustSent] = useState(false)
   const lastTypingPulseRef = useRef(0)
@@ -47,6 +49,19 @@ export function MessageComposerSheet() {
   useEffect(() => {
     if (composer.open && (!('draft' in composer) || !composer.draft)) closeComposer()
   }, [closeComposer, composer])
+
+  useEffect(() => {
+    if (!open) return
+    modal.open('composer')
+    return () => {
+      if (useModalManager.getState().active === 'composer') useModalManager.getState().close()
+    }
+  }, [modal, open])
+
+  useEffect(() => {
+    const a = modal.active
+    if (open && a !== 'composer') closeComposer()
+  }, [closeComposer, modal.active, open])
 
   const handleComposerClose = () => {
     const d = composer.open ? composer.draft : undefined
@@ -81,6 +96,7 @@ export function MessageComposerSheet() {
         title={draft ? draft.title : 'Сообщение'}
         onClose={handleComposerClose}
         className="pb-6"
+        modalId="composer"
       >
         {draft ? (
           <div className="flex flex-col" style={{ gap: 'var(--cognitive-inline-stack)' }}>

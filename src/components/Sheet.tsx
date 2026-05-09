@@ -1,8 +1,12 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import type { PropsWithChildren } from 'react'
+import { useEffect } from 'react'
 
 import { cn } from '../lib/cn'
 import { glassBackdropFilter, glassBorderStyle, glassFill } from '../lib/glassStyles'
+import { useModalManager, type ModalId } from '../state/modalManager'
+import { z } from '../theme/elevation'
+import { motion as motionTokens } from '../theme/motion'
 
 type Props = PropsWithChildren<{
   open: boolean
@@ -11,6 +15,7 @@ type Props = PropsWithChildren<{
   className?: string
   variant?: 'bottom' | 'center'
   surface?: 'glass' | 'solid'
+  modalId?: ModalId
 }>
 
 export function Sheet({
@@ -21,11 +26,24 @@ export function Sheet({
   className,
   variant = 'bottom',
   surface = 'glass',
+  modalId = 'settings',
 }: Props) {
   const active = open && children != null
+  const modal = useModalManager()
   const centered = variant === 'center'
-  const zBackdrop = centered ? 11000 : 60
-  const zModal = centered ? 11010 : 70
+  const zBackdrop = z.backdrop
+  const zModal = z.modal
+
+  useEffect(() => {
+    if (!active) return
+    modal.open(modalId)
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prev
+      if (useModalManager.getState().active === modalId) useModalManager.getState().close()
+    }
+  }, [active, modal, modalId])
   return (
     <AnimatePresence>
       {active ? (
@@ -43,6 +61,7 @@ export function Sheet({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
+            transition={{ duration: motionTokens.duration.normal, ease: motionTokens.ease.out }}
           />
 
           <motion.div
@@ -68,10 +87,10 @@ export function Sheet({
                   }
                 : { zIndex: zModal }
             }
-            initial={{ y: 28, opacity: 0 }}
+            initial={{ y: centered ? 8 : 14, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 28, opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 520, damping: 44, mass: 0.8 }}
+            exit={{ y: centered ? 8 : 14, opacity: 0 }}
+            transition={{ duration: motionTokens.duration.slow, ease: motionTokens.ease.out }}
           >
             <div
               className={cn(
@@ -86,12 +105,12 @@ export function Sheet({
                   surface === 'glass' ? glassBorderStyle('interactive') : 'rgba(20,20,20,0.08)',
               }}
             >
-              <div className="px-5 pt-4">
+              <div className="px-5 pt-5">
                 {!centered ? (
-                  <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-ink-950/10" />
+                  <div className="mx-auto mb-4 h-1.5 w-11 rounded-full bg-ink-950/10" />
                 ) : null}
                 {title ? (
-                  <div className="mb-3 text-[13px] font-medium tracking-tightish text-ink-700/80">
+                  <div className="mb-4 text-[13px] font-medium tracking-tightish text-ink-700/78">
                     {title}
                   </div>
                 ) : null}
@@ -99,12 +118,12 @@ export function Sheet({
               <div
                 className="px-5"
                 style={{
-                  maxHeight: centered ? 'calc(100dvh - 220px)' : undefined,
+                  maxHeight: centered ? 'calc(100dvh - 228px)' : undefined,
                   overflowY: centered ? 'auto' : undefined,
                   WebkitOverflowScrolling: centered ? 'touch' : undefined,
                   paddingBottom: centered
-                    ? 'calc(24px + env(safe-area-inset-bottom))'
-                    : '1.25rem',
+                    ? 'calc(28px + env(safe-area-inset-bottom))'
+                    : '1.35rem',
                 }}
               >
                 {children}
