@@ -20,7 +20,7 @@ export function AuthEntry() {
         <div className="text-[12px] font-medium tracking-tightish text-ink-700/70">Добро пожаловать</div>
         <div className="mt-1 text-[32px] font-semibold tracking-tightish text-ink-950">Вход</div>
         <div className="mt-2 text-[12px] leading-5 text-ink-700/65">
-          Можно продолжить в demo‑режиме или подключить аккаунт — без лишнего шума.
+          Можно продолжить в демо-режиме или подключить аккаунт — без лишнего шума.
         </div>
 
         <div className="mt-4 space-y-3">
@@ -33,7 +33,7 @@ export function AuthEntry() {
               }}
               className="w-full rounded-3xl bg-ink-950 px-5 py-4 text-[15px] font-medium text-paper-50 shadow-glowGold"
             >
-              Продолжить как demo
+              Продолжить в демо-режиме
             </button>
             <div className="mt-2 text-[12px] leading-5 text-ink-700/60">
               Локальный режим. Можно создать аккаунт позже.

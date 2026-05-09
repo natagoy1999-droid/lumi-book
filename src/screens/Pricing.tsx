@@ -5,7 +5,13 @@ import { useNavigate } from 'react-router-dom'
 import { GlassCard } from '../components/GlassCard'
 import { Sheet } from '../components/Sheet'
 import { cn } from '../lib/cn'
-import { TRIAL_DAYS, useStore, type SubscriptionPlan } from '../state/store'
+import { TRIAL_DAYS, useStore, type SubscriptionPlan, type SubscriptionStatus } from '../state/store'
+
+function subscriptionStatusRu(s: SubscriptionStatus): string {
+  if (s === 'trial') return 'пробный период'
+  if (s === 'active') return 'активна'
+  return 'истекла'
+}
 
 type PlanModel = {
   id: Exclude<SubscriptionPlan, 'free'>
@@ -37,7 +43,7 @@ const plans: PlanModel[] = [
       'переносы записей',
       'шаблоны сообщений',
       'аналитика недели/месяца',
-      'MAX/SMS каналы (mock)',
+      'каналы MAX и SMS (учебный режим)',
     ],
   },
   {
@@ -51,13 +57,13 @@ const plans: PlanModel[] = [
       'роли мастеров',
       'расширенная аналитика',
       'клиентская база',
-      'recovery/follow‑up',
+      'возврат клиентов и сопровождение',
       'приоритетная поддержка',
     ],
   },
   {
     id: 'premium_ai',
-    name: 'Премиум AI',
+    name: 'Премиум с ИИ',
     price: '6 990 ₽ / месяц',
     desc: 'Для студий, где важен ритм и сервис',
     features: [
@@ -78,7 +84,7 @@ function planLabel(p: SubscriptionPlan) {
   if (p === 'start') return 'Старт'
   if (p === 'pro') return 'Профи'
   if (p === 'studio') return 'Студия'
-  return 'Премиум AI'
+  return 'Премиум с ИИ'
 }
 
 export function Pricing() {
@@ -112,7 +118,8 @@ export function Pricing() {
             </div>
           ) : null}
           <div className="mt-3 text-[12px] text-ink-700/55">
-            Текущий статус: <span className="font-semibold text-ink-950">{sub.status}</span> •{' '}
+            Текущий статус:{' '}
+            <span className="font-semibold text-ink-950">{subscriptionStatusRu(sub.status)}</span> •{' '}
             <span className="font-semibold text-ink-950">{planLabel(sub.plan)}</span>
           </div>
         </div>

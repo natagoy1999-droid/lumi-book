@@ -227,7 +227,7 @@ export function AssistantLayer({ compact = false }: { compact?: boolean }) {
       <div className="flex items-center justify-between">
         <div className="inline-flex items-center gap-2 rounded-full border border-white/55 bg-white/45 px-3 py-1 text-[12px] font-semibold text-ink-800/70 shadow-soft">
           <Sparkles size={16} className="text-gold-400" />
-          Lumi Assistant
+          Ассистент LUMI
         </div>
         <div className="text-[12px] text-ink-700/55">тихо и по делу</div>
       </div>

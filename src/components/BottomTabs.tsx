@@ -2,6 +2,7 @@ import { CalendarDays, CreditCard, Home, Settings, Users } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 
 import { cn } from '../lib/cn'
+import { z } from '../theme/elevation'
 
 const tabs = [
   { to: '/today', label: 'Сегодня', Icon: Home },
@@ -15,10 +16,11 @@ export function BottomTabs() {
   return (
     <nav
       className={cn(
-        'fixed bottom-0 z-[9999]',
+        'fixed bottom-0',
         'px-3 pb-[env(safe-area-inset-bottom)] pt-2',
       )}
       style={{
+        zIndex: z.tabs,
         left: '50%',
         transform: 'translateX(-50%)',
         width: '100%',

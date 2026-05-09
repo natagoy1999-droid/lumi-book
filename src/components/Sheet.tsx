@@ -49,7 +49,7 @@ export function Sheet({
       {active ? (
         <>
           <motion.button
-            aria-label="Close"
+            aria-label="Закрыть"
             className="fixed inset-0"
             style={{
               backgroundColor:

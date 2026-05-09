@@ -23,7 +23,7 @@ export function Signup() {
         <div className="text-[12px] font-medium tracking-tightish text-ink-700/70">Аккаунт</div>
         <div className="mt-1 text-[32px] font-semibold tracking-tightish text-ink-950">Создать аккаунт</div>
         <div className="mt-2 text-[12px] leading-5 text-ink-700/65">
-          Начните с малого — подключите аккаунт, чтобы изолировать данные по workspace.
+          Начните спокойно — аккаунт отделяет ваши данные в облаке от учебного режима на устройстве.
         </div>
 
         <div className="mt-4 space-y-2">
@@ -72,7 +72,7 @@ export function Signup() {
 
           {!hasSupabaseEnv() ? (
             <div className="text-[12px] leading-5 text-ink-700/60">
-              Supabase env не настроен — регистрация временно недоступна. Можно продолжить как demo.
+              Облако не подключено — регистрация временно недоступна. Можно продолжить в демо-режиме.
             </div>
           ) : null}
 

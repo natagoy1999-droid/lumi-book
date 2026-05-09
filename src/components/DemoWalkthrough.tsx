@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowLeft, ArrowRight, Play, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, X } from 'lucide-react'
 import { useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -13,7 +13,6 @@ type StepModel = {
   total: number
   title: string
   subtitle: string
-  cta: string
   route?: string
 }
 
@@ -39,10 +38,9 @@ function useStepModel() {
         return {
           idx,
           total,
-          title: 'Demo • 60–90 секунд',
+          title: 'Демо • 60–90 секунд',
           subtitle:
-            'Пройдём ключевые сценарии: запись → перенос → напоминание → ассистент → деньги → follow-up.',
-          cta: 'Начать',
+            'Пройдём ключевые сценарии: запись → перенос → напоминание → ассистент → деньги → сопровождение.',
           route: '/today',
         }
       case 'create_booking':
@@ -50,17 +48,17 @@ function useStepModel() {
           idx,
           total,
           title: '1) Создание записи',
-          subtitle: 'Откройте онлайн-запись и выберите услугу → мастера → дату → время.',
-          cta: 'Открыть онлайн-запись',
-          route: '/client-booking',
+          subtitle:
+            'Откройте онлайн-запись и выберите услугу → мастера → дату → время. Затем вернитесь сюда при желании.',
+          route: '/book/demo',
         }
       case 'reschedule':
         return {
           idx,
           total,
           title: '2) Перенос',
-          subtitle: 'Откройте перенос — слоты уже готовы. Отправьте предложение (mock-send).',
-          cta: 'Открыть перенос',
+          subtitle:
+            'Откройте перенос — слоты уже готовы. Отправьте предложение: это учебная отправка без реального SMS.',
           route: '/reschedule?bookingId=b_t_3&clientId=c4&serviceId=s5&masterId=m1',
         }
       case 'smart_reminder':
@@ -68,17 +66,16 @@ function useStepModel() {
           idx,
           total,
           title: '3) Напоминание клиенту',
-          subtitle: 'В Today — мягкие напоминания. Нажмите действие → Composer.',
-          cta: 'Открыть Today',
+          subtitle:
+            'На экране «Сегодня» — мягкие напоминания. Нажмите действие и откройте редактор сообщения.',
           route: '/today',
         }
       case 'assistant':
         return {
           idx,
           total,
-          title: '4) Lumi Assistant',
+          title: '4) Ассистент',
           subtitle: 'Ассистент предлагает спокойные варианты и помогает держать ритм дня.',
-          cta: 'Показать Today',
           route: '/today',
         }
       case 'analytics':
@@ -87,16 +84,14 @@ function useStepModel() {
           total,
           title: '5) Деньги',
           subtitle: 'Аналитика считается из реальных записей: день / неделя / месяц / средний чек.',
-          cta: 'Открыть “Деньги”',
           route: '/money',
         }
       case 'followup':
         return {
           idx,
           total,
-          title: '6) Follow-up',
-          subtitle: 'Откройте Clients и нажмите на клиента — можно мягко подготовить контакт.',
-          cta: 'Открыть “Клиенты”',
+          title: '6) Сопровождение',
+          subtitle: 'Откройте «Клиенты» и нажмите на карточку — можно мягко подготовить контакт.',
           route: '/clients',
         }
       case 'done':
@@ -104,8 +99,17 @@ function useStepModel() {
           idx,
           total,
           title: 'Готово',
-          subtitle: 'Это базовый demo loop. Можно повторить или продолжить работать в Today.',
-          cta: 'В Today',
+          subtitle:
+            'Это базовый цикл демо-режима. Можно повторить или спокойно вернуться в «Сегодня».',
+          route: '/today',
+        }
+      default:
+        return {
+          idx: 1,
+          total,
+          title: 'Демо',
+          subtitle:
+            'Шаг недоступен. Откройте «Сегодня» или перезапустите демо из настроек.',
           route: '/today',
         }
     }
@@ -122,15 +126,15 @@ export function DemoWalkthrough() {
   const model = useStepModel()
   const modal = useModalManager()
 
-  const show = Boolean(active && model?.title && model?.cta && model?.subtitle)
+  const show = Boolean(active && model?.title && model?.subtitle)
 
   useEffect(() => {
     if (!show) return
     modal.open('walkthrough')
-    const prev = document.body.style.overflow
+    const prevOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     return () => {
-      document.body.style.overflow = prev
+      document.body.style.overflow = prevOverflow
       if (useModalManager.getState().active === 'walkthrough') useModalManager.getState().close()
     }
   }, [modal, show])
@@ -166,101 +170,114 @@ export function DemoWalkthrough() {
       {show ? (
         <>
           <motion.button
-            aria-label="Close"
+            type="button"
+            aria-label="Закрыть"
             className="fixed inset-0 cursor-default"
             style={{
-              backgroundColor: 'rgba(14, 16, 22, 0.30)',
-              zIndex: z.backdrop,
+              backgroundColor: 'rgba(14, 16, 22, 0.28)',
+              zIndex: z.walkthroughBackdrop,
             }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
             onClick={() => stop()}
           />
 
-          <motion.div
-            role="dialog"
-            aria-modal="true"
-            className="fixed bottom-0 left-0 right-0 mx-auto max-w-[520px]"
-            data-demo-walkthrough-modal="1"
+          <div
+            className="fixed box-border"
             style={{
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
               width: 'calc(100% - 32px)',
-              paddingBottom: 'calc(14px + var(--safe-bottom))',
-              zIndex: z.modal,
+              maxWidth: 520,
+              maxHeight: 'calc(100dvh - 120px)',
+              zIndex: z.walkthroughModal,
             }}
-            initial={{ y: 26, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 26, opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 520, damping: 44, mass: 0.9 }}
           >
-            <div
+            <motion.div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="demo-walkthrough-title"
+              data-demo-walkthrough-modal="1"
               className={cn(
-                'rounded-[30px] border border-white/60 p-5 shadow-lift',
-                'ring-1 ring-black/5',
+                'flex h-full max-h-[calc(100dvh-120px)] flex-col overflow-hidden rounded-[30px]',
+                'border border-white/60 shadow-lift ring-1 ring-black/5',
               )}
               style={{
-                backgroundColor: 'rgba(255, 253, 248, 0.92)',
-                backdropFilter: 'blur(18px)',
+                backgroundColor: 'rgba(255, 253, 248, 0.98)',
               }}
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
             >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="text-[12px] font-medium text-ink-700/70">
-                    Пошаговое демо • шаг {model.idx}/{model.total}
+              <div
+                className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-3 pt-5"
+                style={{ WebkitOverflowScrolling: 'touch' }}
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[12px] font-medium text-ink-700/70">
+                      Пошаговое демо • шаг {model.idx}/{model.total}
+                    </div>
+                    <div
+                      id="demo-walkthrough-title"
+                      className="mt-1 text-[16px] font-semibold tracking-tightish text-ink-950"
+                    >
+                      {model.title}
+                    </div>
+                    <div className="mt-2 text-[12px] leading-[1.55] text-ink-700/65">{model.subtitle}</div>
                   </div>
-                  <div className="mt-1 text-[16px] font-semibold tracking-tightish text-ink-950">
-                    {model.title}
-                  </div>
-                  <div className="mt-1 text-[12px] leading-5 text-ink-700/65">
-                    {model.subtitle}
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => stop()}
+                    className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/60 bg-white/60 text-ink-950 shadow-soft"
+                  >
+                    <X size={16} />
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => stop()}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-white/60 bg-white/60 text-ink-950 shadow-soft"
-                >
-                  <X size={16} />
-                </button>
               </div>
 
-              <div className="mt-4 grid grid-cols-3 gap-2">
-                <button
-                  type="button"
-                  onClick={() => prev()}
-                  className="inline-flex items-center justify-center gap-2 rounded-3xl border border-white/60 bg-white/60 px-4 py-4 text-[13px] font-semibold text-ink-950 shadow-soft"
-                >
-                  <ArrowLeft size={16} />
-                  Назад
-                </button>
+              <div className="shrink-0 border-t border-black/[0.06] px-5 pb-[calc(16px+env(safe-area-inset-bottom))] pt-4">
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => prev()}
+                    className="inline-flex items-center justify-center gap-2 rounded-3xl border border-white/60 bg-white/60 px-3 py-3.5 text-[13px] font-semibold text-ink-950 shadow-soft"
+                  >
+                    <ArrowLeft size={16} />
+                    Назад
+                  </button>
 
-                <motion.button
-                  type="button"
-                  whileTap={{ scale: 0.985 }}
-                  transition={{ type: 'spring', stiffness: 600, damping: 40 }}
-                  onClick={() => {
-                    if (model.route) nav(model.route)
-                    next()
-                  }}
-                  className="inline-flex items-center justify-center gap-2 rounded-3xl bg-ink-950 px-4 py-4 text-[13px] font-semibold text-paper-50 shadow-glowGold"
-                >
-                  {step === 'intro' ? <Play size={18} /> : <ArrowRight size={18} />}
-                  {model.cta}
-                </motion.button>
+                  <motion.button
+                    type="button"
+                    whileTap={{ scale: 0.985 }}
+                    transition={{ type: 'spring', stiffness: 600, damping: 40 }}
+                    onClick={() => {
+                      if (model.route) nav(model.route)
+                      next()
+                    }}
+                    className="inline-flex items-center justify-center gap-2 rounded-3xl bg-ink-950 px-3 py-3.5 text-[13px] font-semibold text-paper-50 shadow-glowGold"
+                  >
+                    <ArrowRight size={18} />
+                    Далее
+                  </motion.button>
 
-                <button
-                  type="button"
-                  onClick={() => stop()}
-                  className="rounded-3xl border border-white/60 bg-white/60 px-4 py-4 text-[13px] font-semibold text-ink-950 shadow-soft"
-                >
-                  Закрыть
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => stop()}
+                    className="rounded-3xl border border-white/60 bg-white/60 px-3 py-3.5 text-[13px] font-semibold text-ink-950 shadow-soft"
+                  >
+                    Закрыть
+                  </button>
+                </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </>
       ) : null}
     </AnimatePresence>
   )
 }
-

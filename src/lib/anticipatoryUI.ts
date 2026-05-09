@@ -97,7 +97,7 @@ export function buildBehavioralWhisperCard(args: {
       kind: 'behavioral_whisper',
       priority: 11,
       tone: 'ink',
-      title: 'Тихий follow-up иногда приходит у вас в этот час',
+      title: 'Тихое сопровождение иногда уместно в этот час',
       subtitle: explain.followUpHourBody,
     }
   }

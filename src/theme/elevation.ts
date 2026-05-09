@@ -4,6 +4,9 @@ export const z = {
   tabs: 50,
   backdrop: 100,
   modal: 120,
+  /** Demo walkthrough sits above shell tabs (tabs stay interactive only when modal closed). */
+  walkthroughBackdrop: 9998,
+  walkthroughModal: 10000,
   toast: 150,
 } as const
 

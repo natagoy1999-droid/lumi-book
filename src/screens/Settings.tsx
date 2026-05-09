@@ -15,14 +15,26 @@ import { useNavigate } from 'react-router-dom'
 
 import { GlassCard } from '../components/GlassCard'
 import { cn } from '../lib/cn'
-import { Sheet } from '../components/Sheet'
 import { LumiButton } from '../components/ui/LumiButton'
 import { LumiInput } from '../components/ui/LumiInput'
 import { LumiModal } from '../components/ui/LumiModal'
 import { LumiEmptyState } from '../components/ui/LumiEmptyState'
-import { TRIAL_DAYS, useStore, type AppSettings, type Master, type Service } from '../state/store'
+import {
+  TRIAL_DAYS,
+  useStore,
+  type AppSettings,
+  type Master,
+  type Service,
+  type SubscriptionStatus,
+} from '../state/store'
 import { useDemoMode } from '../state/demoMode'
 import { useAuthStore } from '../store/authStore'
+
+function subscriptionStatusRu(s: SubscriptionStatus) {
+  if (s === 'trial') return 'пробный период'
+  if (s === 'active') return 'активна'
+  return 'истекла'
+}
 
 const groups = [
   {
@@ -51,6 +63,69 @@ function uid() {
   return Math.random().toString(16).slice(2) + Date.now().toString(16)
 }
 
+const DEFAULT_APP_SETTINGS: AppSettings = {
+  workHours: { start: '10:00', end: '20:00', weekendDays: [0] },
+  channels: { sms: true, whatsapp: true, max: false, default: 'whatsapp' },
+  reminders: { enabled: true, hoursBefore: 24, repeat: false },
+  templates: {
+    confirm: '',
+    reschedule: '',
+    reminder: '',
+    followup: '',
+  },
+  payments: { prepayEnabled: false, prepayAmount: 0, paymentComment: '' },
+}
+
+function mergeAppSettings(raw: AppSettings | undefined): AppSettings {
+  const b = DEFAULT_APP_SETTINGS
+  if (!raw || typeof raw !== 'object') return { ...b }
+  const wh = raw.workHours
+  const ch = raw.channels
+  const rm = raw.reminders
+  const tm = raw.templates
+  const pm = raw.payments
+  return {
+    workHours: {
+      start: typeof wh?.start === 'string' ? wh.start : b.workHours.start,
+      end: typeof wh?.end === 'string' ? wh.end : b.workHours.end,
+      weekendDays: Array.isArray(wh?.weekendDays)
+        ? wh.weekendDays.filter((x) => Number.isFinite(x))
+        : [...b.workHours.weekendDays],
+    },
+    channels: {
+      sms: typeof ch?.sms === 'boolean' ? ch.sms : b.channels.sms,
+      whatsapp: typeof ch?.whatsapp === 'boolean' ? ch.whatsapp : b.channels.whatsapp,
+      max: typeof ch?.max === 'boolean' ? ch.max : b.channels.max,
+      default:
+        ch?.default === 'sms' || ch?.default === 'whatsapp' || ch?.default === 'max'
+          ? ch.default
+          : b.channels.default,
+    },
+    reminders: {
+      enabled: typeof rm?.enabled === 'boolean' ? rm.enabled : b.reminders.enabled,
+      hoursBefore:
+        typeof rm?.hoursBefore === 'number' && Number.isFinite(rm.hoursBefore)
+          ? Math.max(0, Math.round(rm.hoursBefore))
+          : b.reminders.hoursBefore,
+      repeat: typeof rm?.repeat === 'boolean' ? rm.repeat : b.reminders.repeat,
+    },
+    templates: {
+      confirm: typeof tm?.confirm === 'string' ? tm.confirm : b.templates.confirm,
+      reschedule: typeof tm?.reschedule === 'string' ? tm.reschedule : b.templates.reschedule,
+      reminder: typeof tm?.reminder === 'string' ? tm.reminder : b.templates.reminder,
+      followup: typeof tm?.followup === 'string' ? tm.followup : b.templates.followup,
+    },
+    payments: {
+      prepayEnabled: typeof pm?.prepayEnabled === 'boolean' ? pm.prepayEnabled : b.payments.prepayEnabled,
+      prepayAmount:
+        typeof pm?.prepayAmount === 'number' && Number.isFinite(pm.prepayAmount)
+          ? Math.max(0, Math.round(pm.prepayAmount))
+          : b.payments.prepayAmount,
+      paymentComment: typeof pm?.paymentComment === 'string' ? pm.paymentComment : b.payments.paymentComment,
+    },
+  }
+}
+
 export function Settings() {
   const nav = useNavigate()
   const { state, dispatch } = useStore()
@@ -76,7 +151,7 @@ export function Settings() {
   const [masterEdit, setMasterEdit] = useState<Master | null>(null)
   const [serviceEdit, setServiceEdit] = useState<Service | null>(null)
 
-  const [settingsDraft, setSettingsDraft] = useState<AppSettings>(() => state.settings)
+  const [settingsDraft, setSettingsDraft] = useState<AppSettings>(() => mergeAppSettings(state.settings))
 
   const [masterDraft, setMasterDraft] = useState<Master>(() => ({
     id: `m_${uid()}`,
@@ -101,7 +176,7 @@ export function Settings() {
     if (sub.plan === 'start') return 'Старт'
     if (sub.plan === 'pro') return 'Профи'
     if (sub.plan === 'studio') return 'Студия'
-    return 'Премиум AI'
+    return 'Премиум с ИИ'
   }, [sub.plan])
 
   const planLimits = useMemo(() => {
@@ -157,7 +232,7 @@ export function Settings() {
               {planLabel}
             </div>
             <div className="mt-1 text-[12px] leading-5 text-ink-700/65">
-              Статус: {sub.status}
+              Статус: {subscriptionStatusRu(sub.status)}
               {trialBadge ? ` • ${trialBadge}` : ''}
             </div>
             {softHint ? (
@@ -188,7 +263,7 @@ export function Settings() {
               Пошаговое демо • 60–90 секунд
             </div>
             <div className="mt-1 text-[12px] leading-5 text-ink-700/65">
-              Публичная демонстрация: запись → перенос → напоминание → ассистент → деньги → follow-up.
+              Спокойная демонстрация: запись → перенос → напоминание → ассистент → деньги → сопровождение.
             </div>
             <div className="mt-2 text-[11px] text-ink-700/45">Нажмите, чтобы открыть</div>
             <button
@@ -199,7 +274,7 @@ export function Settings() {
               }}
               className="mt-4 w-full rounded-3xl bg-ink-950 px-5 py-4 text-[15px] font-medium text-paper-50 shadow-glowGold"
             >
-              Запустить demo mode
+              Запустить демо
             </button>
           </GlassCard>
 
@@ -213,25 +288,25 @@ export function Settings() {
                     type="button"
                     onClick={() => {
                       if (it.label === 'Рабочие часы') {
-                        setSettingsDraft(state.settings)
+                        setSettingsDraft(mergeAppSettings(state.settings))
                         setActivePanel('workHours')
                       }
                       if (it.label === 'Мастера') setActivePanel('masters')
                       if (it.label === 'Услуги и цены') setActivePanel('services')
                       if (it.label === 'SMS / WhatsApp / Max') {
-                        setSettingsDraft(state.settings)
+                        setSettingsDraft(mergeAppSettings(state.settings))
                         setActivePanel('channels')
                       }
                       if (it.label === 'Напоминания') {
-                        setSettingsDraft(state.settings)
+                        setSettingsDraft(mergeAppSettings(state.settings))
                         setActivePanel('reminders')
                       }
                       if (it.label === 'Шаблоны сообщений') {
-                        setSettingsDraft(state.settings)
+                        setSettingsDraft(mergeAppSettings(state.settings))
                         setActivePanel('templates')
                       }
                       if (it.label === 'Прайс и предоплата') {
-                        setSettingsDraft(state.settings)
+                        setSettingsDraft(mergeAppSettings(state.settings))
                         setActivePanel('payments')
                       }
                     }}
@@ -283,7 +358,7 @@ export function Settings() {
                 }}
                 className="rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[13px] font-semibold text-ink-950 shadow-soft"
               >
-                Seed demo
+                Заполнить демо
               </button>
               <button
                 type="button"
@@ -293,11 +368,12 @@ export function Settings() {
                 }}
                 className="rounded-3xl bg-ink-950 px-4 py-3 text-[13px] font-semibold text-paper-50 shadow-glowGold"
               >
-                Reset
+                Сбросить
               </button>
             </div>
-            <div className="mt-2 text-[12px] leading-5 text-ink-700/60">
-              Reset очищает клиентов/записи/события, seed возвращает базовый демо-набор мастеров и услуг.
+            <div className="mt-2 text-[12px] leading-[1.55] text-ink-700/60">
+              Сброс очищает клиентов, записи и события, затем возвращает базовый демо-набор. «Заполнить демо»
+              подставляет расширенный учебный календарь и клиентов.
             </div>
           </GlassCard>
         </div>
@@ -475,6 +551,12 @@ export function Settings() {
             </LumiButton>
           </div>
         </div>
+
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <LumiButton variant="secondary" size="sm" fullWidth onClick={() => setActivePanel(null)}>
+            Отмена
+          </LumiButton>
+        </div>
       </LumiModal>
 
       <LumiModal
@@ -557,6 +639,12 @@ export function Settings() {
               Добавить
             </LumiButton>
           </div>
+        </div>
+
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <LumiButton variant="secondary" size="sm" fullWidth onClick={() => setActivePanel(null)}>
+            Отмена
+          </LumiButton>
         </div>
       </LumiModal>
 
@@ -724,12 +812,13 @@ export function Settings() {
         ) : null}
       </LumiModal>
 
-      <Sheet
+      <LumiModal
         open={activePanel === 'channels'}
         title="SMS / WhatsApp / Max"
         onClose={() => setActivePanel(null)}
         variant="center"
         surface="solid"
+        modalId="settings"
       >
         <div className="space-y-3">
           <div className="space-y-2">
@@ -799,14 +888,15 @@ export function Settings() {
             </button>
           </div>
         </div>
-      </Sheet>
+      </LumiModal>
 
-      <Sheet
+      <LumiModal
         open={activePanel === 'reminders'}
         title="Напоминания"
         onClose={() => setActivePanel(null)}
         variant="center"
         surface="solid"
+        modalId="settings"
       >
         <div className="space-y-3">
           <button
@@ -860,14 +950,15 @@ export function Settings() {
             </button>
           </div>
         </div>
-      </Sheet>
+      </LumiModal>
 
-      <Sheet
+      <LumiModal
         open={activePanel === 'templates'}
         title="Шаблоны сообщений"
         onClose={() => setActivePanel(null)}
         variant="center"
         surface="solid"
+        modalId="settings"
       >
         <div className="space-y-3">
           {(
@@ -875,7 +966,7 @@ export function Settings() {
               ['confirm', 'Подтверждение записи'],
               ['reschedule', 'Перенос записи'],
               ['reminder', 'Напоминание'],
-              ['followup', 'Follow-up'],
+              ['followup', 'Сопровождение'],
             ] as const
           ).map(([k, label]) => (
             <div key={k} className="space-y-1">
@@ -908,14 +999,15 @@ export function Settings() {
             </button>
           </div>
         </div>
-      </Sheet>
+      </LumiModal>
 
-      <Sheet
+      <LumiModal
         open={activePanel === 'payments'}
         title="Прайс и предоплата"
         onClose={() => setActivePanel(null)}
         variant="center"
         surface="solid"
+        modalId="settings"
       >
         <div className="space-y-3">
           <button
@@ -970,25 +1062,26 @@ export function Settings() {
             </button>
           </div>
         </div>
-      </Sheet>
+      </LumiModal>
 
-      <Sheet
+      <LumiModal
         open={activePanel === 'demo'}
         title="Демо"
         onClose={() => setActivePanel(null)}
         variant="center"
         surface="solid"
+        modalId="settings"
       >
         <div className="space-y-2">
           <div className="text-[12px] leading-5 text-ink-700/65">
-            Пошаговое демо • 60–90 секунд. Публичная демонстрация сценариев.
+            Пошаговое демо • 60–90 секунд. Спокойный проход по ключевым сценариям.
           </div>
           <button
             type="button"
             onClick={() => startDemo()}
             className="w-full rounded-3xl bg-ink-950 px-5 py-4 text-[15px] font-medium text-paper-50 shadow-glowGold"
           >
-            Запустить demo mode
+            Запустить демо
           </button>
           <button
             type="button"
@@ -998,29 +1091,34 @@ export function Settings() {
             Отмена
           </button>
         </div>
-      </Sheet>
+      </LumiModal>
 
-      <Sheet
+      <LumiModal
         open={activePanel === 'demoData'}
         title="Демо-данные"
         onClose={() => setActivePanel(null)}
         variant="center"
         surface="solid"
+        modalId="settings"
       >
         <div className="space-y-2">
+          <div className="text-[12px] leading-[1.55] text-ink-700/65">
+            Сброс очищает клиентов, записи и события, затем возвращает базовый демо-набор. «Заполнить демо»
+            восстанавливает расширенный учебный набор.
+          </div>
           <button
             type="button"
             onClick={() => dispatch({ type: 'seedDemoData' })}
             className="w-full rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[13px] font-semibold text-ink-950 shadow-soft"
           >
-            Seed demo
+            Заполнить демо
           </button>
           <button
             type="button"
             onClick={() => dispatch({ type: 'resetAllData' })}
             className="w-full rounded-3xl bg-ink-950 px-4 py-3 text-[13px] font-semibold text-paper-50 shadow-glowGold"
           >
-            Reset data
+            Сбросить данные
           </button>
           <button
             type="button"
@@ -1030,7 +1128,7 @@ export function Settings() {
             Отмена
           </button>
         </div>
-      </Sheet>
+      </LumiModal>
     </div>
   )
 }

@@ -856,7 +856,7 @@ function ReminderCard({
           {reminder.kind === 'stale_client' ? (
             <div className="mt-3 inline-flex items-center gap-2 text-[12px] font-medium text-ink-700/60">
               <MessageSquareText size={14} className="text-gold-400" />
-              Текст уже подготовлен в стиле premium
+              Текст уже подготовлен в спокойном премиум-тоне
             </div>
           ) : null}
         </div>

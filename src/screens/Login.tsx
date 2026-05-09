@@ -31,7 +31,7 @@ export function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             inputMode="email"
-            placeholder="Email"
+            placeholder="Эл. почта"
             className="w-full rounded-3xl border border-white/60 bg-white/60 px-4 py-3 text-[15px] text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35"
           />
           <input
@@ -69,7 +69,7 @@ export function Login() {
 
           {!hasSupabaseEnv() ? (
             <div className="text-[12px] leading-5 text-ink-700/60">
-              Supabase env не настроен — вход временно недоступен. Можно продолжить как demo.
+              Облако не подключено — вход временно недоступен. Можно продолжить в демо-режиме.
             </div>
           ) : null}
 
