@@ -1,5 +1,7 @@
 import type { AssistantCard } from './assistantRecommendations'
 
+import { isMasterTodayPath } from './appRoutes'
+
 function isDismissed(id: string, dismissed: Record<string, { until?: number }>, now: number) {
   const v = dismissed[id]
   if (!v) return false
@@ -33,7 +35,7 @@ export function buildCalmReassuranceCard(args: {
     now,
   } = args
 
-  if (pathname !== '/today') return null
+  if (!isMasterTodayPath(pathname)) return null
   if (reassuranceLevel < 0.22 || calmAssistance < 0.38) return null
   if (cognitiveLoad > 0.66) return null
 

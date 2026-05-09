@@ -3,6 +3,13 @@ import type { WorkflowIntentModel } from './workflowIntent'
 
 import { useIntentIntel } from '../state/intentIntel'
 
+import {
+  isMasterCalendarPath,
+  isMasterClientsPath,
+  isMasterReschedulePath,
+  isMasterTodayPath,
+} from './appRoutes'
+
 function clamp(v: number, a: number, b: number) {
   return Math.max(a, Math.min(b, v))
 }
@@ -97,7 +104,7 @@ export function buildIntentGuidanceCard(args: {
 
   switch (intent.primary) {
     case 'reschedule_ops':
-      if (pathname.startsWith('/reschedule') || reschedulePending < 1) return null
+      if (isMasterReschedulePath(pathname) || reschedulePending < 1) return null
       return {
         id,
         kind: 'intent_whisper',
@@ -107,7 +114,7 @@ export function buildIntentGuidanceCard(args: {
         subtitle: 'Интерфейс держит очередь — без лишних развилок.',
       }
     case 'pending_confirm_close':
-      if (pendingConfirm < 2 || pathname !== '/today') return null
+      if (pendingConfirm < 2 || !isMasterTodayPath(pathname)) return null
       return {
         id,
         kind: 'intent_whisper',
@@ -117,7 +124,7 @@ export function buildIntentGuidanceCard(args: {
         subtitle: 'Спокойный порядок без перескоков экрана.',
       }
     case 'schedule_tomorrow':
-      if (!pathname.startsWith('/calendar')) return null
+      if (!isMasterCalendarPath(pathname)) return null
       return {
         id,
         kind: 'intent_whisper',
@@ -127,7 +134,7 @@ export function buildIntentGuidanceCard(args: {
         subtitle: 'Можно продолжить в том же темпе — без новых веток.',
       }
     case 'clients_deep':
-      if (!pathname.startsWith('/clients')) return null
+      if (!isMasterClientsPath(pathname)) return null
       return {
         id,
         kind: 'intent_whisper',
@@ -147,7 +154,7 @@ export function buildIntentGuidanceCard(args: {
         subtitle: 'Остальное можно не разворачивать, пока готовите сообщение.',
       }
     case 'slot_seek':
-      if (!pathname.includes('/calendar/new') && !pathname.startsWith('/calendar')) return null
+      if (!pathname.includes('/calendar/new') && !isMasterCalendarPath(pathname)) return null
       return {
         id,
         kind: 'intent_whisper',

@@ -1,5 +1,7 @@
 import type { AssistantCard } from './assistantRecommendations'
 
+import { isMasterTodayPath } from './appRoutes'
+
 function isDismissed(id: string, dismissed: Record<string, { until?: number }>, now: number) {
   const v = dismissed[id]
   if (!v) return false
@@ -54,7 +56,7 @@ export function buildFlowContinuityCard(args: {
     }
   }
 
-  if (pendingConfirm >= 2 && pathname === '/today') {
+  if (pendingConfirm >= 2 && isMasterTodayPath(pathname)) {
     const pid = `${id}_pc`
     if (!isDismissed(pid, dismissed, now)) {
       return {

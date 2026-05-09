@@ -1,3 +1,4 @@
+import { isMasterTodayPath } from './appRoutes'
 import { applyEnergyAwareMaterialLayer, mergeEnergyAwarePolicy } from './energyAware'
 import { applyCognitiveContinuity } from './cognitiveContinuity'
 import { deriveCognitivePolicy } from './decisionReduction'
@@ -62,7 +63,7 @@ export function computeCognitiveLoadScore(
   load += fatigue * 0.26
   load += clamp((scrollEwma - 90) / 1500, 0, 1) * 0.08
 
-  if (s.pathname !== '/today') load *= 0.988
+  if (!isMasterTodayPath(s.pathname)) load *= 0.988
 
   return clamp(load, 0, 1)
 }

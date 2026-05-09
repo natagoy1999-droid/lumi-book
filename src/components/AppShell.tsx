@@ -13,6 +13,7 @@ import { SplashScreen } from './SplashScreen'
 import { OfflineNotice } from './OfflineNotice'
 import { useAppHydration } from '../state/appHydration'
 import { useDemoMode } from '../state/demoMode'
+import { ROUTE_APP_CALENDAR_NEW, isMasterTodayPath } from '../lib/appRoutes'
 import { useMessaging } from '../state/messaging'
 
 function SafeMessageComposerSheet() {
@@ -63,9 +64,15 @@ export function AppShell({
 
   const hideTabs =
     loc.pathname.startsWith('/onboarding') ||
-    loc.pathname.startsWith('/calendar/new') ||
+    loc.pathname.startsWith('/auth') ||
+    loc.pathname.startsWith('/login') ||
+    loc.pathname.startsWith('/signup') ||
+    loc.pathname.startsWith('/workspace') ||
     loc.pathname.startsWith('/client-booking') ||
-    loc.pathname.startsWith('/book')
+    loc.pathname.startsWith('/book') ||
+    loc.pathname.startsWith('/pricing') ||
+    !loc.pathname.startsWith('/app/') ||
+    loc.pathname.startsWith(ROUTE_APP_CALENDAR_NEW)
 
   return (
     <div
@@ -93,7 +100,7 @@ export function AppShell({
           {modalLayer}
 
           {/* Global built-in layers (kept isolated) */}
-          {loc.pathname === '/today' ? <InstallPromptCard /> : null}
+          {isMasterTodayPath(loc.pathname) ? <InstallPromptCard /> : null}
           {hideTabs ? null : <BottomTabs />}
           <SafeMessageComposerSheet />
           <SafeDemoWalkthrough />

@@ -1,5 +1,7 @@
 import type { AssistantCard } from './assistantRecommendations'
 
+import { isMasterCalendarPath } from './appRoutes'
+
 function isDismissed(id: string, dismissed: Record<string, { until?: number }>, now: number) {
   const v = dismissed[id]
   if (!v) return false
@@ -53,7 +55,7 @@ export function buildGentleResumptionCard(args: {
 
   if (
     justResumedFromBackground &&
-    lastPrimaryPath.startsWith('/calendar') &&
+    isMasterCalendarPath(lastPrimaryPath) &&
     pendingConfirm + reschedulePending > 0
   ) {
     const deferResume =

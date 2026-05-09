@@ -13,6 +13,7 @@ import {
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { ROUTE_APP_CALENDAR, ROUTE_APP_RESCHEDULE } from '../lib/appRoutes'
 import { advisoryShellOpacity, dockCtaShadowClass } from '../lib/advisoryDelicacy'
 import { cn } from '../lib/cn'
 import {
@@ -162,7 +163,7 @@ export function SmartReminders({ hideWhenEmpty = false }: { hideWhenEmpty?: bool
               id: 'open',
               label: 'Открыть',
               tone: 'gold',
-              onClick: () => nav('/calendar'),
+              onClick: () => nav(ROUTE_APP_CALENDAR),
             },
           ],
         })
@@ -213,7 +214,7 @@ export function SmartReminders({ hideWhenEmpty = false }: { hideWhenEmpty?: bool
             label: 'Перенести',
             onClick: () =>
               nav(
-                `/reschedule?bookingId=${encodeURIComponent(b.id)}&clientId=${encodeURIComponent(
+                `${ROUTE_APP_RESCHEDULE}?bookingId=${encodeURIComponent(b.id)}&clientId=${encodeURIComponent(
                   b.clientId,
                 )}&serviceId=${encodeURIComponent(b.serviceId)}&masterId=${encodeURIComponent(
                   b.masterId,
@@ -322,7 +323,7 @@ export function SmartReminders({ hideWhenEmpty = false }: { hideWhenEmpty?: bool
               tone: 'gold',
               onClick: () =>
                 nav(
-                  `/reschedule?bookingId=${encodeURIComponent(b.id)}&clientId=${encodeURIComponent(
+                  `${ROUTE_APP_RESCHEDULE}?bookingId=${encodeURIComponent(b.id)}&clientId=${encodeURIComponent(
                     b.clientId,
                   )}&serviceId=${encodeURIComponent(b.serviceId)}&masterId=${encodeURIComponent(
                     b.masterId,
@@ -354,7 +355,7 @@ export function SmartReminders({ hideWhenEmpty = false }: { hideWhenEmpty?: bool
             label: 'Изменить',
             onClick: () =>
               nav(
-                `/reschedule?bookingId=${encodeURIComponent(b.id)}&clientId=${encodeURIComponent(
+                `${ROUTE_APP_RESCHEDULE}?bookingId=${encodeURIComponent(b.id)}&clientId=${encodeURIComponent(
                   b.clientId,
                 )}&serviceId=${encodeURIComponent(b.serviceId)}&masterId=${encodeURIComponent(
                   b.masterId,
@@ -502,7 +503,7 @@ export function SmartReminders({ hideWhenEmpty = false }: { hideWhenEmpty?: bool
         subtitle: `${tomorrowCount} записей подряд`,
         icon: Wand2,
         ctas: [
-          { id: 'open', label: 'Открыть', tone: 'gold', onClick: () => nav('/calendar') },
+          { id: 'open', label: 'Открыть', tone: 'gold', onClick: () => nav(ROUTE_APP_CALENDAR) },
         ],
       })
     }

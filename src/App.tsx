@@ -37,6 +37,17 @@ import { Login } from './screens/Login'
 import { Signup } from './screens/Signup'
 import { AuthEntry } from './screens/AuthEntry'
 import { Workspace } from './screens/Workspace'
+import {
+  ROUTE_APP_CALENDAR,
+  ROUTE_APP_CALENDAR_NEW,
+  ROUTE_APP_CLIENTS,
+  ROUTE_APP_MONEY,
+  ROUTE_APP_RESCHEDULE,
+  ROUTE_APP_SETTINGS,
+  ROUTE_APP_TODAY,
+  ROUTE_BOOK,
+  isMasterTodayPath,
+} from './lib/appRoutes'
 import { StoreProvider, todayISO, useStore } from './state/store'
 import { motion as motionTokens } from './theme/motion'
 
@@ -84,7 +95,7 @@ function GlobalMaterialSync() {
   const income = useMemo(() => moneyForDay(dateISO), [dateISO, moneyForDay, state.bookings])
 
   useEffect(() => {
-    if (loc.pathname !== '/today') {
+    if (!isMasterTodayPath(loc.pathname)) {
       setScrollY(0)
     }
   }, [loc.pathname, setScrollY])
@@ -182,7 +193,6 @@ function GlobalMaterialSync() {
 
 function Shell() {
   const loc = useLocation()
-  const { state } = useStore()
 
   useEffect(() => {
     const t = window.setTimeout(() => {
@@ -220,16 +230,7 @@ function Shell() {
           <AnimatePresence mode="wait" initial={false}>
           <ErrorBoundary key={`${loc.pathname}${loc.search}`} layout="embedded">
           <Routes location={loc} key={loc.pathname + loc.search}>
-          <Route
-            path="/"
-            element={
-              state.onboardingDone ? (
-                <Navigate to="/today" replace />
-              ) : (
-                <Navigate to="/onboarding" replace />
-              )
-            }
-          />
+          <Route path="/" element={<Navigate to={ROUTE_BOOK} replace />} />
           <Route
             path="/onboarding"
             element={
@@ -271,62 +272,6 @@ function Shell() {
             }
           />
           <Route
-            path="/today"
-            element={
-              <Page>
-                <Today />
-              </Page>
-            }
-          />
-          <Route
-            path="/calendar"
-            element={
-              <Page>
-                <Calendar />
-              </Page>
-            }
-          />
-          <Route
-            path="/calendar/new"
-            element={
-              <Page>
-                <NewBooking />
-              </Page>
-            }
-          />
-          <Route
-            path="/reschedule"
-            element={
-              <Page>
-                <Reschedule />
-              </Page>
-            }
-          />
-          <Route
-            path="/clients"
-            element={
-              <Page>
-                <Clients />
-              </Page>
-            }
-          />
-          <Route
-            path="/money"
-            element={
-              <Page>
-                <Money />
-              </Page>
-            }
-          />
-          <Route
-            path="/pricing"
-            element={
-              <Page>
-                <Pricing />
-              </Page>
-            }
-          />
-          <Route
             path="/book/:workspace"
             element={
               <Page>
@@ -342,19 +287,80 @@ function Shell() {
               </Page>
             }
           />
+          <Route path="/app" element={<Navigate to={ROUTE_APP_TODAY} replace />} />
           <Route
-            path="/client-booking"
-            element={<Navigate to="/book" replace />}
+            path={ROUTE_APP_TODAY}
+            element={
+              <Page>
+                <Today />
+              </Page>
+            }
           />
           <Route
-            path="/settings"
+            path={ROUTE_APP_CALENDAR}
+            element={
+              <Page>
+                <Calendar />
+              </Page>
+            }
+          />
+          <Route
+            path={ROUTE_APP_CALENDAR_NEW}
+            element={
+              <Page>
+                <NewBooking />
+              </Page>
+            }
+          />
+          <Route
+            path={ROUTE_APP_RESCHEDULE}
+            element={
+              <Page>
+                <Reschedule />
+              </Page>
+            }
+          />
+          <Route
+            path={ROUTE_APP_CLIENTS}
+            element={
+              <Page>
+                <Clients />
+              </Page>
+            }
+          />
+          <Route
+            path={ROUTE_APP_MONEY}
+            element={
+              <Page>
+                <Money />
+              </Page>
+            }
+          />
+          <Route
+            path={ROUTE_APP_SETTINGS}
             element={
               <Page>
                 <Settings />
               </Page>
             }
           />
-          <Route path="*" element={<Navigate to="/today" replace />} />
+          <Route
+            path="/pricing"
+            element={
+              <Page>
+                <Pricing />
+              </Page>
+            }
+          />
+          <Route path="/today" element={<Navigate to={ROUTE_APP_TODAY} replace />} />
+          <Route path="/calendar/new" element={<Navigate to={ROUTE_APP_CALENDAR_NEW} replace />} />
+          <Route path="/calendar" element={<Navigate to={ROUTE_APP_CALENDAR} replace />} />
+          <Route path="/reschedule" element={<Navigate to={ROUTE_APP_RESCHEDULE} replace />} />
+          <Route path="/clients" element={<Navigate to={ROUTE_APP_CLIENTS} replace />} />
+          <Route path="/money" element={<Navigate to={ROUTE_APP_MONEY} replace />} />
+          <Route path="/settings" element={<Navigate to={ROUTE_APP_SETTINGS} replace />} />
+          <Route path="/client-booking" element={<Navigate to={ROUTE_BOOK} replace />} />
+          <Route path="*" element={<Navigate to={ROUTE_BOOK} replace />} />
           </Routes>
           </ErrorBoundary>
           </AnimatePresence>

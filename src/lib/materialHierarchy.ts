@@ -1,5 +1,12 @@
 import type { HomeMode } from './homeEngine'
 
+import {
+  isMasterCalendarPath,
+  isMasterMoneyPath,
+  isMasterReschedulePath,
+  isMasterTodayPath,
+} from './appRoutes'
+
 function clamp(v: number, a: number, b: number) {
   return Math.max(a, Math.min(b, v))
 }
@@ -35,9 +42,11 @@ export function computeMaterialHierarchy(args: {
   const freeze = clamp(args.motionFreeze, 0, 1)
 
   const routeTight =
-    args.pathname === '/today' || args.pathname === '/calendar' || args.pathname === '/reschedule'
+    isMasterTodayPath(args.pathname) ||
+    isMasterCalendarPath(args.pathname) ||
+    isMasterReschedulePath(args.pathname)
       ? 1
-      : args.pathname === '/money'
+      : isMasterMoneyPath(args.pathname)
         ? 0.98
         : 1.02
 

@@ -1,5 +1,7 @@
 import { create } from 'zustand'
 
+import { ROUTE_APP_TODAY } from '../lib/appRoutes'
+
 import type { MessageDraft } from './messaging'
 
 export type ContextScenario =
@@ -56,7 +58,7 @@ export const useSessionContinuity = create<{
   consumeResumePulse: () => void
   hydrateFromStorage: () => void
 }>((set, get) => ({
-  lastPrimaryPath: '/today',
+  lastPrimaryPath: ROUTE_APP_TODAY,
   lastScenario: null,
   abandonedComposerAt: null,
   abandonedClientId: null,
@@ -68,7 +70,7 @@ export const useSessionContinuity = create<{
     set({
       abandonedComposerAt: p.abandonedComposerAt ?? null,
       abandonedClientId: p.abandonedClientId ?? null,
-      lastPrimaryPath: p.lastPrimaryPath ?? '/today',
+      lastPrimaryPath: p.lastPrimaryPath ?? ROUTE_APP_TODAY,
       lastScenario: p.lastScenario ?? null,
     })
   },
@@ -132,9 +134,9 @@ export const useSessionContinuity = create<{
 }))
 
 function inferScenarioFromPath(path: string): ContextScenario {
-  if (path.startsWith('/reschedule')) return 'reschedule_queue'
-  if (path.startsWith('/calendar/new')) return 'schedule'
-  if (path.startsWith('/calendar')) return 'schedule'
-  if (path.startsWith('/clients')) return 'clients'
+  if (path.startsWith('/app/reschedule') || path.startsWith('/reschedule')) return 'reschedule_queue'
+  if (path.startsWith('/app/calendar/new') || path.startsWith('/calendar/new')) return 'schedule'
+  if (path.startsWith('/app/calendar') || path.startsWith('/calendar')) return 'schedule'
+  if (path.startsWith('/app/clients') || path.startsWith('/clients')) return 'clients'
   return 'idle'
 }

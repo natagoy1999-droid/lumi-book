@@ -1,15 +1,22 @@
 import { CalendarDays, CreditCard, Home, Settings, Users } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 
+import {
+  ROUTE_APP_CALENDAR,
+  ROUTE_APP_CLIENTS,
+  ROUTE_APP_MONEY,
+  ROUTE_APP_SETTINGS,
+  ROUTE_APP_TODAY,
+} from '../lib/appRoutes'
 import { cn } from '../lib/cn'
 import { z } from '../theme/elevation'
 
 const tabs = [
-  { to: '/today', label: 'Сегодня', Icon: Home },
-  { to: '/calendar', label: 'Календарь', Icon: CalendarDays },
-  { to: '/clients', label: 'Клиенты', Icon: Users },
-  { to: '/money', label: 'Деньги', Icon: CreditCard },
-  { to: '/settings', label: 'Настройки', Icon: Settings },
+  { to: ROUTE_APP_TODAY, label: 'Сегодня', Icon: Home },
+  { to: ROUTE_APP_CALENDAR, label: 'Календарь', Icon: CalendarDays },
+  { to: ROUTE_APP_CLIENTS, label: 'Клиенты', Icon: Users },
+  { to: ROUTE_APP_MONEY, label: 'Деньги', Icon: CreditCard },
+  { to: ROUTE_APP_SETTINGS, label: 'Настройки', Icon: Settings },
 ] as const
 
 export function BottomTabs() {

@@ -1,10 +1,17 @@
 import type { BehavioralSnapshot, RouteTransition } from '../state/behavioralIntel'
 import type { Booking } from '../state/store'
 
+import {
+  ROUTE_APP_CALENDAR,
+  ROUTE_APP_CLIENTS,
+  ROUTE_APP_RESCHEDULE,
+  isMasterClientsPath,
+  isMasterTodayPath,
+} from './appRoutes'
 import type { DockAction } from './actionEngine'
 import {
   composerHourAffinity,
-  hourPathAffinity,
+  hourPathAffinityLegacyOrApp,
   observationStrength,
   rescheduleScenarioPressure,
 } from './habitPatterns'
@@ -31,9 +38,9 @@ export function computeBehavioralSnapshot(input: {
 
   const { suggestedNextPath, routeConfidence } = predictNextRoute(transitions, pathname)
 
-  const affCal = hourPathAffinity(transitions, hour, '/calendar')
-  const affRs = hourPathAffinity(transitions, hour, '/reschedule')
-  const affClients = hourPathAffinity(transitions, hour, '/clients')
+  const affCal = hourPathAffinityLegacyOrApp(transitions, hour, ROUTE_APP_CALENDAR, '/calendar')
+  const affRs = hourPathAffinityLegacyOrApp(transitions, hour, ROUTE_APP_RESCHEDULE, '/reschedule')
+  const affClients = hourPathAffinityLegacyOrApp(transitions, hour, ROUTE_APP_CLIENTS, '/clients')
   const composerAff = composerHourAffinity(composerOpens, hour)
 
   const depth = observationStrength(transitions)
@@ -47,14 +54,15 @@ export function computeBehavioralSnapshot(input: {
     1,
   )
 
-  const routeAffinity = suggestedNextPath?.startsWith('/calendar')
+  const routeAffinity = suggestedNextPath?.startsWith(ROUTE_APP_CALENDAR) ||
+    suggestedNextPath?.startsWith('/calendar')
     ? affCal
-    : suggestedNextPath?.startsWith('/reschedule')
+    : suggestedNextPath?.startsWith(ROUTE_APP_RESCHEDULE) || suggestedNextPath?.startsWith('/reschedule')
       ? affRs
       : 0
   let predictiveFocus = clamp(routeConfidence * (0.55 + routeAffinity * 0.45), 0, 1)
 
-  if (composerAff > 0.45 && (pathname === '/today' || pathname === '/clients')) {
+  if (composerAff > 0.45 && (isMasterTodayPath(pathname) || isMasterClientsPath(pathname))) {
     predictiveFocus = clamp(predictiveFocus + composerAff * 0.08, 0, 1)
   }
 
@@ -99,7 +107,11 @@ export function applyHabitAwareDockBoost(
       if (a.kind.kind === 'open_reschedule') {
         m *= 1 + snap.habitConfidence * 0.048
       }
-      if (a.kind.kind === 'offer_slot' && snap.suggestedNextPath?.startsWith('/calendar')) {
+      if (
+        a.kind.kind === 'offer_slot' &&
+        (snap.suggestedNextPath?.startsWith(ROUTE_APP_CALENDAR) ||
+          snap.suggestedNextPath?.startsWith('/calendar'))
+      ) {
         m *= 1 + snap.routeConfidence * 0.038
       }
       if (a.kind.kind === 'nudge_pending' || a.kind.kind === 'write_client') {

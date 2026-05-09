@@ -3,6 +3,7 @@ import type { Booking, Client, EngagementEvent, Master, Service } from '../state
 import { todayISO } from '../state/store'
 
 import { applyAttentionLock, computeAttentionLock } from './attentionLock'
+import { isMasterTodayPath } from './appRoutes'
 import { applyAttentionStability, computeAttentionStability } from './attentionStabilizer'
 import { buildDockActions } from './actionEngine'
 import { applyDensityVars, densityVars } from './densityEngine'
@@ -72,7 +73,7 @@ export function applyMaterialFromStore(input: MaterialFromStoreInput) {
   if (!master) return
 
   const dateISO = todayISO()
-  const scroll = input.pathname === '/today' ? input.scrollY : 0
+  const scroll = isMasterTodayPath(input.pathname) ? input.scrollY : 0
 
   const bookingsToday = input.bookings.filter((b) => b.dateISO === dateISO)
   const remindersCount = input.bookings.filter(

@@ -4,6 +4,12 @@ import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 
+import {
+  ROUTE_APP_CLIENTS,
+  ROUTE_APP_MONEY,
+  ROUTE_APP_RESCHEDULE,
+  ROUTE_APP_TODAY,
+} from '../lib/appRoutes'
 import { cn } from '../lib/cn'
 import { useDemoMode } from '../state/demoMode'
 import { useModalManager } from '../state/modalManager'
@@ -44,7 +50,7 @@ function useStepModel() {
           title: 'Демо • 60–90 секунд',
           subtitle:
             'Пройдём ключевые сценарии: запись → перенос → напоминание → ассистент → деньги → сопровождение.',
-          route: '/today',
+          route: ROUTE_APP_TODAY,
         }
       case 'create_booking':
         return {
@@ -62,7 +68,7 @@ function useStepModel() {
           title: '2) Перенос',
           subtitle:
             'Откройте перенос — слоты уже готовы. Отправьте предложение: это учебная отправка без реального SMS.',
-          route: '/reschedule?bookingId=b_t_3&clientId=c4&serviceId=s5&masterId=m1',
+          route: `${ROUTE_APP_RESCHEDULE}?bookingId=b_t_3&clientId=c4&serviceId=s5&masterId=m1`,
         }
       case 'smart_reminder':
         return {
@@ -71,7 +77,7 @@ function useStepModel() {
           title: '3) Напоминание клиенту',
           subtitle:
             'На экране «Сегодня» — мягкие напоминания. Нажмите действие и откройте редактор сообщения.',
-          route: '/today',
+          route: ROUTE_APP_TODAY,
         }
       case 'assistant':
         return {
@@ -79,7 +85,7 @@ function useStepModel() {
           total,
           title: '4) Ассистент',
           subtitle: 'Ассистент предлагает спокойные варианты и помогает держать ритм дня.',
-          route: '/today',
+          route: ROUTE_APP_TODAY,
         }
       case 'analytics':
         return {
@@ -87,7 +93,7 @@ function useStepModel() {
           total,
           title: '5) Деньги',
           subtitle: 'Аналитика считается из реальных записей: день / неделя / месяц / средний чек.',
-          route: '/money',
+          route: ROUTE_APP_MONEY,
         }
       case 'followup':
         return {
@@ -95,7 +101,7 @@ function useStepModel() {
           total,
           title: '6) Сопровождение',
           subtitle: 'Откройте «Клиенты» и нажмите на карточку — можно мягко подготовить контакт.',
-          route: '/clients',
+          route: ROUTE_APP_CLIENTS,
         }
       case 'done':
         return {
@@ -104,7 +110,7 @@ function useStepModel() {
           title: 'Готово',
           subtitle:
             'Это базовый цикл демо-режима. Можно повторить или спокойно вернуться в «Сегодня».',
-          route: '/today',
+          route: ROUTE_APP_TODAY,
         }
       default:
         return {
@@ -113,7 +119,7 @@ function useStepModel() {
           title: 'Демо',
           subtitle:
             'Короткий обзор Lumi: запись, перенос, напоминания и спокойный ритм дня. Нажмите «Далее», чтобы продолжить.',
-          route: '/today',
+          route: ROUTE_APP_TODAY,
         }
     }
   }, [step])

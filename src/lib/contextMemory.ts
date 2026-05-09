@@ -4,6 +4,8 @@ import { useContextIntel } from '../state/contextIntel'
 
 import type { RouteTransition } from '../state/behavioralIntel'
 
+import { isMasterCalendarPath, isMasterClientsPath, isMasterReschedulePath } from './appRoutes'
+
 function clamp(v: number, a: number, b: number) {
   return Math.max(a, Math.min(b, v))
 }
@@ -53,10 +55,10 @@ export function deriveContextMemory(input: ContextMemoryInput): ContextMemoryDer
   const pend = pendingToday(bookings, dateISO)
 
   let activeScenario: ContextScenario = lastScenario ?? 'idle'
-  if (pathname.startsWith('/reschedule') || pResched >= 2) activeScenario = 'reschedule_queue'
+  if (isMasterReschedulePath(pathname) || pResched >= 2) activeScenario = 'reschedule_queue'
   else if (pConfirm >= 2) activeScenario = 'confirm_queue'
-  else if (pathname.startsWith('/calendar')) activeScenario = 'schedule'
-  else if (pathname.startsWith('/clients')) activeScenario = 'clients'
+  else if (isMasterCalendarPath(pathname)) activeScenario = 'schedule'
+  else if (isMasterClientsPath(pathname)) activeScenario = 'clients'
   else if (abandonedComposerAt && now - abandonedComposerAt < 36 * 60 * 60 * 1000)
     activeScenario = 'composer_followup'
 

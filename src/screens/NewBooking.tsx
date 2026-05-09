@@ -6,6 +6,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { GlassCard } from '../components/GlassCard'
 import { Sheet } from '../components/Sheet'
 import { SwipeBack } from '../components/SwipeBack'
+import { ROUTE_APP_CALENDAR, ROUTE_APP_TODAY } from '../lib/appRoutes'
 import { cn } from '../lib/cn'
 import { LumiButton } from '../components/ui/LumiButton'
 import { LumiInput } from '../components/ui/LumiInput'
@@ -361,11 +362,11 @@ export function NewBooking() {
                   variant="secondary"
                   size="sm"
                   fullWidth
-                  onClick={() => nav('/calendar', { replace: true })}
+                  onClick={() => nav(ROUTE_APP_CALENDAR, { replace: true })}
                 >
                   В календарь
                 </LumiButton>
-                <LumiButton size="sm" fullWidth onClick={() => nav('/today', { replace: true })}>
+                <LumiButton size="sm" fullWidth onClick={() => nav(ROUTE_APP_TODAY, { replace: true })}>
                   На сегодня
                 </LumiButton>
               </div>

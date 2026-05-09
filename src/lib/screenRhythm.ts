@@ -1,3 +1,11 @@
+import {
+  isMasterCalendarPath,
+  isMasterClientsPath,
+  isMasterMoneyPath,
+  isMasterReschedulePath,
+  isMasterTodayPath,
+} from './appRoutes'
+
 function clamp(v: number, a: number, b: number) {
   return Math.max(a, Math.min(b, v))
 }
@@ -8,11 +16,11 @@ function clamp(v: number, a: number, b: number) {
 export function applyScreenRhythm(pathname: string, cognitiveLoad: number) {
   const load = clamp(cognitiveLoad, 0, 1)
   let rhythm = 1 - load * 0.078
-  if (pathname.startsWith('/calendar')) rhythm -= load * 0.028
-  if (pathname.startsWith('/money')) rhythm -= load * 0.018
-  if (pathname.startsWith('/clients')) rhythm -= load * 0.015
-  if (pathname.startsWith('/calendar/new') || pathname.startsWith('/reschedule')) rhythm -= load * 0.022
-  if (pathname === '/today') rhythm += (1 - load) * 0.012
+  if (isMasterCalendarPath(pathname)) rhythm -= load * 0.028
+  if (isMasterMoneyPath(pathname)) rhythm -= load * 0.018
+  if (isMasterClientsPath(pathname)) rhythm -= load * 0.015
+  if (pathname.includes('/calendar/new') || isMasterReschedulePath(pathname)) rhythm -= load * 0.022
+  if (isMasterTodayPath(pathname)) rhythm += (1 - load) * 0.012
   rhythm = clamp(rhythm, 0.855, 1)
   document.documentElement.style.setProperty('--global-rhythm', rhythm.toFixed(3))
 }

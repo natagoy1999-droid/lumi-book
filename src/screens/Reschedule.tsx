@@ -7,6 +7,7 @@ import { GlassCard } from '../components/GlassCard'
 import { Sheet } from '../components/Sheet'
 import { Skeleton } from '../components/Skeleton'
 import { SwipeBack } from '../components/SwipeBack'
+import { ROUTE_APP_SETTINGS } from '../lib/appRoutes'
 import { cn } from '../lib/cn'
 import { useCognitiveUI } from '../state/cognitiveUI'
 import { todayISO, useStore } from '../state/store'
@@ -263,7 +264,7 @@ export function Reschedule() {
                   type="button"
                   whileTap={{ scale: 0.985 }}
                   transition={{ type: 'spring', stiffness: 600, damping: 40 }}
-                  onClick={() => nav('/settings')}
+                  onClick={() => nav(ROUTE_APP_SETTINGS)}
                   className="mt-4 w-full rounded-3xl bg-ink-950 px-5 py-4 text-[14px] font-medium text-paper-50 shadow-glowGold"
                 >
                   Открыть дополнительные часы

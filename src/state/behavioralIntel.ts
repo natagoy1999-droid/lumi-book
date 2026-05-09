@@ -1,3 +1,4 @@
+import { ROUTE_APP_TODAY } from '../lib/appRoutes'
 import { create } from 'zustand'
 
 export type RouteTransition = {
@@ -33,7 +34,7 @@ export const useBehavioralIntel = create<{
   recordTransition: (from, to) => {
     if (!to || from === to) return
     const ts = Date.now()
-    const normFrom = from.length ? from : '/today'
+    const normFrom = from.length ? from : ROUTE_APP_TODAY
     set({
       transitions: [...get().transitions, { from: normFrom, to, ts }].slice(-140),
     })

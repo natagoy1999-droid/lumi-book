@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { ROUTE_APP_TODAY } from '../lib/appRoutes'
 import { signUpWithEmail } from '../lib/auth'
 import { hasSupabaseEnv } from '../lib/supabaseClient'
 import { useAuthStore } from '../store/authStore'
@@ -14,7 +15,7 @@ export function Signup() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (mode === 'auth') nav('/today', { replace: true })
+    if (mode === 'auth') nav(ROUTE_APP_TODAY, { replace: true })
   }, [mode, nav])
 
   return (
@@ -59,7 +60,7 @@ export function Signup() {
                 if (snap.mode !== 'auth') {
                   setError('Не удалось создать аккаунт. Попробуйте другой email или пароль.')
                 } else {
-                  nav('/today', { replace: true })
+                  nav(ROUTE_APP_TODAY, { replace: true })
                 }
               } finally {
                 setBusy(false)

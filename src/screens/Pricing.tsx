@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { GlassCard } from '../components/GlassCard'
 import { Sheet } from '../components/Sheet'
+import { ROUTE_APP_SETTINGS } from '../lib/appRoutes'
 import { cn } from '../lib/cn'
 import { TRIAL_DAYS, useStore, type SubscriptionPlan, type SubscriptionStatus } from '../state/store'
 
@@ -181,7 +182,7 @@ export function Pricing() {
 
         <button
           type="button"
-          onClick={() => nav('/settings')}
+          onClick={() => nav(ROUTE_APP_SETTINGS)}
           className="mt-4 w-full rounded-3xl border border-white/60 bg-white/55 px-4 py-3 text-[13px] font-semibold text-ink-950 shadow-soft"
         >
           Назад в настройки

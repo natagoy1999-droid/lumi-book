@@ -2,6 +2,7 @@ import { CalendarDays, MessageCircle, Sparkles } from 'lucide-react'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { ROUTE_APP_CALENDAR } from '../lib/appRoutes'
 import { cn } from '../lib/cn'
 import { lumiPrimaryActionSm } from '../lib/lumiActionStyles'
 
@@ -41,7 +42,7 @@ export function QuickActionBar({
           <div className="text-[12px] font-medium text-ink-700/70">Быстрые действия</div>
           <button
             type="button"
-            onClick={() => nav('/calendar')}
+            onClick={() => nav(ROUTE_APP_CALENDAR)}
             className="rounded-2xl border border-white/60 bg-white/55 px-3 py-2 text-[12px] font-semibold text-ink-950 shadow-soft"
           >
             Календарь

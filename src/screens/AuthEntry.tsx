@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { GlassCard } from '../components/GlassCard'
+import { ROUTE_APP_TODAY } from '../lib/appRoutes'
 import { useAuthStore } from '../store/authStore'
 import { useStore } from '../state/store'
 
@@ -11,7 +12,7 @@ export function AuthEntry() {
   const mode = useAuthStore((s) => s.mode)
 
   useEffect(() => {
-    if (mode === 'auth') nav('/today', { replace: true })
+    if (mode === 'auth') nav(ROUTE_APP_TODAY, { replace: true })
   }, [mode, nav])
 
   return (
@@ -29,7 +30,7 @@ export function AuthEntry() {
               type="button"
               onClick={() => {
                 dispatch({ type: 'finishOnboarding' })
-                nav('/today', { replace: true })
+                nav(ROUTE_APP_TODAY, { replace: true })
               }}
               className="w-full rounded-3xl bg-ink-950 px-5 py-4 text-[15px] font-medium text-paper-50 shadow-glowGold"
             >

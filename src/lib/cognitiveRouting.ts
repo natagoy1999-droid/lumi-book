@@ -1,3 +1,5 @@
+import { isMasterReschedulePath } from './appRoutes'
+
 function clamp(v: number, a: number, b: number) {
   return Math.max(a, Math.min(b, v))
 }
@@ -20,7 +22,8 @@ export function cognitiveRouteSpring(
 ) {
   const p = clamp(load, 0, 1)
   const fm = clamp(flowMomentum, 0, 1)
-  const sheet = pathname.includes('/calendar/new') || pathname.startsWith('/reschedule') ? p * 0.07 : 0
+  const sheet =
+    pathname.includes('/calendar/new') || isMasterReschedulePath(pathname) ? p * 0.07 : 0
   let stiffness = 522 - p * 78 - sheet * 24 - fm * 26
   let damping = 44 + p * 12 + sheet * 5 + fm * 9
   let mass = 0.86 + p * 0.11 + sheet * 0.04 + fm * 0.07

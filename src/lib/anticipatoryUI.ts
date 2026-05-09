@@ -1,6 +1,13 @@
-import type { AssistantCard } from './assistantRecommendations'
 import type { BehavioralSnapshot } from '../state/behavioralIntel'
 
+import type { AssistantCard } from './assistantRecommendations'
+import {
+  ROUTE_APP_CALENDAR,
+  ROUTE_APP_CLIENTS,
+  isMasterCalendarPath,
+  isMasterClientsPath,
+  isMasterTodayPath,
+} from './appRoutes'
 import { explain } from './explainableHints'
 
 function isDismissed(id: string, dismissed: Record<string, { until?: number }>, now: number) {
@@ -50,7 +57,11 @@ export function buildBehavioralWhisperCard(args: {
   const next = behavioral.suggestedNextPath
   const rc = behavioral.routeConfidence
 
-  if (pathname === '/today' && next === '/calendar' && rc >= 0.34) {
+  if (
+    isMasterTodayPath(pathname) &&
+    (next === ROUTE_APP_CALENDAR || next === '/calendar') &&
+    rc >= 0.34
+  ) {
     return {
       id,
       kind: 'behavioral_whisper',
@@ -61,7 +72,11 @@ export function buildBehavioralWhisperCard(args: {
     }
   }
 
-  if (pathname === '/today' && next?.startsWith('/reschedule') && rc >= 0.32) {
+  if (
+    isMasterTodayPath(pathname) &&
+    (next?.startsWith('/app/reschedule') || next?.startsWith('/reschedule')) &&
+    rc >= 0.32
+  ) {
     return {
       id,
       kind: 'behavioral_whisper',
@@ -73,7 +88,7 @@ export function buildBehavioralWhisperCard(args: {
   }
 
   if (
-    pathname === '/calendar' &&
+    isMasterCalendarPath(pathname) &&
     behavioral.predictiveFocus > 0.42 &&
     behavioral.habitConfidence > 0.5
   ) {
@@ -88,7 +103,7 @@ export function buildBehavioralWhisperCard(args: {
   }
 
   if (
-    (pathname === '/today' || pathname === '/clients') &&
+    (isMasterTodayPath(pathname) || isMasterClientsPath(pathname)) &&
     behavioral.predictiveFocus > 0.48 &&
     cognitiveLoad < 0.42
   ) {
@@ -103,8 +118,8 @@ export function buildBehavioralWhisperCard(args: {
   }
 
   if (
-    pathname === '/today' &&
-    next === '/clients' &&
+    isMasterTodayPath(pathname) &&
+    (next === ROUTE_APP_CLIENTS || next === '/clients') &&
     rc >= 0.33 &&
     behavioral.habitConfidence > 0.52
   ) {

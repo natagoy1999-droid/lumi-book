@@ -13,6 +13,19 @@ export function hourPathAffinity(transitions: readonly RouteTransition[], hour: 
   return clamp(hits / atHour.length, 0, 1)
 }
 
+/** После `/app/*` маршрутов учитываем и старые префиксы из истории переходов. */
+export function hourPathAffinityLegacyOrApp(
+  transitions: readonly RouteTransition[],
+  hour: number,
+  appPrefix: string,
+  legacyPrefix: string,
+): number {
+  return Math.max(
+    hourPathAffinity(transitions, hour, appPrefix),
+    hourPathAffinity(transitions, hour, legacyPrefix),
+  )
+}
+
 /** Typical quiet follow-up windows from sent timestamps → affinity for current hour. */
 export function composerHourAffinity(composerOpens: number[], hour: number): number {
   if (composerOpens.length < 4) return 0

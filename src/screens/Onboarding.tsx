@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { GlassCard } from '../components/GlassCard'
+import { ROUTE_APP_TODAY } from '../lib/appRoutes'
 import { cn } from '../lib/cn'
 import { lumiPrimaryActionMd } from '../lib/lumiActionStyles'
 import { motion as motionTokens } from '../theme/motion'
@@ -20,7 +21,7 @@ export function Onboarding() {
   useEffect(() => {
     if (mode === 'auth') {
       dispatch({ type: 'finishOnboarding' })
-      nav('/today', { replace: true })
+      nav(ROUTE_APP_TODAY, { replace: true })
     }
   }, [dispatch, mode, nav])
 

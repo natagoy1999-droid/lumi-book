@@ -1,10 +1,32 @@
 import type { RouteTransition } from '../state/behavioralIntel'
 
+import {
+  ROUTE_APP_CALENDAR,
+  ROUTE_APP_CALENDAR_NEW,
+  ROUTE_APP_CLIENTS,
+  ROUTE_APP_MONEY,
+  ROUTE_APP_RESCHEDULE,
+  ROUTE_APP_TODAY,
+} from './appRoutes'
+
 function clamp(v: number, a: number, b: number) {
   return Math.max(a, Math.min(b, v))
 }
 
 const PRODUCTIVE_EDGES: Array<[string, string]> = [
+  [ROUTE_APP_TODAY, ROUTE_APP_CALENDAR],
+  [ROUTE_APP_TODAY, ROUTE_APP_CLIENTS],
+  [ROUTE_APP_TODAY, ROUTE_APP_MONEY],
+  [ROUTE_APP_CALENDAR, ROUTE_APP_CALENDAR_NEW],
+  [ROUTE_APP_CALENDAR, ROUTE_APP_RESCHEDULE],
+  [ROUTE_APP_CALENDAR, ROUTE_APP_TODAY],
+  [ROUTE_APP_CLIENTS, ROUTE_APP_TODAY],
+  [ROUTE_APP_CLIENTS, ROUTE_APP_CALENDAR],
+  [ROUTE_APP_RESCHEDULE, ROUTE_APP_TODAY],
+  [ROUTE_APP_RESCHEDULE, ROUTE_APP_CLIENTS],
+  [ROUTE_APP_MONEY, ROUTE_APP_TODAY],
+  [ROUTE_APP_CALENDAR_NEW, ROUTE_APP_CALENDAR],
+  [ROUTE_APP_CALENDAR_NEW, ROUTE_APP_TODAY],
   ['/today', '/calendar'],
   ['/today', '/clients'],
   ['/today', '/money'],
@@ -59,7 +81,7 @@ function interactionRhythm(transitions: readonly RouteTransition[]): number {
 /** Too many rapid returns to Today suggest thrashing, not flow. */
 function returnThrash(transitions: readonly RouteTransition[]): number {
   const slice = transitions.slice(-14)
-  const toToday = slice.filter((t) => t.to === '/today').length
+  const toToday = slice.filter((t) => t.to === ROUTE_APP_TODAY || t.to === '/today').length
   return clamp((toToday - 4) * 0.06, 0, 0.22)
 }
 

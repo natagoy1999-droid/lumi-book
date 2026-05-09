@@ -10,6 +10,12 @@ import { RecoveryDashboard } from '../components/RecoveryDashboard'
 import { SmartReminders } from '../components/SmartReminders'
 import { FocusCard } from '../components/FocusCard'
 import { MiniWidgets } from '../components/MiniWidgets'
+import {
+  ROUTE_APP_CALENDAR,
+  ROUTE_APP_CALENDAR_NEW,
+  ROUTE_APP_CLIENTS,
+  ROUTE_APP_RESCHEDULE,
+} from '../lib/appRoutes'
 import { cn } from '../lib/cn'
 import { buildFocusCard, buildWidgets, computeHomeMode } from '../lib/homeEngine'
 import { kickMotionDecay } from '../lib/motionDecay'
@@ -159,7 +165,7 @@ export function Today() {
             <div className="mt-5 flex w-full justify-end">
               <button
                 type="button"
-                onClick={() => nav('/calendar')}
+                onClick={() => nav(ROUTE_APP_CALENDAR)}
                 className={cn(
                   'inline-flex items-center gap-2.5 rounded-3xl border border-gold-300/45 px-4 py-2.5',
                   'text-[14px] font-semibold text-ink-950 shadow-luxury transition-[box-shadow,background-color] duration-200',
@@ -223,17 +229,17 @@ export function Today() {
               model={focus}
               compact={compact}
               onAction={(action) => {
-                if (action.kind === 'open_calendar') nav('/calendar')
+                if (action.kind === 'open_calendar') nav(ROUTE_APP_CALENDAR)
                 if (action.kind === 'open_reschedule') {
                   nav(
-                    `/reschedule?bookingId=${encodeURIComponent(action.bookingId)}&clientId=${encodeURIComponent(
+                    `${ROUTE_APP_RESCHEDULE}?bookingId=${encodeURIComponent(action.bookingId)}&clientId=${encodeURIComponent(
                       action.clientId,
                     )}&serviceId=${encodeURIComponent(action.serviceId)}&masterId=${encodeURIComponent(
                       action.masterId,
                     )}&date=${encodeURIComponent(action.dateISO)}&time=${encodeURIComponent(action.time)}`,
                   )
                 }
-                if (action.kind === 'open_message') nav('/clients')
+                if (action.kind === 'open_message') nav(ROUTE_APP_CLIENTS)
               }}
             />
           </div>
@@ -247,7 +253,7 @@ export function Today() {
           </div>
 
           <GlassCard
-            onClick={() => nav('/calendar/new')}
+            onClick={() => nav(ROUTE_APP_CALENDAR_NEW)}
             className={cn(cardPad)}
             style={{ minHeight: 158 }}
           >
@@ -286,7 +292,7 @@ export function Today() {
                 type="button"
                 onClick={() =>
                   nav(
-                    `/reschedule?bookingId=${encodeURIComponent(
+                    `${ROUTE_APP_RESCHEDULE}?bookingId=${encodeURIComponent(
                       nextBooking.id,
                     )}&clientId=${encodeURIComponent(
                       nextBooking.clientId,

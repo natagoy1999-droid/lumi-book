@@ -3,13 +3,29 @@ import type { ContextScenario } from '../state/sessionContinuity'
 
 import type { OperationalIntent, WorkflowIntentModel, WorkflowIntentScores } from './workflowIntent'
 
+import {
+  ROUTE_APP_CALENDAR_NEW,
+  ROUTE_APP_CLIENTS,
+  ROUTE_APP_RESCHEDULE,
+  isMasterCalendarPath,
+  isMasterClientsPath,
+  isMasterReschedulePath,
+  isMasterTodayPath,
+} from './appRoutes'
+
 function clamp(v: number, a: number, b: number) {
   return Math.max(a, Math.min(b, v))
 }
 
-function routeDensity(transitions: readonly RouteTransition[], prefix: string, windowMs: number): number {
+function routeDensityPrefixes(
+  transitions: readonly RouteTransition[],
+  prefixes: readonly string[],
+  windowMs: number,
+): number {
   const now = Date.now()
-  return transitions.filter((t) => now - t.ts <= windowMs && t.to.startsWith(prefix)).length
+  return transitions.filter(
+    (t) => now - t.ts <= windowMs && prefixes.some((p) => t.to.startsWith(p)),
+  ).length
 }
 
 /** Route repetition → stable scenario without forcing navigation */
@@ -87,23 +103,31 @@ export function deriveWorkflowIntent(input: WorkflowIntentInput): WorkflowIntent
 
   s.reschedule_ops +=
     clamp(input.reschedulePending / 5.5, 0, 1) * 0.46 +
-    (input.pathname.startsWith('/reschedule') ? 0.34 : 0) +
-    clamp(routeDensity(input.transitions, '/reschedule', 52 * 60_000) / 5, 0, 1) * 0.28
+    (isMasterReschedulePath(input.pathname) ? 0.34 : 0) +
+    clamp(
+      routeDensityPrefixes(input.transitions, [ROUTE_APP_RESCHEDULE, '/reschedule'], 52 * 60_000) / 5,
+      0,
+      1,
+    ) * 0.28
 
   s.pending_confirm_close +=
     clamp(input.pendingConfirm / 5.5, 0, 1) * 0.42 +
-    (input.pathname === '/today' && input.pendingConfirm > 0 ? 0.18 : 0) +
+    (isMasterTodayPath(input.pathname) && input.pendingConfirm > 0 ? 0.18 : 0) +
     clamp(input.remindersCount / 12, 0, 1) * 0.14
 
   const h = new Date().getHours()
   s.schedule_tomorrow +=
-    (input.pathname.startsWith('/calendar') ? 0.26 : 0) +
+    (isMasterCalendarPath(input.pathname) ? 0.26 : 0) +
     clamp(input.tomorrowBookingCount / 9, 0, 1) * 0.22 +
-    (h >= 16 && h <= 22 && input.pathname.startsWith('/calendar') ? 0.12 : 0)
+    (h >= 16 && h <= 22 && isMasterCalendarPath(input.pathname) ? 0.12 : 0)
 
-  const clientsHits = routeDensity(input.transitions, '/clients', 3 * 60 * 60_000)
+  const clientsHits = routeDensityPrefixes(
+    input.transitions,
+    [ROUTE_APP_CLIENTS, '/clients'],
+    3 * 60 * 60_000,
+  )
   s.clients_deep +=
-    (input.pathname.startsWith('/clients') ? 0.44 : 0) +
+    (isMasterClientsPath(input.pathname) ? 0.44 : 0) +
     clamp(clientsHits / 5, 0, 1) * 0.32
 
   s.followup_compose +=
@@ -113,8 +137,12 @@ export function deriveWorkflowIntent(input: WorkflowIntentInput): WorkflowIntent
 
   s.slot_seek +=
     (input.pathname.includes('/calendar/new') ? 0.46 : 0) +
-    (input.pathname.startsWith('/calendar') ? 0.14 : 0) +
-    clamp(routeDensity(input.transitions, '/calendar/new', 70 * 60_000) / 4, 0, 1) * 0.26
+    (isMasterCalendarPath(input.pathname) ? 0.14 : 0) +
+    clamp(
+      routeDensityPrefixes(input.transitions, [ROUTE_APP_CALENDAR_NEW, '/calendar/new'], 70 * 60_000) / 4,
+      0,
+      1,
+    ) * 0.26
 
   s.neutral += clamp(input.navBurst / 8.5, 0, 1) * 0.38
 
