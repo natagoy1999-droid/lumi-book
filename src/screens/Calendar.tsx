@@ -1,11 +1,11 @@
 import { motion } from 'framer-motion'
-import { Plus, Sparkles } from 'lucide-react'
+import { Sparkles } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { GlassCard } from '../components/GlassCard'
 import { cn } from '../lib/cn'
-import { LumiEmptyState } from '../components/ui/LumiEmptyState'
+import { LumiButton } from '../components/ui/LumiButton'
 import { useCognitiveUI } from '../state/cognitiveUI'
 import { todayISO, useStore } from '../state/store'
 
@@ -57,25 +57,9 @@ export function Calendar() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: 'spring', stiffness: 520, damping: 44 }}
-          className="mb-4 flex items-end justify-between"
+          className="mb-4"
         >
-          <div>
-            <div className="text-[12px] font-medium tracking-tightish text-ink-700/70">
-              Календарь
-            </div>
-            <div className="mt-1 text-[32px] font-semibold tracking-tightish text-ink-950">
-              {master.name}
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => nav('/calendar/new')}
-            className="inline-flex items-center gap-2 rounded-2xl bg-ink-950 px-4 py-3 text-[13px] font-medium text-paper-50 shadow-glowGold"
-          >
-            <Plus size={18} />
-            Запись
-          </button>
+          <div className="lumi-section-title">Календарь</div>
         </motion.div>
 
         <div
@@ -88,10 +72,7 @@ export function Calendar() {
               <button
                 key={d}
                 type="button"
-                onClick={() => {
-                  setDateISO(d)
-                  nav(`/calendar/new?date=${encodeURIComponent(d)}`, { replace: true })
-                }}
+                onClick={() => setDateISO(d)}
                 className={cn(
                   'min-w-[64px] rounded-3xl border px-3 py-3 text-left shadow-soft transition',
                   'backdrop-blur-glass',
@@ -167,15 +148,24 @@ export function Calendar() {
                 ))}
               </div>
             ) : (
-              <div className="mt-3">
-                <LumiEmptyState
-                  title="Сегодня спокойно — записей пока нет."
-                  desc="Можно добавить запись вручную или оставить день свободным."
-                  actionLabel="Создать запись"
-                  onAction={() => nav('/calendar/new')}
-                />
+              <div className="mt-4 rounded-3xl border border-white/55 bg-white/45 px-4 py-4 text-[13px] leading-relaxed text-ink-700/70 shadow-soft">
+                <div className="font-semibold tracking-tight text-ink-950">Свободный день</div>
+                <div className="mt-1 text-[13px] leading-relaxed text-ink-700/65">
+                  Записей на эту дату пока нет — можно добавить или оставить окна свободными.
+                </div>
               </div>
             )}
+
+            <div className="mt-5">
+              <LumiButton
+                type="button"
+                onClick={() =>
+                  nav(`/calendar/new?date=${encodeURIComponent(dateISO)}`)
+                }
+              >
+                Создать запись
+              </LumiButton>
+            </div>
           </GlassCard>
         </div>
       </div>

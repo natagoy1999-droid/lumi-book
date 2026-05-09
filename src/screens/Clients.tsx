@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { Plus, Sparkles, Search, Trash2, Users } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { GlassCard } from '../components/GlassCard'
 import { cn } from '../lib/cn'
@@ -43,7 +43,13 @@ export function Clients() {
   const [draft, setDraft] = useState<Client | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
 
-  const openNew = () => {
+  const closeModal = useCallback(() => {
+    setOpenEdit(false)
+    setDraft(null)
+    setSaveError(null)
+  }, [])
+
+  const handleAddClient = useCallback(() => {
     setSaveError(null)
     setDraft({
       id: `c_${Math.random().toString(16).slice(2)}_${Date.now().toString(16)}`,
@@ -54,17 +60,28 @@ export function Clients() {
       visits: 0,
     })
     setOpenEdit(true)
-  }
+  }, [])
 
-  const closeModal = () => {
-    setOpenEdit(false)
-    setDraft(null)
+  const handleEditClient = useCallback((c: Client) => {
     setSaveError(null)
-  }
+    setDraft({
+      id: c.id,
+      name: c.name ?? '',
+      phone: c.phone ?? '',
+      notes: c.notes ?? '',
+      totalSpent: c.totalSpent ?? 0,
+      visits: c.visits ?? 0,
+    })
+    setOpenEdit(true)
+  }, [])
 
-  const isExistingClient = Boolean(
-    draft && state.clients.some((c) => c.id === draft.id),
+  const draftId = draft?.id
+  const isExistingClient = useMemo(
+    () => (draftId ? state.clients.some((c) => c.id === draftId) : false),
+    [draftId, state.clients],
   )
+
+  const modalOpen = openEdit && Boolean(draft)
 
   const list = useMemo(() => {
     const t = q.trim().toLowerCase()
@@ -107,7 +124,7 @@ export function Clients() {
             />
             <button
               type="button"
-              onClick={openNew}
+              onClick={handleAddClient}
               className={cn(
                 'inline-flex h-10 items-center gap-2 !rounded-2xl px-4 text-[14px]',
                 lumiPrimaryActionSm,
@@ -159,18 +176,7 @@ export function Clients() {
                     style={{
                       opacity: `calc(0.94 + var(--client-card-calm, 0.48) * 0.06 * ${card.calm.toFixed(3)})`,
                     }}
-                    onClick={() => {
-                      setSaveError(null)
-                      setDraft({
-                        id: c.id,
-                        name: c.name ?? '',
-                        phone: c.phone ?? '',
-                        notes: c.notes ?? '',
-                        totalSpent: c.totalSpent ?? 0,
-                        visits: c.visits ?? 0,
-                      })
-                      setOpenEdit(true)
-                    }}
+                    onClick={() => handleEditClient(c)}
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div>
@@ -225,14 +231,14 @@ export function Clients() {
               desc="Клиенты появятся автоматически после первых записей — без ручного ввода."
               icon={<Users size={18} className="text-gold-400" />}
               actionLabel="Добавить клиента"
-              onAction={openNew}
+              onAction={handleAddClient}
             />
           )}
         </motion.div>
       </div>
 
       <LumiModal
-        open={openEdit && draft != null}
+        open={modalOpen}
         title={
           isExistingClient
             ? (draft?.name ?? '').trim()

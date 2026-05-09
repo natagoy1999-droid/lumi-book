@@ -30,21 +30,22 @@ export function Sheet({
 }: Props) {
   const resolvedModalId = coerceModalId(modalId)
   const active = open && children != null
-  const modal = useModalManager()
   const centered = variant === 'center'
   const zBackdrop = z.backdrop
   const zModal = z.modal
 
+  // Do not depend on `useModalManager()` snapshot — it changes identity every store update and
+  // would re-run this effect, firing cleanup that closes the modal → infinite loop (React #185).
   useEffect(() => {
     if (!active) return
-    modal.open(modalId)
+    useModalManager.getState().open(resolvedModalId)
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     return () => {
       document.body.style.overflow = prev
       if (useModalManager.getState().active === resolvedModalId) useModalManager.getState().close()
     }
-  }, [active, modal, resolvedModalId])
+  }, [active, resolvedModalId])
   return (
     <AnimatePresence>
       {active ? (
