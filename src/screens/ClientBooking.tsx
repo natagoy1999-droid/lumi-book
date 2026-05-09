@@ -1,25 +1,20 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { Check, ChevronLeft } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { GlassCard } from '../components/GlassCard'
+import {
+  buildClientBookingDateList,
+  clampDateToClientBookingWindow,
+  isISOInClientBookingWindow,
+} from '../lib/clientBookingDateWindow'
 import { cn } from '../lib/cn'
 import { LumiButton } from '../components/ui/LumiButton'
 import { LumiInput } from '../components/ui/LumiInput'
 import { todayISO, useStore, type Client, type Master, type Service } from '../state/store'
 
 type Step = 'service' | 'master' | 'date' | 'time' | 'client' | 'confirm' | 'success'
-
-function addDaysISO(iso: string, delta: number) {
-  const [y, m, d] = iso.split('-').map(Number)
-  const dt = new Date(y, m - 1, d)
-  dt.setDate(dt.getDate() + delta)
-  const yy = dt.getFullYear()
-  const mm = String(dt.getMonth() + 1).padStart(2, '0')
-  const dd = String(dt.getDate()).padStart(2, '0')
-  return `${yy}-${mm}-${dd}`
-}
 
 function weekday(iso: string) {
   const [y, m, d] = iso.split('-').map(Number)
@@ -52,15 +47,23 @@ export function ClientBooking() {
 
   const [bookingId, setBookingId] = useState<string | null>(null)
 
-  const days = useMemo(
-    () => Array.from({ length: 10 }, (_, i) => addDaysISO(todayISO(), i)),
-    [],
-  )
+  const bookableDays = useMemo(() => buildClientBookingDateList(todayISO()), [])
 
   const slots = useMemo(() => {
     if (!master) return []
     return freeSlots(dateISO, master.id)
   }, [dateISO, freeSlots, master])
+
+  const hasAnySlotsInWindow = useMemo(() => {
+    if (!master) return false
+    return bookableDays.some((d) => freeSlots(d, master.id).length > 0)
+  }, [bookableDays, freeSlots, master])
+
+  useEffect(() => {
+    if ((step !== 'date' && step !== 'time') || !master) return
+    const t = todayISO()
+    setDateISO((d) => clampDateToClientBookingWindow(d, t))
+  }, [step, master?.id])
 
   const goBack = () => {
     setStep((s) => {
@@ -228,37 +231,49 @@ export function ClientBooking() {
                   exit={{ opacity: 0, y: -6 }}
                   transition={{ duration: 0.28, ease: 'easeOut' }}
                 >
-                  <div className="flex gap-2 overflow-x-auto pb-1 [-webkit-overflow-scrolling:touch]">
-                    {days.map((d) => {
-                      const active = d === dateISO
-                      return (
-                        <button
-                          key={d}
-                          type="button"
-                          onClick={() => {
-                            setDateISO(d)
-                            setTime(null)
-                          }}
-                          className={cn(
-                            'min-w-[140px] rounded-3xl border px-4 py-4 text-left shadow-soft transition',
-                            active ? 'border-white/70 bg-white/75' : 'border-white/55 bg-white/55',
-                          )}
-                        >
-                          <div className="text-[12px] font-medium text-ink-700/65">{weekday(d)}</div>
-                          <div className="mt-1 text-[14px] font-semibold text-ink-950">
-                            {active ? 'Выбрано' : 'Выбрать'}
-                          </div>
-                        </button>
-                      )
-                    })}
-                  </div>
+                  {!hasAnySlotsInWindow ? (
+                    <p className="text-[13px] leading-relaxed text-ink-700/65">
+                      Свободных окон на ближайшие 30 дней пока нет.
+                    </p>
+                  ) : (
+                    <div className="flex gap-2 overflow-x-auto pb-1 [-webkit-overflow-scrolling:touch]">
+                      {bookableDays.map((d) => {
+                        const active = d === dateISO
+                        return (
+                          <button
+                            key={d}
+                            type="button"
+                            onClick={() => {
+                              setDateISO(d)
+                              setTime(null)
+                            }}
+                            className={cn(
+                              'min-w-[140px] rounded-3xl border px-4 py-4 text-left shadow-soft transition',
+                              active ? 'border-white/70 bg-white/75' : 'border-white/55 bg-white/55',
+                            )}
+                          >
+                            <div className="text-[12px] font-medium text-ink-700/65">{weekday(d)}</div>
+                            <div className="mt-1 text-[14px] font-semibold text-ink-950">
+                              {active ? 'Выбрано' : 'Выбрать'}
+                            </div>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
 
                   <motion.button
                     type="button"
+                    disabled={!hasAnySlotsInWindow || slots.length === 0}
                     whileTap={{ scale: 0.985 }}
                     transition={{ type: 'spring', stiffness: 600, damping: 40 }}
                     onClick={() => setStep('time')}
-                    className="mt-4 w-full rounded-3xl bg-ink-950 px-5 py-4 text-[15px] font-medium text-paper-50 shadow-glowGold"
+                    className={cn(
+                      'mt-4 w-full rounded-3xl px-5 py-4 text-[15px] font-medium shadow-glowGold',
+                      hasAnySlotsInWindow && slots.length > 0
+                        ? 'bg-ink-950 text-paper-50'
+                        : 'cursor-not-allowed bg-ink-950/40 text-paper-50/80',
+                    )}
                   >
                     Продолжить
                   </motion.button>
@@ -296,7 +311,9 @@ export function ClientBooking() {
                     </div>
                   ) : (
                     <div className="text-[13px] leading-6 text-ink-700/70">
-                      На выбранную дату свободных окон нет. Выберите другую дату.
+                      {!hasAnySlotsInWindow
+                        ? 'Свободных окон на ближайшие 30 дней пока нет.'
+                        : 'На выбранную дату свободных окон нет. Выберите другую дату.'}
                     </div>
                   )}
 
@@ -371,6 +388,8 @@ export function ClientBooking() {
                     transition={{ type: 'spring', stiffness: 600, damping: 40 }}
                     onClick={() => {
                       if (!service || !master || !time) return
+                      const t0 = todayISO()
+                      if (!isISOInClientBookingWindow(dateISO, t0)) return
                       const now = Date.now()
                       const cleanPhone = normalizePhone(phone)
                       const name = clientName.trim()

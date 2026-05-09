@@ -8,6 +8,11 @@ import { LumiInput } from '../components/ui/LumiInput'
 import { cn } from '../lib/cn'
 import { persistBookingForRemoteWorkspace, persistIntegratedBooking } from '../lib/publicBookingPersistence'
 import {
+  buildClientBookingDateList,
+  clampDateToClientBookingWindow,
+  isISOInClientBookingWindow,
+} from '../lib/clientBookingDateWindow'
+import {
   computeFreeSlots,
   fetchWorkspaceSnapshot,
   parseWorkspaceParam,
@@ -18,16 +23,6 @@ import { motion as motionTokens } from '../theme/motion'
 import { todayISO, useStore, type Booking, type Client, type Master, type Service } from '../state/store'
 
 type Step = 'master' | 'service' | 'schedule' | 'guest' | 'done'
-
-function addDaysISO(iso: string, delta: number) {
-  const [y, m, d] = iso.split('-').map(Number)
-  const dt = new Date(y, m - 1, d)
-  dt.setDate(dt.getDate() + delta)
-  const yy = dt.getFullYear()
-  const mm = String(dt.getMonth() + 1).padStart(2, '0')
-  const dd = String(dt.getDate()).padStart(2, '0')
-  return `${yy}-${mm}-${dd}`
-}
 
 function weekdayShort(iso: string) {
   const [y, m, d] = iso.split('-').map(Number)
@@ -163,12 +158,26 @@ export function PublicBooking() {
     summaryLine: string
   } | null>(null)
 
-  const days = useMemo(() => Array.from({ length: 10 }, (_, i) => addDaysISO(todayISO(), i)), [])
+  const bookableDays = useMemo(() => buildClientBookingDateList(todayISO()), [])
 
   const slots = useMemo(() => {
     if (!master) return []
     return useIntegrated ? freeSlots(dateISO, master.id) : computeFreeSlots(dateISO, master.id, bookings)
   }, [bookings, dateISO, freeSlots, master, useIntegrated])
+
+  const hasAnySlotsInWindow = useMemo(() => {
+    if (!master) return false
+    return bookableDays.some((d) => {
+      const s = useIntegrated ? freeSlots(d, master.id) : computeFreeSlots(d, master.id, bookings)
+      return s.length > 0
+    })
+  }, [bookableDays, bookings, freeSlots, master, useIntegrated])
+
+  useEffect(() => {
+    if (step !== 'schedule' || !master) return
+    const t = todayISO()
+    setDateISO((d) => clampDateToClientBookingWindow(d, t))
+  }, [step, master?.id])
 
   const ownerUserIdForPersist = authUserId ?? ownerFromUrl ?? undefined
 
@@ -355,81 +364,89 @@ export function PublicBooking() {
                     Дата и время
                   </h1>
 
-                  <div className="flex gap-2.5 overflow-x-auto pb-1 [-webkit-overflow-scrolling:touch]">
-                    {days.map((d) => {
-                      const active = d === dateISO
-                      return (
-                        <button
-                          key={d}
-                          type="button"
-                          onClick={() => {
-                            setDateISO(d)
-                            setTime(null)
-                          }}
-                          className={cn(
-                            'min-h-[54px] min-w-[136px] shrink-0 touch-manipulation rounded-[20px] border px-4 py-3 text-left transition-all duration-200',
-                            active
-                              ? 'border-gold-300/50 bg-white/80 shadow-soft'
-                              : 'border-white/50 bg-white/48 shadow-soft hover:bg-white/58',
-                            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200/45 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7EF]',
-                            'active:scale-[var(--press-scale,0.992)]',
-                          )}
-                        >
-                          <div className="text-[11px] font-medium uppercase tracking-wide text-ink-700/55">
-                            {weekdayShort(d)}
-                          </div>
-                          <div className="mt-1 text-[14px] font-semibold text-ink-950">
-                            {active ? 'Выбрано' : 'Выбрать'}
-                          </div>
-                        </button>
-                      )
-                    })}
-                  </div>
+                  {!hasAnySlotsInWindow ? (
+                    <p className="text-[13px] leading-relaxed text-ink-700/65">
+                      Свободных окон на ближайшие 30 дней пока нет.
+                    </p>
+                  ) : (
+                    <>
+                      <div className="flex gap-2.5 overflow-x-auto pb-1 [-webkit-overflow-scrolling:touch]">
+                        {bookableDays.map((d) => {
+                          const active = d === dateISO
+                          return (
+                            <button
+                              key={d}
+                              type="button"
+                              onClick={() => {
+                                setDateISO(d)
+                                setTime(null)
+                              }}
+                              className={cn(
+                                'min-h-[54px] min-w-[136px] shrink-0 touch-manipulation rounded-[20px] border px-4 py-3 text-left transition-all duration-200',
+                                active
+                                  ? 'border-gold-300/50 bg-white/80 shadow-soft'
+                                  : 'border-white/50 bg-white/48 shadow-soft hover:bg-white/58',
+                                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200/45 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7EF]',
+                                'active:scale-[var(--press-scale,0.992)]',
+                              )}
+                            >
+                              <div className="text-[11px] font-medium uppercase tracking-wide text-ink-700/55">
+                                {weekdayShort(d)}
+                              </div>
+                              <div className="mt-1 text-[14px] font-semibold text-ink-950">
+                                {active ? 'Выбрано' : 'Выбрать'}
+                              </div>
+                            </button>
+                          )
+                        })}
+                      </div>
 
-                  <div>
-                    <div className="text-[12px] font-medium tracking-tight text-ink-700/55">
-                      Свободные окна
-                    </div>
-                    {slots.length ? (
-                      <LayoutGroup id={`slots-${dateISO}-${master?.id ?? ''}`}>
-                        <div className="mt-4 flex flex-wrap gap-2.5">
-                          <AnimatePresence mode="popLayout">
-                            {slots.map((t) => {
-                              const active = time === t
-                              return (
-                                <motion.button
-                                  key={t}
-                                  layout
-                                  type="button"
-                                  initial={{ opacity: 0, scale: 0.94 }}
-                                  animate={{ opacity: 1, scale: 1 }}
-                                  exit={{ opacity: 0, scale: 0.9 }}
-                                  transition={slotTransition}
-                                  whileTap={{ scale: active ? 0.98 : 0.96 }}
-                                  onClick={() => setTime(t)}
-                                  className={cn(
-                                    'min-h-[48px] min-w-[78px] touch-manipulation rounded-full px-4 text-[14px] font-semibold tracking-tight transition-colors duration-200',
-                                    active
-                                      ? 'bg-ink-950 text-paper-50 shadow-[0_10px_32px_rgba(26,24,20,0.12)] ring-2 ring-gold-300/42 ring-offset-2 ring-offset-[#FAF7EF]/90'
-                                      : 'border border-white/55 bg-white/54 text-ink-950 shadow-soft hover:bg-white/72',
-                                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200/45 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7EF]',
-                                  )}
-                                >
-                                  {t}
-                                </motion.button>
-                              )
-                            })}
-                          </AnimatePresence>
+                      <div>
+                        <div className="text-[12px] font-medium tracking-tight text-ink-700/55">
+                          Свободные окна
                         </div>
-                      </LayoutGroup>
-                    ) : (
-                      <p className="mt-3 text-[13px] leading-relaxed text-ink-700/65">
-                        На этот день свободных окон пока нет.
-                      </p>
-                    )}
-                  </div>
+                        {slots.length ? (
+                          <LayoutGroup id={`slots-${dateISO}-${master?.id ?? ''}`}>
+                            <div className="mt-4 flex flex-wrap gap-2.5">
+                              <AnimatePresence mode="popLayout">
+                                {slots.map((t) => {
+                                  const active = time === t
+                                  return (
+                                    <motion.button
+                                      key={t}
+                                      layout
+                                      type="button"
+                                      initial={{ opacity: 0, scale: 0.94 }}
+                                      animate={{ opacity: 1, scale: 1 }}
+                                      exit={{ opacity: 0, scale: 0.9 }}
+                                      transition={slotTransition}
+                                      whileTap={{ scale: active ? 0.98 : 0.96 }}
+                                      onClick={() => setTime(t)}
+                                      className={cn(
+                                        'min-h-[48px] min-w-[78px] touch-manipulation rounded-full px-4 text-[14px] font-semibold tracking-tight transition-colors duration-200',
+                                        active
+                                          ? 'bg-ink-950 text-paper-50 shadow-[0_10px_32px_rgba(26,24,20,0.12)] ring-2 ring-gold-300/42 ring-offset-2 ring-offset-[#FAF7EF]/90'
+                                          : 'border border-white/55 bg-white/54 text-ink-950 shadow-soft hover:bg-white/72',
+                                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200/45 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7EF]',
+                                      )}
+                                    >
+                                      {t}
+                                    </motion.button>
+                                  )
+                                })}
+                              </AnimatePresence>
+                            </div>
+                          </LayoutGroup>
+                        ) : (
+                          <p className="mt-3 text-[13px] leading-relaxed text-ink-700/65">
+                            На этот день свободных окон пока нет.
+                          </p>
+                        )}
+                      </div>
+                    </>
+                  )}
 
-                  <LumiButton disabled={!time} onClick={() => setStep('guest')}>
+                  <LumiButton disabled={!time || !hasAnySlotsInWindow} onClick={() => setStep('guest')}>
                     Дальше
                   </LumiButton>
                 </motion.div>
@@ -466,6 +483,8 @@ export function PublicBooking() {
                     disabled={!canGuest || !master || !service || !time}
                     onClick={() => {
                       if (!master || !service || !time) return
+                      const t0 = todayISO()
+                      if (!isISOInClientBookingWindow(dateISO, t0)) return
                       const now = Date.now()
                       const cleanPhone = normalizePhone(phone)
                       const name = clientName.trim()
