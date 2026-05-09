@@ -26,17 +26,17 @@ export function MiniWidgets({
     <div
       className="grid grid-cols-2"
       style={{
-        gap: 16,
+        gap: 18,
       }}
     >
       <Widget
-        icon={<History size={16} className="text-gold-400" />}
+        icon={<History size={17} className="text-gold-400" strokeWidth={1.75} />}
         label="Ближайшая"
         value={widgets.nextTime ?? '—'}
         compact={compact}
       />
       <Widget
-        icon={<Gauge size={16} className="text-gold-400" />}
+        icon={<Gauge size={17} className="text-gold-400" strokeWidth={1.75} />}
         label="Нагрузка"
         value={widgets.loadLevel === 'high' ? 'Высокая' : widgets.loadLevel === 'medium' ? 'Средняя' : 'Низкая'}
         compact={compact}
@@ -51,7 +51,7 @@ export function MiniWidgets({
       />
       {hideRecovery ? null : (
         <Widget
-          icon={<Sparkles size={16} className="text-gold-400" />}
+          icon={<Sparkles size={17} className="text-gold-400" strokeWidth={1.75} />}
           label="Возврат"
           value={widgets.recoveryCount ? `${widgets.recoveryCount} клиента` : 'Спокойно'}
           compact={compact}
@@ -79,34 +79,41 @@ function Widget({
   return (
     <div
       className={cn(
-        'rounded-3xl border px-4 py-3 shadow-soft',
-        'ring-1 ring-black/5',
-        compact && 'px-3 py-2',
+        'rounded-3xl border px-4 py-3.5 shadow-luxury',
+        compact && 'px-3 py-2.5',
         colSpanFull && 'col-span-2',
         rebalanceFill && (compact ? 'min-h-[80px]' : 'min-h-[92px]'),
       )}
       style={{
-        backgroundColor: '#FFFDF8',
-        borderColor: 'rgba(20,20,20,0.08)',
+        backgroundColor: 'var(--lumi-surface)',
+        borderColor: 'var(--lumi-border)',
         paddingBlock: rebalanceFill
           ? 'calc(0.85rem + (1 - var(--layout-balance, 0.26)) * 0.35rem)'
           : undefined,
       }}
     >
-      <div className="flex items-center justify-between">
-        <div className="inline-flex items-center gap-2 text-[12px] font-medium text-ink-700/70">
+      <div className="flex gap-3">
+        <div
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border shadow-soft"
+          style={{
+            borderColor: 'var(--lumi-border)',
+            backgroundColor: 'var(--lumi-bg)',
+          }}
+        >
           {icon}
-          {label}
         </div>
-      </div>
-      <div
-        className={cn(
-          'mt-2 text-[16px] font-semibold tracking-tightish text-ink-950',
-          compact && 'mt-1 text-[14px]',
-          rebalanceFill && !compact && 'text-[17px]',
-        )}
-      >
-        {value}
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-[13px] font-semibold text-ink-700/78">{label}</div>
+          <div
+            className={cn(
+              'mt-1.5 text-[17px] font-semibold tracking-tight text-ink-950',
+              compact && 'text-[15px]',
+              rebalanceFill && !compact && 'text-[18px]',
+            )}
+          >
+            {value}
+          </div>
+        </div>
       </div>
     </div>
   )

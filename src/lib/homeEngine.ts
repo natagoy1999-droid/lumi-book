@@ -120,7 +120,7 @@ export function buildFocusCard(args: {
       badge: 'Окно',
       title: `Есть свободное окно ${premium}`,
       subtitle: 'Можно заполнить одним касанием',
-      cta: { label: 'Предложить', action: { kind: 'open_message', clientId: clients[0]?.id ?? 'c1' } },
+      cta: { label: 'Заполнить', action: { kind: 'open_message', clientId: clients[0]?.id ?? 'c1' } },
     }
   }
 

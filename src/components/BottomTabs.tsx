@@ -15,63 +15,62 @@ const tabs = [
 export function BottomTabs() {
   return (
     <nav
-      className={cn(
-        'fixed bottom-0',
-        'px-3 pb-[env(safe-area-inset-bottom)] pt-2',
-      )}
+      className="fixed bottom-0 left-1/2 flex w-full max-w-[520px] -translate-x-1/2 justify-center px-3 pb-[env(safe-area-inset-bottom)] pt-1"
       style={{
         zIndex: z.tabs,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        width: '100%',
-        maxWidth: 520,
-        backgroundColor: 'rgba(250, 247, 239, 0.94)',
-        borderTop: '1px solid rgba(198, 165, 106, 0.14)',
-        boxShadow:
-          '0 -12px 40px rgba(17, 17, 17, 0.08), 0 -1px 0 rgba(198, 165, 106, 0.1), inset 0 1px 0 rgba(255, 253, 248, 0.85)',
+        pointerEvents: 'none',
       }}
     >
-      <div className="mx-auto max-w-[520px]">
-        <div className="grid grid-cols-5 items-stretch">
-          {tabs.map(({ to, label, Icon }) => (
-            <NavLink
-              key={to}
-              to={to}
-              className={({ isActive }) =>
-                cn(
-                  'group flex flex-col items-center justify-center gap-1 px-1 py-3',
-                  'text-[13px] tracking-tightish transition-colors duration-200',
-                  isActive ? 'text-ink-950' : 'text-ink-700/52',
-                )
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  <div
-                    className={cn(
-                      'flex h-9 w-11 items-center justify-center rounded-2xl transition-[background-color,box-shadow,transform] duration-200 ease-out active:scale-[var(--press-scale,0.99)]',
-                      isActive
-                        ? 'bg-[#FFFCF8] shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_6px_20px_rgba(17,17,17,0.07)] ring-1 ring-gold-300/45'
-                        : 'bg-white/0 group-hover:bg-white/50',
-                    )}
-                  >
-                    <Icon
-                      size={21}
+      <div
+        className="pointer-events-auto w-full rounded-t-[26px] border border-b-0 pt-2 shadow-dock"
+        style={{
+          backgroundColor: 'var(--lumi-bg)',
+          borderColor: 'var(--lumi-border)',
+          boxShadow:
+            '0 -14px 42px rgba(23, 23, 23, 0.07), inset 0 1px 0 rgba(255, 253, 248, 0.95)',
+        }}
+      >
+        <div className="mx-auto max-w-[520px] px-1 pb-2">
+          <div className="grid grid-cols-5 items-stretch">
+            {tabs.map(({ to, label, Icon }) => (
+              <NavLink
+                key={to}
+                to={to}
+                className={({ isActive }) =>
+                  cn(
+                    'group flex flex-col items-center justify-center gap-1.5 px-1 py-2.5',
+                    'text-[14px] font-medium tracking-tight transition-colors duration-200',
+                    isActive ? 'text-ink-950' : 'text-ink-700/58',
+                  )
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    <div
                       className={cn(
-                        'transition-[color,transform,opacity] duration-200 ease-out',
-                        isActive ? 'text-ink-950' : 'text-ink-700/55',
+                        'flex h-10 w-12 items-center justify-center rounded-2xl transition-[background-color,box-shadow,transform,border-color] duration-200 ease-out active:scale-[var(--press-scale,0.99)]',
+                        isActive
+                          ? 'border border-gold-300/50 bg-[var(--lumi-surface)] shadow-[inset_0_1px_0_rgba(255,255,255,0.92),0_8px_22px_rgba(23,23,23,0.06)]'
+                          : 'border border-transparent bg-transparent group-hover:bg-white/50',
                       )}
-                      strokeWidth={1.8}
-                    />
-                  </div>
-                  <span className="leading-none">{label}</span>
-                </>
-              )}
-            </NavLink>
-          ))}
+                    >
+                      <Icon
+                        size={22}
+                        className={cn(
+                          'transition-[color,opacity] duration-200 ease-out',
+                          isActive ? 'text-gold-400' : 'text-ink-800/72',
+                        )}
+                        strokeWidth={1.85}
+                      />
+                    </div>
+                    <span className="leading-none">{label}</span>
+                  </>
+                )}
+              </NavLink>
+            ))}
+          </div>
         </div>
       </div>
     </nav>
   )
 }
-

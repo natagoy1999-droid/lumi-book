@@ -13,8 +13,8 @@ export default {
           700: '#4A433C',
         },
         paper: {
-          50: '#FFFDFB',
-          100: '#FBF7EF',
+          50: '#FFFDF8',
+          100: '#FBF6EC',
           200: '#F3EBDD',
         },
         milk: {
@@ -23,9 +23,9 @@ export default {
         },
         gold: {
           50: '#FCF9F3',
-          100: '#F0E6D4',
-          200: '#D9C49A',
-          300: '#C6A56A', // muted champagne gold
+          100: '#F5EBD4',
+          200: '#E8D4A7',
+          300: '#C6A15B', // muted champagne gold (logo-linked)
           400: '#A68954',
         },
         fog: {
@@ -40,11 +40,11 @@ export default {
         lift:
           '0 20px 48px rgba(17,17,17,0.12), 0 8px 22px rgba(17,17,17,0.08)',
         glowGold:
-          '0 0 0 1px rgba(198,165,106,0.28), 0 10px 36px rgba(198,165,106,0.11)',
+          '0 0 0 1px rgba(198,161,91,0.32), 0 12px 38px rgba(23,23,23,0.07), 0 4px 14px rgba(198,161,91,0.08)',
         luxury:
-          'inset 0 1px 0 rgba(255,255,255,0.92), 0 10px 32px rgba(17,17,17,0.07), 0 0 0 1px rgba(198,165,106,0.18)',
+          'inset 0 1px 0 rgba(255,255,255,0.95), 0 12px 36px rgba(23,23,23,0.06), 0 0 0 1px rgba(198,161,91,0.22)',
         'luxury-md':
-          'inset 0 1px 0 rgba(255,255,255,0.88), 0 14px 40px rgba(17,17,17,0.09), 0 0 0 1px rgba(198,165,106,0.24)',
+          'inset 0 1px 0 rgba(255,255,255,0.92), 0 18px 44px rgba(23,23,23,0.08), 0 0 0 1px rgba(198,161,91,0.28)',
         dock: '0 -12px 40px rgba(17,17,17,0.08), 0 -1px 0 rgba(198,165,106,0.12)',
         insetGlass: 'inset 0 1px 0 rgba(255,255,255,0.55)',
       },
@@ -57,10 +57,10 @@ export default {
         glass: '18px',
       },
       fontSize: {
-        xs: ['13px', { lineHeight: '18px' }],
+        xs: ['14px', { lineHeight: '20px' }],
         sm: ['15px', { lineHeight: '22px' }],
         base: ['17px', { lineHeight: '26px' }],
-        lg: ['18px', { lineHeight: '28px' }],
+        lg: ['19px', { lineHeight: '30px' }],
       },
       fontFamily: {
         sans: [

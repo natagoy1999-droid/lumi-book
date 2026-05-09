@@ -71,9 +71,9 @@ export function AppShell({
     <div
       className="mx-auto max-w-[520px]"
       style={{
-        background: '#FAF7EF',
+        background: 'transparent',
         ['--app-bottom-pad' as any]:
-          hideTabs ? '0px' : 'calc(120px + env(safe-area-inset-bottom))',
+          hideTabs ? '0px' : 'calc(116px + env(safe-area-inset-bottom))',
       }}
     >
       <AppBootOverlay active={!ready} />

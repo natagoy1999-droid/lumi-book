@@ -31,7 +31,7 @@ export function LumiModal({
       variant={variant}
       surface={surface}
       modalId={modalId}
-      className={className ?? (variant === 'center' ? 'rounded-[30px]' : undefined)}
+      className={className}
     >
       {children}
     </Sheet>

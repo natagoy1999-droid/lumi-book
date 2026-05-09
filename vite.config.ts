@@ -20,8 +20,8 @@ export default defineConfig({
         scope: '/',
         display: 'standalone',
         display_override: ['standalone', 'minimal-ui'],
-        background_color: '#FBF7EF',
-        theme_color: '#FBF7EF',
+        background_color: '#FBF6EC',
+        theme_color: '#FBF6EC',
         orientation: 'portrait',
         icons: [
           { src: '/lumi-icon.svg', sizes: 'any', type: 'image/svg+xml' },

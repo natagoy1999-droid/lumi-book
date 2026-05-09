@@ -8,11 +8,10 @@ export function glassBackdropFilter(_tier: MaterialTier): string {
 
 /** Unified frosted fill — alpha channel only (matches rgb white fog stack). */
 export function glassFill(tier: MaterialTier): string {
-  // Warm ivory surface (not transparent glass).
-  // Keep tiers slightly differentiated but always solid/clean.
-  if (tier === 'focus') return '#FFFDF8'
-  if (tier === 'ambient') return '#FAF7EF'
-  return 'rgba(255, 253, 248, 0.96)'
+  // Warm ivory surface — ties to global --lumi-surface / --lumi-bg.
+  if (tier === 'focus') return 'var(--lumi-surface)'
+  if (tier === 'ambient') return 'var(--lumi-bg)'
+  return 'color-mix(in srgb, var(--lumi-surface) 96%, white)'
 }
 
 export function glassBorderStyle(tier: MaterialTier): string {

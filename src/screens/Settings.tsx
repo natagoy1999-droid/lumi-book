@@ -172,7 +172,6 @@ function SettingsRow({ icon: Icon, title, subtitle, onClick }: SettingsRowProps)
 export function Settings() {
   const nav = useNavigate()
   const { state, dispatch } = useStore()
-  const startDemo = useDemoMode((s) => s.start)
   const authMode = useAuthStore((s) => s.mode)
   const authUser = useAuthStore((s) => s.user)
   const mastersCountHint = useMemo(() => `${state.masters.length} мастера`, [state.masters.length])
@@ -257,7 +256,7 @@ export function Settings() {
           transition={{ type: 'spring', stiffness: 520, damping: 44 }}
           className="mb-8"
         >
-          <div className="lumi-title text-[26px] font-semibold tracking-tight text-ink-950">Настройки</div>
+          <div className="lumi-title">Настройки</div>
           <p className="mt-2 max-w-[34ch] text-[14px] leading-relaxed text-ink-700/60">
             Управление аккаунтом и приложением.
           </p>
@@ -416,7 +415,7 @@ export function Settings() {
                     onClick={(e) => {
                       e.stopPropagation()
                       setActivePanel(null)
-                      startDemo()
+                      queueMicrotask(() => useDemoMode.getState().start())
                     }}
                   >
                     Открыть обзор

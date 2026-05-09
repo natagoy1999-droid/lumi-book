@@ -109,7 +109,7 @@ function useStepModel() {
           total,
           title: 'Демо',
           subtitle:
-            'Шаг недоступен. Откройте «Сегодня» или перезапустите демо из настроек.',
+            'Короткий обзор Lumi: запись, перенос, напоминания и спокойный ритм дня. Нажмите «Далее», чтобы продолжить.',
           route: '/today',
         }
     }
@@ -124,36 +124,19 @@ export function DemoWalkthrough() {
   const stop = useDemoMode((s) => s.stop)
   const step = useDemoMode((s) => s.step)
   const model = useStepModel()
-  const modal = useModalManager()
 
   const show = Boolean(active && model?.title && model?.subtitle)
 
   useEffect(() => {
     if (!show) return
-    modal.open('walkthrough')
+    useModalManager.getState().open('walkthrough')
     const prevOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     return () => {
       document.body.style.overflow = prevOverflow
       if (useModalManager.getState().active === 'walkthrough') useModalManager.getState().close()
     }
-  }, [modal, show])
-
-  // Sync: if another overlay steals modal manager while intro is visible, end demo.
-  // Must read getState() — `modal.active` from render is stale on the same tick as modal.open('walkthrough').
-  useEffect(() => {
-    if (!show) return
-    const id = useModalManager.getState().active
-    if (id !== 'walkthrough' && id !== 'none') stop()
-  }, [modal.active, show, stop])
-
-  useEffect(() => {
-    if (!active) return
-    if (!show) {
-      stop()
-      nav('/settings')
-    }
-  }, [active, nav, show, stop])
+  }, [show])
 
   useEffect(() => {
     if (!active) return
@@ -171,14 +154,26 @@ export function DemoWalkthrough() {
   return (
     <AnimatePresence>
       {show ? (
-        <>
+        <motion.div
+          key="demo-walkthrough-shell"
+          className="fixed inset-0 box-border flex items-center justify-center pointer-events-none"
+          style={{
+            zIndex: z.walkthroughModal,
+            padding: 24,
+            paddingTop: 'calc(24px + env(safe-area-inset-top))',
+            paddingBottom: 'calc(24px + env(safe-area-inset-bottom))',
+          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+        >
           <motion.button
             type="button"
             aria-label="Закрыть"
-            className="fixed inset-0 cursor-default"
+            className="pointer-events-auto absolute inset-0 cursor-default"
             style={{
               backgroundColor: 'rgba(14, 16, 22, 0.28)',
-              zIndex: z.walkthroughBackdrop,
             }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -187,99 +182,90 @@ export function DemoWalkthrough() {
             onClick={() => stop()}
           />
 
-          <div
-            className="fixed box-border"
+          <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="demo-walkthrough-title"
+            data-demo-walkthrough-modal="1"
+            className={cn(
+              'pointer-events-auto relative box-border flex max-h-[calc(100dvh-64px)] w-full flex-col overflow-hidden rounded-[28px]',
+              'border shadow-luxury-md',
+            )}
             style={{
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              width: 'calc(100% - 32px)',
-              maxWidth: 520,
-              maxHeight: 'calc(100dvh - 120px)',
-              zIndex: z.walkthroughModal,
+              width: 'min(520px, calc(100vw - 32px))',
+              maxHeight: 'calc(100dvh - 64px)',
+              backgroundColor: 'var(--lumi-surface)',
+              borderColor: 'var(--lumi-border)',
             }}
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            onClick={(e) => e.stopPropagation()}
           >
-            <motion.div
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="demo-walkthrough-title"
-              data-demo-walkthrough-modal="1"
-              className={cn(
-                'flex h-full max-h-[calc(100dvh-120px)] flex-col overflow-hidden rounded-[30px]',
-                'border border-white/60 shadow-lift ring-1 ring-black/5',
-              )}
-              style={{
-                backgroundColor: 'rgba(255, 253, 248, 0.98)',
-              }}
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.98 }}
-              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            <div
+              className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-6 pb-3"
+              style={{ WebkitOverflowScrolling: 'touch' }}
             >
-              <div
-                className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-3 pt-5"
-                style={{ WebkitOverflowScrolling: 'touch' }}
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0 flex-1">
-                    <div className="text-[12px] font-medium text-ink-700/70">
-                      Пошаговое демо • шаг {model.idx}/{model.total}
-                    </div>
-                    <div
-                      id="demo-walkthrough-title"
-                      className="mt-1 text-[16px] font-semibold tracking-tightish text-ink-950"
-                    >
-                      {model.title}
-                    </div>
-                    <div className="mt-2 text-[12px] leading-[1.55] text-ink-700/65">{model.subtitle}</div>
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0 flex-1">
+                  <div className="text-[12px] font-medium text-ink-700/70">
+                    Пошаговое демо • шаг {model.idx}/{model.total}
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => stop()}
-                    className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/60 bg-white/60 text-ink-950 shadow-soft"
+                  <div
+                    id="demo-walkthrough-title"
+                    className="mt-1 text-[16px] font-semibold tracking-tightish text-ink-950"
                   >
-                    <X size={16} />
-                  </button>
+                    {model.title}
+                  </div>
+                  <div className="mt-2 text-[12px] leading-[1.55] text-ink-700/65">{model.subtitle}</div>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => stop()}
+                  className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/60 bg-white/60 text-ink-950 shadow-soft"
+                >
+                  <X size={16} />
+                </button>
               </div>
+            </div>
 
-              <div className="shrink-0 border-t border-black/[0.06] px-5 pb-[calc(16px+env(safe-area-inset-bottom))] pt-4">
-                <div className="grid grid-cols-3 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => prev()}
-                    className="inline-flex items-center justify-center gap-2 rounded-3xl border border-white/60 bg-white/60 px-3 py-3.5 text-[13px] font-semibold text-ink-950 shadow-soft"
-                  >
-                    <ArrowLeft size={16} />
-                    Назад
-                  </button>
+            <div className="shrink-0 border-t border-black/[0.06] px-6 pb-[calc(16px+env(safe-area-inset-bottom))] pt-4">
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={() => prev()}
+                  className="inline-flex items-center justify-center gap-2 rounded-3xl border border-white/60 bg-white/60 px-3 py-3.5 text-[13px] font-semibold text-ink-950 shadow-soft"
+                >
+                  <ArrowLeft size={16} />
+                  Назад
+                </button>
 
-                  <motion.button
-                    type="button"
-                    whileTap={{ scale: 0.985 }}
-                    transition={{ type: 'spring', stiffness: 600, damping: 40 }}
-                    onClick={() => {
-                      if (model.route) nav(model.route)
-                      next()
-                    }}
-                    className="inline-flex items-center justify-center gap-2 rounded-3xl bg-ink-950 px-3 py-3.5 text-[13px] font-semibold text-paper-50 shadow-glowGold"
-                  >
-                    <ArrowRight size={18} />
-                    Далее
-                  </motion.button>
+                <motion.button
+                  type="button"
+                  whileTap={{ scale: 0.985 }}
+                  transition={{ type: 'spring', stiffness: 600, damping: 40 }}
+                  onClick={() => {
+                    if (model.route) nav(model.route)
+                    next()
+                  }}
+                  className="inline-flex items-center justify-center gap-2 rounded-3xl bg-ink-950 px-3 py-3.5 text-[13px] font-semibold text-paper-50 shadow-glowGold"
+                >
+                  <ArrowRight size={18} />
+                  Далее
+                </motion.button>
 
-                  <button
-                    type="button"
-                    onClick={() => stop()}
-                    className="rounded-3xl border border-white/60 bg-white/60 px-3 py-3.5 text-[13px] font-semibold text-ink-950 shadow-soft"
-                  >
-                    Закрыть
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => stop()}
+                  className="rounded-3xl border border-white/60 bg-white/60 px-3 py-3.5 text-[13px] font-semibold text-ink-950 shadow-soft"
+                >
+                  Закрыть
+                </button>
               </div>
-            </motion.div>
-          </div>
-        </>
+            </div>
+          </motion.div>
+        </motion.div>
       ) : null}
     </AnimatePresence>
   )

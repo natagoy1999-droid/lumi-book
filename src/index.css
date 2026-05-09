@@ -2,6 +2,14 @@
 
 :root {
   color-scheme: light;
+  /* LUMI BOOK luxury palette — warm ivory + champagne gold */
+  --lumi-bg: #fbf6ec;
+  --lumi-surface: #fffdf8;
+  --lumi-ink: #171717;
+  --lumi-muted: rgba(23, 23, 23, 0.58);
+  --lumi-gold: #c6a15b;
+  --lumi-gold-soft: #e8d4a7;
+  --lumi-border: rgba(198, 161, 91, 0.28);
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --glass-blur: 18px;
@@ -255,7 +263,10 @@ html,
 body,
 #root {
   min-height: 100%;
-  background: linear-gradient(180deg, #FFFDF8 0%, #FAF7EF 100%);
+  background-color: var(--lumi-bg);
+  background-image:
+    radial-gradient(ellipse 115% 72% at 50% -18%, rgba(232, 212, 167, 0.42) 0%, transparent 52%),
+    linear-gradient(180deg, var(--lumi-surface) 0%, var(--lumi-bg) 58%, var(--lumi-bg) 100%);
 }
 
 body {
@@ -264,10 +275,18 @@ body {
     "SF Pro Text", "Segoe UI", Inter, Roboto, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(180deg, #FFFDF8 0%, #FAF7EF 100%);
-  color: #1a1916;
-  font-size: 18px;
-  line-height: 1.5;
+  background-color: var(--lumi-bg);
+  background-image:
+    radial-gradient(ellipse 115% 72% at 50% -18%, rgba(232, 212, 167, 0.42) 0%, transparent 52%),
+    linear-gradient(180deg, var(--lumi-surface) 0%, var(--lumi-bg) 58%, var(--lumi-bg) 100%);
+  color: var(--lumi-ink);
+  font-size: 17px;
+  line-height: 1.55;
+}
+
+.lumi-page {
+  min-height: 100%;
+  color: var(--lumi-ink);
 }
 
 .app-preparing {
@@ -293,44 +312,44 @@ body {
 
 /* Typography primitives — plain CSS so tokens stay compatible with Tailwind @reference scopes */
 .lumi-caption {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   letter-spacing: -0.018em;
-  color: color-mix(in srgb, var(--color-ink-800, #2c2824) 78%, transparent);
+  color: color-mix(in srgb, var(--lumi-ink) 72%, transparent);
 }
 
 .lumi-secondary {
-  font-size: 13px;
-  line-height: 1.5;
-  letter-spacing: -0.01em;
-  color: color-mix(in srgb, var(--color-ink-700, #4a433c) 62%, transparent);
+  font-size: 14px;
+  line-height: 1.55;
+  letter-spacing: -0.012em;
+  color: var(--lumi-muted);
 }
 
 .lumi-section-title {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
-  letter-spacing: -0.018em;
-  color: color-mix(in srgb, var(--color-ink-800, #2c2824) 90%, transparent);
+  letter-spacing: -0.02em;
+  color: color-mix(in srgb, var(--lumi-ink) 78%, transparent);
 }
 
 .lumi-card-title {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 600;
-  letter-spacing: -0.02em;
-  color: var(--color-ink-950, #111111);
+  letter-spacing: -0.022em;
+  color: var(--lumi-ink);
 }
 
 .lumi-body {
   font-size: 17px;
   line-height: 1.65;
   letter-spacing: -0.012em;
-  color: color-mix(in srgb, var(--color-ink-900, #171717) 82%, transparent);
+  color: color-mix(in srgb, var(--lumi-ink) 88%, transparent);
 }
 
 .lumi-title {
-  font-size: 34px;
+  font-size: 36px;
   font-weight: 600;
-  letter-spacing: -0.028em;
-  color: var(--color-ink-950, #111111);
+  letter-spacing: -0.032em;
+  color: var(--lumi-ink);
 }
 

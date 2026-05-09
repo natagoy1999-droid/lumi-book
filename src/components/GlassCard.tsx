@@ -2,7 +2,7 @@ import type { CSSProperties, KeyboardEventHandler, PropsWithChildren } from 'rea
 
 import { cn } from '../lib/cn'
 import type { MaterialTier } from '../lib/glassStyles'
-import { glassBackdropFilter, glassBorderStyle, glassFill } from '../lib/glassStyles'
+import { glassBackdropFilter, glassFill } from '../lib/glassStyles'
 import { cinematicAmbientWash, cinematicHighlightOpacity, cinematicWashOpacity } from '../lib/cinematicGlass'
 
 type Props = PropsWithChildren<{
@@ -33,18 +33,17 @@ export function GlassCard({
       onClick={onClick}
       onKeyDown={onKeyDown}
       className={cn(
-        'relative overflow-hidden rounded-3xl border shadow-soft',
-        'ring-1 ring-black/[0.04] transition-[transform,background-color,border-color,box-shadow,opacity] duration-[240ms] ease-out',
-        ink ? 'bg-ink-900/70 text-white' : 'text-ink-900',
+        'relative overflow-hidden rounded-3xl border shadow-luxury',
+        'transition-[transform,background-color,border-color,box-shadow,opacity] duration-[240ms] ease-out',
+        ink ? 'bg-ink-900/70 text-white ring-1 ring-white/10' : 'text-ink-900 ring-1 ring-black/[0.03]',
         onClick &&
-          'touch-manipulation cursor-pointer select-none active:scale-[var(--press-scale,0.992)] active:opacity-[var(--press-opacity,0.94)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-300/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7EF]',
-        onClick &&
-          'hover:shadow-[0_14px_44px_rgba(17,17,17,0.08)] hover:ring-1 hover:ring-gold-300/22',
+          'touch-manipulation cursor-pointer select-none active:scale-[var(--press-scale,0.992)] active:opacity-[var(--press-opacity,0.94)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-300/45 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--lumi-bg)]',
+        onClick && 'hover:shadow-luxury-md hover:border-gold-300/40',
         className,
       )}
       style={{
         backdropFilter: glassBackdropFilter(ink ? 'interactive' : materialTier),
-        borderColor: ink ? 'rgba(255,255,255,0.10)' : glassBorderStyle(materialTier),
+        borderColor: ink ? 'rgba(255,255,255,0.10)' : 'var(--lumi-border)',
         backgroundColor: ink ? undefined : glassFill(materialTier),
         ...styleProp,
       }}

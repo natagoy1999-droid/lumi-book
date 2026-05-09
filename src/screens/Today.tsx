@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { ArrowRight, CalendarDays, Sparkles } from 'lucide-react'
+import { ArrowRight, CalendarDays, Sparkles, Wallet } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -11,7 +11,6 @@ import { SmartReminders } from '../components/SmartReminders'
 import { FocusCard } from '../components/FocusCard'
 import { MiniWidgets } from '../components/MiniWidgets'
 import { cn } from '../lib/cn'
-import { glassBackdropFilter, glassBorderStyle, glassFill } from '../lib/glassStyles'
 import { buildFocusCard, buildWidgets, computeHomeMode } from '../lib/homeEngine'
 import { kickMotionDecay } from '../lib/motionDecay'
 import { useMessaging } from '../state/messaging'
@@ -106,7 +105,7 @@ export function Today() {
   }, [sampleScrollTelemetry, setMaterialScrollY])
 
   const shellPadTop =
-    'calc(var(--safe-top, 0px) + 2.25rem * (0.94 + var(--global-rhythm, 1) * 0.06))'
+    'calc(var(--safe-top, 0px) + 2.75rem * (0.94 + var(--global-rhythm, 1) * 0.06))'
 
   return (
     <div
@@ -129,92 +128,104 @@ export function Today() {
           }}
           className="w-full"
           style={{
-            marginBottom: 'calc(var(--cognitive-inline-stack) * 2.06 * (1 - var(--global-focus-density, 0.35) * 0.12))',
+            marginBottom: 'calc(var(--cognitive-inline-stack) * 2.35 * (1 - var(--global-focus-density, 0.35) * 0.12))',
           }}
         >
           <div className="w-full">
-            <div
-              className="flex w-full items-center justify-center"
-              style={{ marginBottom: '20px' }}
-            >
+            <div className="flex w-full justify-center" style={{ marginBottom: '26px' }}>
               {logoOk ? (
                 <img
                   src="/lumi-logo-transparent.png"
                   alt="LUMI BOOK"
-                  className="h-auto object-contain"
-                  style={{ width: 180, maxWidth: '70vw' }}
+                  className="h-auto w-auto max-w-[78vw] object-contain"
+                  style={{ width: 'min(204px, 78vw)' }}
                   draggable={false}
                   onError={() => setLogoOk(false)}
                 />
               ) : (
-                <div className="text-[18px] font-semibold tracking-tightish text-ink-950">
-                  LUMI BOOK
-                </div>
+                <div className="text-[22px] font-semibold tracking-tightish text-ink-950">LUMI BOOK</div>
               )}
             </div>
 
             <div className="w-full text-center">
-              <div className="text-[34px] font-semibold tracking-tightish text-ink-950">
+              <div className="text-[36px] font-semibold leading-[1.08] tracking-tight text-ink-950">
                 Привет, {master.name}
               </div>
-              <div className="mt-2 text-[13px] font-medium tracking-tightish text-ink-700/65">
+              <div className="mx-auto mt-3 max-w-[28ch] text-[15px] font-medium leading-snug tracking-tight text-ink-700/72">
                 Сегодня • {dateLabel}
               </div>
             </div>
 
-            <div className="mt-4 flex w-full justify-end">
+            <div className="mt-5 flex w-full justify-end">
               <button
                 type="button"
                 onClick={() => nav('/calendar')}
                 className={cn(
-                  'inline-flex items-center gap-2 rounded-2xl border px-3 py-2',
-                  'text-[12px] font-medium text-ink-800/80 shadow-soft',
+                  'inline-flex items-center gap-2.5 rounded-3xl border border-gold-300/45 px-4 py-2.5',
+                  'text-[14px] font-semibold text-ink-950 shadow-luxury transition-[box-shadow,background-color] duration-200',
+                  'bg-[var(--lumi-surface)] hover:border-gold-300/60 hover:shadow-luxury-md',
                 )}
-                style={{
-                  alignSelf: 'flex-end',
-                  backdropFilter: glassBackdropFilter('interactive'),
-                  backgroundColor: glassFill('interactive'),
-                  borderColor: glassBorderStyle('interactive'),
-                }}
               >
-                <CalendarDays size={16} />
+                <CalendarDays size={18} strokeWidth={1.75} className="text-gold-400" />
                 Календарь
               </button>
             </div>
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-2" style={{ gap: '16px' }}>
-          <GlassCard className={cn(cardPad)} style={{ minHeight: 135 }}>
-            <div className="text-[12px] font-medium text-ink-700/70">
-              Записей сегодня
-            </div>
-            <div className="mt-2 text-[26px] font-semibold tracking-tightish text-ink-950">
-              {bookingsToday.length}
-            </div>
-            {cognitivePolicy.showAmbientHints ? (
-              <div className="mt-1 text-[12px] text-ink-700/60">
-                Всё под контролем
+        <div className="grid grid-cols-2" style={{ gap: '18px' }}>
+          <GlassCard className={cn(cardPad)} style={{ minHeight: 142 }}>
+            <div className="flex gap-3.5">
+              <div
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border shadow-soft"
+                style={{
+                  borderColor: 'var(--lumi-border)',
+                  backgroundColor: 'var(--lumi-surface)',
+                }}
+              >
+                <CalendarDays size={22} strokeWidth={1.65} className="text-gold-400" />
               </div>
-            ) : (
-              <div className="mt-1 text-[11px] text-ink-700/45">Лента дня</div>
-            )}
+              <div className="min-w-0 flex-1">
+                <div className="text-[13px] font-semibold text-ink-700/78">Записей сегодня</div>
+                <div className="mt-1.5 text-[28px] font-semibold leading-none tracking-tight text-ink-950">
+                  {bookingsToday.length}
+                </div>
+                {cognitivePolicy.showAmbientHints ? (
+                  <div className="mt-2 text-[13px] leading-snug text-ink-700/62">Всё под контролем</div>
+                ) : (
+                  <div className="mt-2 text-[12px] text-ink-700/48">Лента дня</div>
+                )}
+              </div>
+            </div>
           </GlassCard>
 
-          <GlassCard className={cn(cardPad)} style={{ minHeight: 135 }}>
-            <div className="text-[12px] font-medium text-ink-700/70">Доход</div>
-            <div className="mt-2 text-[26px] font-semibold tracking-tightish text-ink-950">
-              {money(income)} ₽
+          <GlassCard className={cn(cardPad)} style={{ minHeight: 142 }}>
+            <div className="flex gap-3.5">
+              <div
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border shadow-soft"
+                style={{
+                  borderColor: 'var(--lumi-border)',
+                  backgroundColor: 'var(--lumi-surface)',
+                }}
+              >
+                <Wallet size={22} strokeWidth={1.65} className="text-gold-400" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-[13px] font-semibold text-ink-700/78">Доход</div>
+                <div className="mt-1.5 text-[28px] font-semibold leading-none tracking-tight text-ink-950">
+                  {money(income)} ₽
+                </div>
+                {cognitivePolicy.showAmbientHints ? (
+                  <div className="mt-2 text-[13px] leading-snug text-ink-700/62">За день</div>
+                ) : (
+                  <div className="mt-2 text-[12px] text-ink-700/48">Сводка</div>
+                )}
+              </div>
             </div>
-            {cognitivePolicy.showAmbientHints ? (
-              <div className="mt-1 text-[12px] text-ink-700/60">За день</div>
-            ) : (
-              <div className="mt-1 text-[11px] text-ink-700/45">Сводка</div>
-            )}
           </GlassCard>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 16 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 18, marginTop: 18 }}>
           <div style={{ minHeight: 190 }}>
             <FocusCard
               model={focus}
@@ -246,27 +257,30 @@ export function Today() {
           <GlassCard
             onClick={() => nav('/calendar/new')}
             className={cn(cardPad)}
-            style={{ minHeight: 150 }}
+            style={{ minHeight: 158 }}
           >
             <div className="flex items-start justify-between gap-4">
-              <div>
-                <div className="inline-flex items-center gap-2 text-[12px] font-medium text-ink-700/70">
+              <div className="min-w-0">
+                <div className="inline-flex items-center gap-2 text-[13px] font-semibold text-ink-700/75">
                   {cognitivePolicy.showAmbientHints ? (
-                    <Sparkles size={16} className="text-gold-400" />
+                    <Sparkles size={17} className="text-gold-400" strokeWidth={1.75} />
                   ) : null}
                   Умная запись
                 </div>
-                <div className="mt-2 text-[16px] font-semibold tracking-tightish text-ink-950">
+                <div className="mt-2.5 text-[18px] font-semibold leading-snug tracking-tight text-ink-950">
                   Создать запись в одно касание
                 </div>
                 {cognitivePolicy.showAmbientHints ? (
-                  <div className="mt-1 text-[12px] leading-5 text-ink-700/65">
+                  <div className="mt-2 text-[14px] leading-relaxed text-[var(--lumi-muted)]">
                     Вы выбираете дату — Lumi сама покажет окна → услуги → готово.
                   </div>
                 ) : null}
               </div>
-              <div className="mt-1 flex h-10 w-10 items-center justify-center rounded-2xl bg-white/60 shadow-glowGold">
-                <ArrowRight size={18} className="text-ink-950" />
+              <div
+                className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border shadow-luxury"
+                style={{ borderColor: 'var(--lumi-border)', backgroundColor: 'var(--lumi-surface)' }}
+              >
+                <ArrowRight size={19} className="text-gold-400" strokeWidth={2} />
               </div>
             </div>
           </GlassCard>

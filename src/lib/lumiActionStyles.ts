@@ -7,7 +7,7 @@ export const lumiPrimaryActionBase = cn(
   'transition-[transform,background-color,border-color,box-shadow,opacity] duration-200 ease-out',
   'hover:border-gold-300/60 hover:bg-[#FFFCF9] hover:shadow-luxury-md',
   'active:bg-gold-50/70 active:border-gold-300/55',
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200/45 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7EF]',
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200/45 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--lumi-bg)]',
 )
 
 export const lumiPrimaryActionMd = cn(lumiPrimaryActionBase, 'px-5 py-4 text-[16px] font-semibold')

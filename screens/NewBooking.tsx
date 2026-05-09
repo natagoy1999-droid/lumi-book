@@ -86,12 +86,7 @@ export function NewBooking() {
             </button>
 
             <div className="text-right">
-              <div className="text-[12px] font-medium text-ink-700/70">
-                Новая запись
-              </div>
-              <div className="text-[14px] font-semibold tracking-tightish text-ink-950">
-                {master.name}
-              </div>
+              <div className="lumi-section-title">Новая запись</div>
             </div>
           </div>
 

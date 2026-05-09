@@ -14,32 +14,39 @@ export function FocusCard({
   compact?: boolean
   onAction: (action: NonNullable<FocusCardModel['cta']>['action']) => void
 }) {
-  const toneGlow =
-    model.tone === 'gold'
-      ? 'shadow-glowGold ring-1 ring-gold-200/60'
-      : 'shadow-lift ring-1 ring-black/5'
+  const isGoldHero = model.tone === 'gold'
 
   return (
     <GlassCard
       materialTier="focus"
       className={cn(
-        'min-h-[190px] p-5',
-        toneGlow,
-        compact && 'p-4',
+        'min-h-[190px] p-6 sm:p-6',
+        isGoldHero
+          ? 'border-2 shadow-luxury-md ring-2 ring-gold-300/35'
+          : 'shadow-luxury ring-1 ring-black/[0.04]',
+        compact && 'p-5',
       )}
     >
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 flex-1">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/55 bg-white/45 px-3 py-1 text-[12px] font-semibold text-ink-800/70 shadow-soft">
-            <Sparkles size={16} className="text-gold-400" />
+          <div
+            className={cn(
+              'inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[13px] font-semibold shadow-soft',
+              isGoldHero
+                ? 'border-gold-300/50 bg-gradient-to-b from-gold-50 to-paper-50 text-ink-900'
+                : 'border-white/60 bg-white/55 text-ink-800/85',
+            )}
+          >
+            <Sparkles size={17} className={cn(isGoldHero ? 'text-gold-300' : 'text-gold-400')} strokeWidth={1.75} />
             {model.badge ?? 'Focus'}
           </div>
 
-          <div className="mt-3">
+          <div className="mt-4">
             <div
               className={cn(
-                'text-[20px] font-semibold tracking-tightish text-ink-950',
-                compact && 'text-[18px]',
+                'font-semibold tracking-tightish text-ink-950',
+                isGoldHero ? 'text-[22px] leading-snug' : 'text-[20px]',
+                compact && (isGoldHero ? 'text-[20px]' : 'text-[18px]'),
               )}
             >
               {model.title}
@@ -47,8 +54,8 @@ export function FocusCard({
             {model.subtitle ? (
               <div
                 className={cn(
-                  'mt-1 text-[13px] leading-6 text-ink-700/65',
-                  compact && 'line-clamp-1 text-[12px] leading-5',
+                  'mt-2 leading-relaxed text-[var(--lumi-muted)]',
+                  compact ? 'line-clamp-2 text-[13px]' : 'text-[14px]',
                 )}
               >
                 {model.subtitle}
@@ -62,24 +69,24 @@ export function FocusCard({
             type="button"
             onClick={() => onAction(model.cta!.action as any)}
             className={cn(
-              'mt-1 inline-flex items-center gap-2 rounded-3xl bg-ink-950 px-4 py-3 text-[13px] font-semibold text-paper-50',
-              'shadow-glowGold',
-              compact && 'px-3 py-2 text-[12px]',
+              'inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-3xl border px-5 py-3.5 text-[14px] font-semibold text-ink-950 shadow-luxury transition-[transform,box-shadow] duration-200 sm:w-auto',
+              isGoldHero
+                ? 'border-gold-300/55 bg-gradient-to-b from-gold-100 via-gold-50 to-paper-50 hover:border-gold-300/70 hover:shadow-luxury-md'
+                : 'border-gold-300/45 bg-paper-50 hover:bg-[#FFFCF9] hover:shadow-luxury-md',
+              compact && 'px-4 py-3 text-[13px]',
             )}
           >
             {model.cta.label}
-            <ArrowRight size={16} className="text-gold-400" />
+            <ArrowRight size={17} className="text-gold-400" strokeWidth={2} />
           </button>
         ) : (
-          <div className="mt-1 h-10 w-10 rounded-2xl bg-white/55 shadow-soft" />
+          <div className="hidden h-11 w-11 shrink-0 rounded-2xl border border-[var(--lumi-border)] bg-[var(--lumi-surface)] shadow-soft sm:block" />
         )}
       </div>
     </GlassCard>
   )
 }
 
-// helper for optional subcontent later
 export function FocusCardSlot({ children }: { children: ReactNode }) {
   return <div className="mt-3">{children}</div>
 }
-
