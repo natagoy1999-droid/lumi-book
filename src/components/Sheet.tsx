@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 
 import { cn } from '../lib/cn'
 import { glassBackdropFilter, glassBorderStyle, glassFill } from '../lib/glassStyles'
-import { useModalManager, type ModalId } from '../state/modalManager'
+import { coerceModalId, useModalManager, type ModalId } from '../state/modalManager'
 import { z } from '../theme/elevation'
 import { motion as motionTokens } from '../theme/motion'
 
@@ -28,6 +28,7 @@ export function Sheet({
   surface = 'glass',
   modalId = 'settings',
 }: Props) {
+  const resolvedModalId = coerceModalId(modalId)
   const active = open && children != null
   const modal = useModalManager()
   const centered = variant === 'center'
@@ -41,9 +42,9 @@ export function Sheet({
     document.body.style.overflow = 'hidden'
     return () => {
       document.body.style.overflow = prev
-      if (useModalManager.getState().active === modalId) useModalManager.getState().close()
+      if (useModalManager.getState().active === resolvedModalId) useModalManager.getState().close()
     }
-  }, [active, modal, modalId])
+  }, [active, modal, resolvedModalId])
   return (
     <AnimatePresence>
       {active ? (

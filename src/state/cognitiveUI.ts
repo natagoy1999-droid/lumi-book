@@ -48,8 +48,20 @@ function loadPolicy(): CognitiveUIPolicy {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return defaultPolicy
-    const p = JSON.parse(raw) as Partial<PersistShape>
-    if (p.v !== 1 || !p.policy) return defaultPolicy
+    let parsed: unknown
+    try {
+      parsed = JSON.parse(raw)
+    } catch {
+      try {
+        localStorage.removeItem(STORAGE_KEY)
+      } catch {
+        /* ignore */
+      }
+      console.warn('[lumi] Removed corrupted cognitive UI blob:', STORAGE_KEY)
+      return defaultPolicy
+    }
+    const p = parsed as Partial<PersistShape>
+    if (p.v !== 1 || !p.policy || typeof p.policy !== 'object') return defaultPolicy
     return { ...defaultPolicy, ...p.policy }
   } catch {
     return defaultPolicy

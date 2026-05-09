@@ -36,9 +36,21 @@ function loadSent(): SentMessage[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return []
-    const p = JSON.parse(raw) as Partial<PersistShape>
+    let parsed: unknown
+    try {
+      parsed = JSON.parse(raw)
+    } catch {
+      try {
+        localStorage.removeItem(STORAGE_KEY)
+      } catch {
+        /* ignore */
+      }
+      console.warn('[lumi] Removed corrupted messages blob:', STORAGE_KEY)
+      return []
+    }
+    const p = parsed as Partial<PersistShape>
     if (p.v !== 1 || !Array.isArray(p.sent)) return []
-    return p.sent as SentMessage[]
+    return p.sent.filter(Boolean) as SentMessage[]
   } catch {
     return []
   }

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
 import { AppShell } from './components/AppShell'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import { applyMaterialFromStore } from './lib/globalMaterial'
 import { hydratePresenceMemory } from './lib/presenceMemory'
 import {
@@ -217,6 +218,7 @@ function Shell() {
       <AppShell
         screenContent={
           <AnimatePresence mode="wait" initial={false}>
+          <ErrorBoundary key={`${loc.pathname}${loc.search}`} layout="embedded">
           <Routes location={loc} key={loc.pathname + loc.search}>
           <Route
             path="/"
@@ -354,6 +356,7 @@ function Shell() {
           />
           <Route path="*" element={<Navigate to="/today" replace />} />
           </Routes>
+          </ErrorBoundary>
           </AnimatePresence>
         }
       />

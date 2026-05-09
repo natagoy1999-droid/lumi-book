@@ -223,115 +223,351 @@ function safeParse(raw: string): unknown {
   }
 }
 
+function tpl(v: unknown, fb: string) {
+  return typeof v === 'string' ? v : fb
+}
+
+function sanitizeMaster(x: unknown): Master | null {
+  if (!x || typeof x !== 'object') return null
+  const m = x as Partial<Master>
+  if (typeof m.id !== 'string' || !m.id.trim()) return null
+  if (typeof m.name !== 'string') return null
+  const color: Master['color'] = m.color === 'ink' ? 'ink' : 'gold'
+  return { id: m.id.trim(), name: m.name.trim() || 'Мастер', color }
+}
+
+function sanitizeMasters(raw: unknown): Master[] {
+  if (!Array.isArray(raw)) return initialState.masters.map((x) => ({ ...x }))
+  const out: Master[] = []
+  for (const item of raw) {
+    const m = sanitizeMaster(item)
+    if (m) out.push(m)
+  }
+  return out.length >= 1 ? out : initialState.masters.map((x) => ({ ...x }))
+}
+
+function sanitizeService(x: unknown): Service | null {
+  if (!x || typeof x !== 'object') return null
+  const s = x as Partial<Service>
+  if (typeof s.id !== 'string' || !s.id.trim()) return null
+  if (typeof s.name !== 'string') return null
+  const minutes =
+    typeof s.minutes === 'number' && Number.isFinite(s.minutes) ? Math.max(1, Math.round(s.minutes)) : 60
+  const price =
+    typeof s.price === 'number' && Number.isFinite(s.price) ? Math.max(0, Math.round(s.price)) : 0
+  return { id: s.id.trim(), name: s.name.trim() || 'Услуга', minutes, price }
+}
+
+function sanitizeServices(raw: unknown): Service[] {
+  if (!Array.isArray(raw)) return initialState.services.map((x) => ({ ...x }))
+  const out: Service[] = []
+  for (const item of raw) {
+    const s = sanitizeService(item)
+    if (s) out.push(s)
+  }
+  return out.length >= 1 ? out : initialState.services.map((x) => ({ ...x }))
+}
+
+function sanitizeClient(x: unknown): Client | null {
+  if (!x || typeof x !== 'object') return null
+  const c = x as Partial<Client>
+  if (typeof c.id !== 'string' || !c.id.trim()) return null
+  if (typeof c.name !== 'string') return null
+  if (typeof c.phone !== 'string') return null
+  const totalSpent =
+    typeof c.totalSpent === 'number' && Number.isFinite(c.totalSpent)
+      ? Math.max(0, Math.round(c.totalSpent))
+      : 0
+  const visits =
+    typeof c.visits === 'number' && Number.isFinite(c.visits) ? Math.max(0, Math.round(c.visits)) : 0
+  return {
+    id: c.id.trim(),
+    userId: typeof c.userId === 'string' ? c.userId : undefined,
+    name: c.name.trim() || 'Клиент',
+    phone: c.phone.trim() || '—',
+    notes: typeof c.notes === 'string' ? c.notes : undefined,
+    totalSpent,
+    visits,
+  }
+}
+
+function sanitizeClients(raw: unknown): Client[] {
+  if (!Array.isArray(raw)) return []
+  const out: Client[] = []
+  for (const item of raw) {
+    const c = sanitizeClient(item)
+    if (c) out.push(c)
+  }
+  return out
+}
+
+function isBookingStatus(x: unknown): x is BookingStatus {
+  return (
+    x === 'draft' ||
+    x === 'pending_confirm' ||
+    x === 'confirmed' ||
+    x === 'reschedule_pending' ||
+    x === 'cancelled' ||
+    x === 'followup_needed'
+  )
+}
+
+function sanitizeBooking(x: unknown): Booking | null {
+  if (!x || typeof x !== 'object') return null
+  const b = x as Partial<Booking>
+  if (typeof b.id !== 'string' || !b.id.trim()) return null
+  if (typeof b.clientId !== 'string') return null
+  if (typeof b.masterId !== 'string') return null
+  if (typeof b.serviceId !== 'string') return null
+  if (typeof b.dateISO !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(b.dateISO)) return null
+  if (typeof b.time !== 'string') return null
+  if (!isBookingStatus(b.status)) return null
+  const price =
+    typeof b.price === 'number' && Number.isFinite(b.price) ? Math.max(0, Math.round(b.price)) : 0
+  const createdAt =
+    typeof b.createdAt === 'number' && Number.isFinite(b.createdAt) ? b.createdAt : Date.now()
+
+  let reschedule: Booking['reschedule'] = undefined
+  const rs = b.reschedule
+  if (rs && typeof rs === 'object') {
+    const pr = rs as Partial<NonNullable<Booking['reschedule']>>
+    if (
+      typeof pr.proposedDateISO === 'string' &&
+      typeof pr.proposedTime === 'string' &&
+      typeof pr.proposedAt === 'number' &&
+      Number.isFinite(pr.proposedAt)
+    ) {
+      reschedule = {
+        proposedDateISO: pr.proposedDateISO,
+        proposedTime: pr.proposedTime,
+        proposedAt: pr.proposedAt,
+      }
+    }
+  }
+
+  return {
+    id: b.id.trim(),
+    userId: typeof b.userId === 'string' ? b.userId : undefined,
+    clientId: b.clientId,
+    masterId: b.masterId,
+    serviceId: b.serviceId,
+    clientName: typeof b.clientName === 'string' ? b.clientName : undefined,
+    clientPhone: typeof b.clientPhone === 'string' ? b.clientPhone : undefined,
+    masterName: typeof b.masterName === 'string' ? b.masterName : undefined,
+    serviceName: typeof b.serviceName === 'string' ? b.serviceName : undefined,
+    serviceMinutes:
+      typeof b.serviceMinutes === 'number' && Number.isFinite(b.serviceMinutes)
+        ? b.serviceMinutes
+        : undefined,
+    dateISO: b.dateISO,
+    time: b.time,
+    price,
+    status: b.status,
+    comment: typeof b.comment === 'string' ? b.comment : undefined,
+    createdAt,
+    lastNudgedAt:
+      typeof b.lastNudgedAt === 'number' && Number.isFinite(b.lastNudgedAt)
+        ? b.lastNudgedAt
+        : undefined,
+    reschedule,
+  }
+}
+
+function sanitizeBookings(raw: unknown): Booking[] {
+  if (!Array.isArray(raw)) return []
+  const out: Booking[] = []
+  for (const item of raw) {
+    const bk = sanitizeBooking(item)
+    if (bk) out.push(bk)
+  }
+  return out
+}
+
+function sanitizeEvent(x: unknown): EngagementEvent | null {
+  if (!x || typeof x !== 'object') return null
+  const e = x as Partial<EngagementEvent>
+  if (typeof e.id !== 'string' || !e.id.trim()) return null
+  if (typeof e.at !== 'number' || !Number.isFinite(e.at)) return null
+  if (e.type === 'booking_cancelled') {
+    if (
+      typeof e.bookingId !== 'string' ||
+      typeof e.clientId !== 'string' ||
+      typeof e.masterId !== 'string' ||
+      typeof e.serviceId !== 'string' ||
+      typeof e.dateISO !== 'string' ||
+      typeof e.time !== 'string'
+    )
+      return null
+    return {
+      id: e.id.trim(),
+      type: 'booking_cancelled',
+      at: e.at,
+      bookingId: e.bookingId,
+      clientId: e.clientId,
+      masterId: e.masterId,
+      serviceId: e.serviceId,
+      dateISO: e.dateISO,
+      time: e.time,
+    }
+  }
+  if (e.type === 'slot_freed') {
+    if (
+      typeof e.masterId !== 'string' ||
+      typeof e.dateISO !== 'string' ||
+      typeof e.time !== 'string'
+    )
+      return null
+    return {
+      id: e.id.trim(),
+      type: 'slot_freed',
+      at: e.at,
+      masterId: e.masterId,
+      dateISO: e.dateISO,
+      time: e.time,
+    }
+  }
+  return null
+}
+
+function sanitizeEvents(raw: unknown): EngagementEvent[] {
+  if (!Array.isArray(raw)) return []
+  const out: EngagementEvent[] = []
+  for (const item of raw) {
+    const ev = sanitizeEvent(item)
+    if (ev) out.push(ev)
+  }
+  return out
+}
+
+function sanitizeSettingsBlob(rawSettings: unknown, baseSettings: AppSettings): AppSettings {
+  if (!rawSettings || typeof rawSettings !== 'object') return baseSettings
+  const ss = rawSettings as Partial<AppSettings>
+  const hoursBeforeRaw = ss.reminders?.hoursBefore
+  const hoursBefore =
+    typeof hoursBeforeRaw === 'number' && Number.isFinite(hoursBeforeRaw)
+      ? Math.max(0, Math.round(hoursBeforeRaw))
+      : baseSettings.reminders.hoursBefore
+  const prepayRaw = ss.payments?.prepayAmount
+  const prepayAmount =
+    typeof prepayRaw === 'number' && Number.isFinite(prepayRaw)
+      ? Math.max(0, Math.round(prepayRaw))
+      : baseSettings.payments.prepayAmount
+
+  return {
+    workHours: {
+      start:
+        typeof ss.workHours?.start === 'string'
+          ? ss.workHours.start
+          : baseSettings.workHours.start,
+      end:
+        typeof ss.workHours?.end === 'string' ? ss.workHours.end : baseSettings.workHours.end,
+      weekendDays: Array.isArray(ss.workHours?.weekendDays)
+        ? ss.workHours!.weekendDays.filter((x) => Number.isFinite(x))
+        : baseSettings.workHours.weekendDays,
+    },
+    channels: {
+      sms: typeof ss.channels?.sms === 'boolean' ? ss.channels.sms : baseSettings.channels.sms,
+      whatsapp:
+        typeof ss.channels?.whatsapp === 'boolean'
+          ? ss.channels.whatsapp
+          : baseSettings.channels.whatsapp,
+      max: typeof ss.channels?.max === 'boolean' ? ss.channels.max : baseSettings.channels.max,
+      default:
+        ss.channels?.default === 'sms' ||
+        ss.channels?.default === 'whatsapp' ||
+        ss.channels?.default === 'max'
+          ? ss.channels!.default
+          : baseSettings.channels.default,
+    },
+    reminders: {
+      enabled:
+        typeof ss.reminders?.enabled === 'boolean'
+          ? ss.reminders.enabled
+          : baseSettings.reminders.enabled,
+      hoursBefore,
+      repeat:
+        typeof ss.reminders?.repeat === 'boolean'
+          ? ss.reminders.repeat
+          : baseSettings.reminders.repeat,
+    },
+    templates: {
+      confirm: tpl(ss.templates?.confirm, baseSettings.templates.confirm),
+      reschedule: tpl(ss.templates?.reschedule, baseSettings.templates.reschedule),
+      reminder: tpl(ss.templates?.reminder, baseSettings.templates.reminder),
+      followup: tpl(ss.templates?.followup, baseSettings.templates.followup),
+    },
+    payments: {
+      prepayEnabled:
+        typeof ss.payments?.prepayEnabled === 'boolean'
+          ? ss.payments.prepayEnabled
+          : baseSettings.payments.prepayEnabled,
+      prepayAmount,
+      paymentComment: tpl(ss.payments?.paymentComment, baseSettings.payments.paymentComment),
+    },
+  }
+}
+
+function sanitizeSubscription(rawSub: unknown, baseSub: SubscriptionState): SubscriptionState {
+  if (!rawSub || typeof rawSub !== 'object') return baseSub
+  const ss = rawSub as Partial<SubscriptionState>
+  const plan: SubscriptionPlan =
+    ss.plan === 'free' ||
+    ss.plan === 'start' ||
+    ss.plan === 'pro' ||
+    ss.plan === 'studio' ||
+    ss.plan === 'premium_ai'
+      ? ss.plan
+      : baseSub.plan
+  const status: SubscriptionStatus =
+    ss.status === 'trial' || ss.status === 'active' || ss.status === 'expired'
+      ? ss.status
+      : baseSub.status
+  const trialEndsAt =
+    ss.trialEndsAt == null
+      ? null
+      : typeof ss.trialEndsAt === 'number' && Number.isFinite(ss.trialEndsAt)
+        ? ss.trialEndsAt
+        : baseSub.trialEndsAt
+  const selectedAt =
+    ss.selectedAt == null
+      ? null
+      : typeof ss.selectedAt === 'number' && Number.isFinite(ss.selectedAt)
+        ? ss.selectedAt
+        : baseSub.selectedAt
+
+  const now = Date.now()
+  const ensuredTrialEndsAt = status === 'trial' ? now + TRIAL_DAYS * DAY_MS : trialEndsAt
+
+  return {
+    plan,
+    status,
+    trialEndsAt: ensuredTrialEndsAt,
+    selectedAt,
+  }
+}
+
+/** Merge persisted slices with defaults instead of discarding the whole blob when one array breaks. */
 function sanitizeState(input: unknown): State | null {
   if (!input || typeof input !== 'object') return null
   const s = (input as { state?: unknown }).state
   if (!s || typeof s !== 'object') return null
   const st = s as Partial<State>
 
-  const masters = Array.isArray(st.masters) ? (st.masters as Master[]) : null
-  const services = Array.isArray(st.services) ? (st.services as Service[]) : null
-  const clients = Array.isArray(st.clients) ? (st.clients as Client[]) : null
-  const bookings = Array.isArray(st.bookings) ? (st.bookings as Booking[]) : null
-  const events = Array.isArray(st.events) ? (st.events as EngagementEvent[]) : null
-  if (!masters || !services || !clients || !bookings || !events) return null
-
   const baseSettings = initialState.settings
   const rawSettings = (st as { settings?: unknown }).settings
-  const settings: AppSettings = (() => {
-    if (!rawSettings || typeof rawSettings !== 'object') return baseSettings
-    const ss = rawSettings as Partial<AppSettings>
-    return {
-      workHours: {
-        start: ss.workHours?.start ?? baseSettings.workHours.start,
-        end: ss.workHours?.end ?? baseSettings.workHours.end,
-        weekendDays: Array.isArray(ss.workHours?.weekendDays)
-          ? (ss.workHours!.weekendDays as number[]).filter((x) => Number.isFinite(x))
-          : baseSettings.workHours.weekendDays,
-      },
-      channels: {
-        sms: Boolean(ss.channels?.sms ?? baseSettings.channels.sms),
-        whatsapp: Boolean(ss.channels?.whatsapp ?? baseSettings.channels.whatsapp),
-        max: Boolean(ss.channels?.max ?? baseSettings.channels.max),
-        default:
-          ss.channels?.default === 'sms' ||
-          ss.channels?.default === 'whatsapp' ||
-          ss.channels?.default === 'max'
-            ? ss.channels.default
-            : baseSettings.channels.default,
-      },
-      reminders: {
-        enabled: Boolean(ss.reminders?.enabled ?? baseSettings.reminders.enabled),
-        hoursBefore: Number.isFinite(ss.reminders?.hoursBefore as any)
-          ? Math.max(0, Math.round(ss.reminders!.hoursBefore))
-          : baseSettings.reminders.hoursBefore,
-        repeat: Boolean(ss.reminders?.repeat ?? baseSettings.reminders.repeat),
-      },
-      templates: {
-        confirm: ss.templates?.confirm ?? baseSettings.templates.confirm,
-        reschedule: ss.templates?.reschedule ?? baseSettings.templates.reschedule,
-        reminder: ss.templates?.reminder ?? baseSettings.templates.reminder,
-        followup: ss.templates?.followup ?? baseSettings.templates.followup,
-      },
-      payments: {
-        prepayEnabled: Boolean(ss.payments?.prepayEnabled ?? baseSettings.payments.prepayEnabled),
-        prepayAmount: Number.isFinite(ss.payments?.prepayAmount as any)
-          ? Math.max(0, Math.round(ss.payments!.prepayAmount))
-          : baseSettings.payments.prepayAmount,
-        paymentComment: ss.payments?.paymentComment ?? baseSettings.payments.paymentComment,
-      },
-    }
-  })()
-
-  const baseSub = initialState.subscription
-  const rawSub = (st as { subscription?: unknown }).subscription
-  const subscription: SubscriptionState = (() => {
-    if (!rawSub || typeof rawSub !== 'object') return baseSub
-    const ss = rawSub as Partial<SubscriptionState>
-    const plan: SubscriptionPlan =
-      ss.plan === 'free' ||
-      ss.plan === 'start' ||
-      ss.plan === 'pro' ||
-      ss.plan === 'studio' ||
-      ss.plan === 'premium_ai'
-        ? ss.plan
-        : baseSub.plan
-    const status: SubscriptionStatus =
-      ss.status === 'trial' || ss.status === 'active' || ss.status === 'expired'
-        ? ss.status
-        : baseSub.status
-    const trialEndsAt =
-      ss.trialEndsAt == null
-        ? null
-        : Number.isFinite(ss.trialEndsAt as any)
-          ? Number(ss.trialEndsAt)
-          : baseSub.trialEndsAt
-    const selectedAt =
-      ss.selectedAt == null
-        ? null
-        : Number.isFinite(ss.selectedAt as any)
-          ? Number(ss.selectedAt)
-          : baseSub.selectedAt
-
-    const now = Date.now()
-    // Strict: trial is always 14 days from "now" while in trial.
-    const ensuredTrialEndsAt = status === 'trial' ? now + TRIAL_DAYS * DAY_MS : trialEndsAt
-
-    return {
-      plan,
-      status,
-      trialEndsAt: ensuredTrialEndsAt,
-      selectedAt,
-    }
-  })()
+  const settings = sanitizeSettingsBlob(rawSettings, baseSettings)
+  const subscription = sanitizeSubscription(
+    (st as { subscription?: unknown }).subscription,
+    initialState.subscription,
+  )
 
   return {
     onboardingDone: Boolean(st.onboardingDone),
-    masters,
-    services,
-    clients,
-    bookings,
-    events,
+    masters: sanitizeMasters(st.masters),
+    services: sanitizeServices(st.services),
+    clients: sanitizeClients(st.clients),
+    bookings: sanitizeBookings(st.bookings),
+    events: sanitizeEvents(st.events),
     settings,
     subscription,
   }
@@ -342,10 +578,20 @@ function loadPersistedState(): State | null {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return null
     const parsed = safeParse(raw)
+    if (parsed === null && raw.trim().length > 0) {
+      try {
+        localStorage.removeItem(STORAGE_KEY)
+      } catch {
+        /* ignore */
+      }
+      console.warn('[lumi] Removed corrupted localStorage JSON:', STORAGE_KEY)
+      return null
+    }
     const obj = parsed as Partial<PersistShape>
-    if (!obj || obj.v !== 1) return null
-    return sanitizeState(obj) ?? null
-  } catch {
+    if (!obj || typeof obj !== 'object' || obj.v !== 1) return null
+    return sanitizeState(obj)
+  } catch (e) {
+    console.error('[lumi] loadPersistedState failed', e)
     return null
   }
 }

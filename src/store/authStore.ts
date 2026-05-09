@@ -23,22 +23,31 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   bootstrap: async () => {
     set({ initializing: true })
-    const snap = await restoreSession()
-    set({ ...snap, initializing: false })
+    try {
+      const snap = await restoreSession()
+      set({ ...snap, initializing: false })
+    } catch (e) {
+      console.error('[auth] bootstrap restoreSession failed', e)
+      set({ mode: 'demo', user: null, session: null, initializing: false })
+    }
 
     // Listen only if Supabase is configured.
     if (!hasSupabaseEnv()) return
-    const unsub = onAuthStateChange((_event, session) => {
-      set({
-        mode: session?.user ? 'auth' : 'demo',
-        user: session?.user ?? null,
-        session: session ?? null,
+    try {
+      const unsub = onAuthStateChange((_event, session) => {
+        set({
+          mode: session?.user ? 'auth' : 'demo',
+          user: session?.user ?? null,
+          session: session ?? null,
+        })
       })
-    })
 
-    // Ensure unsubscribe on hot reload scenarios.
-    ;(window as any).__lumi_auth_unsub?.()
-    ;(window as any).__lumi_auth_unsub = unsub
+      // Ensure unsubscribe on hot reload scenarios.
+      ;(window as any).__lumi_auth_unsub?.()
+      ;(window as any).__lumi_auth_unsub = unsub
+    } catch (e) {
+      console.error('[auth] onAuthStateChange failed', e)
+    }
   },
 }))
 

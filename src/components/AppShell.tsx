@@ -3,6 +3,7 @@ import { MotionConfig } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
+import { ErrorBoundary } from './ErrorBoundary'
 import { AppBootOverlay } from './AppBootOverlay'
 import { BottomTabs } from './BottomTabs'
 import { DemoWalkthrough } from './DemoWalkthrough'
@@ -11,6 +12,29 @@ import { MessageComposerSheet } from './MessageComposerSheet'
 import { SplashScreen } from './SplashScreen'
 import { OfflineNotice } from './OfflineNotice'
 import { useAppHydration } from '../state/appHydration'
+import { useDemoMode } from '../state/demoMode'
+import { useMessaging } from '../state/messaging'
+
+function SafeMessageComposerSheet() {
+  const composer = useMessaging((s) => s.composer)
+  const k =
+    composer.open && 'draft' in composer && composer.draft ? composer.draft.id : 'closed'
+  return (
+    <ErrorBoundary key={k} layout="embedded" recoverSilently>
+      <MessageComposerSheet />
+    </ErrorBoundary>
+  )
+}
+
+function SafeDemoWalkthrough() {
+  const step = useDemoMode((s) => s.step)
+  const active = useDemoMode((s) => s.active)
+  return (
+    <ErrorBoundary key={`${active}_${step}`} layout="embedded" recoverSilently>
+      <DemoWalkthrough />
+    </ErrorBoundary>
+  )
+}
 
 export function AppShell({
   topArea,
@@ -71,8 +95,8 @@ export function AppShell({
           {/* Global built-in layers (kept isolated) */}
           {loc.pathname === '/today' ? <InstallPromptCard /> : null}
           {hideTabs ? null : <BottomTabs />}
-          <MessageComposerSheet />
-          <DemoWalkthrough />
+          <SafeMessageComposerSheet />
+          <SafeDemoWalkthrough />
         </MotionConfig>
       </div>
     </div>
