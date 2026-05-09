@@ -3,6 +3,7 @@ import { Check, ChevronLeft } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { BookingMonthCalendar } from '../components/BookingMonthCalendar'
 import { GlassCard } from '../components/GlassCard'
 import {
   buildClientBookingDateList,
@@ -15,12 +16,6 @@ import { LumiInput } from '../components/ui/LumiInput'
 import { todayISO, useStore, type Client, type Master, type Service } from '../state/store'
 
 type Step = 'service' | 'master' | 'date' | 'time' | 'client' | 'confirm' | 'success'
-
-function weekday(iso: string) {
-  const [y, m, d] = iso.split('-').map(Number)
-  const dt = new Date(y, m - 1, d)
-  return dt.toLocaleDateString('ru-RU', { weekday: 'short', day: '2-digit', month: 'short' })
-}
 
 function uid(prefix: string) {
   return `${prefix}_${Math.random().toString(16).slice(2)}_${Date.now().toString(16)}`
@@ -236,30 +231,14 @@ export function ClientBooking() {
                       Свободных окон на ближайшие 30 дней пока нет.
                     </p>
                   ) : (
-                    <div className="flex gap-2 overflow-x-auto pb-1 [-webkit-overflow-scrolling:touch]">
-                      {bookableDays.map((d) => {
-                        const active = d === dateISO
-                        return (
-                          <button
-                            key={d}
-                            type="button"
-                            onClick={() => {
-                              setDateISO(d)
-                              setTime(null)
-                            }}
-                            className={cn(
-                              'min-w-[140px] rounded-3xl border px-4 py-4 text-left shadow-soft transition',
-                              active ? 'border-white/70 bg-white/75' : 'border-white/55 bg-white/55',
-                            )}
-                          >
-                            <div className="text-[12px] font-medium text-ink-700/65">{weekday(d)}</div>
-                            <div className="mt-1 text-[14px] font-semibold text-ink-950">
-                              {active ? 'Выбрано' : 'Выбрать'}
-                            </div>
-                          </button>
-                        )
-                      })}
-                    </div>
+                    <BookingMonthCalendar
+                      anchorTodayISO={todayISO()}
+                      selectedDateISO={dateISO}
+                      onSelectDate={(d) => {
+                        setDateISO(d)
+                        setTime(null)
+                      }}
+                    />
                   )}
 
                   <motion.button

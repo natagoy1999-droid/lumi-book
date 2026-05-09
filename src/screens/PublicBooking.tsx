@@ -3,6 +3,7 @@ import { ChevronLeft } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
+import { BookingMonthCalendar } from '../components/BookingMonthCalendar'
 import { LumiButton } from '../components/ui/LumiButton'
 import { LumiInput } from '../components/ui/LumiInput'
 import { cn } from '../lib/cn'
@@ -23,12 +24,6 @@ import { motion as motionTokens } from '../theme/motion'
 import { todayISO, useStore, type Booking, type Client, type Master, type Service } from '../state/store'
 
 type Step = 'master' | 'service' | 'schedule' | 'guest' | 'done'
-
-function weekdayShort(iso: string) {
-  const [y, m, d] = iso.split('-').map(Number)
-  const dt = new Date(y, m - 1, d)
-  return dt.toLocaleDateString('ru-RU', { weekday: 'short', day: '2-digit', month: 'short' })
-}
 
 function formatRuSummary(dateISO: string, time: string) {
   const [y, m, d] = dateISO.split('-').map(Number)
@@ -370,36 +365,14 @@ export function PublicBooking() {
                     </p>
                   ) : (
                     <>
-                      <div className="flex gap-2.5 overflow-x-auto pb-1 [-webkit-overflow-scrolling:touch]">
-                        {bookableDays.map((d) => {
-                          const active = d === dateISO
-                          return (
-                            <button
-                              key={d}
-                              type="button"
-                              onClick={() => {
-                                setDateISO(d)
-                                setTime(null)
-                              }}
-                              className={cn(
-                                'min-h-[54px] min-w-[136px] shrink-0 touch-manipulation rounded-[20px] border px-4 py-3 text-left transition-all duration-200',
-                                active
-                                  ? 'border-gold-300/50 bg-white/80 shadow-soft'
-                                  : 'border-white/50 bg-white/48 shadow-soft hover:bg-white/58',
-                                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200/45 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7EF]',
-                                'active:scale-[var(--press-scale,0.992)]',
-                              )}
-                            >
-                              <div className="text-[11px] font-medium uppercase tracking-wide text-ink-700/55">
-                                {weekdayShort(d)}
-                              </div>
-                              <div className="mt-1 text-[14px] font-semibold text-ink-950">
-                                {active ? 'Выбрано' : 'Выбрать'}
-                              </div>
-                            </button>
-                          )
-                        })}
-                      </div>
+                      <BookingMonthCalendar
+                        anchorTodayISO={todayISO()}
+                        selectedDateISO={dateISO}
+                        onSelectDate={(d) => {
+                          setDateISO(d)
+                          setTime(null)
+                        }}
+                      />
 
                       <div>
                         <div className="text-[12px] font-medium tracking-tight text-ink-700/55">
