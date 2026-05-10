@@ -12,8 +12,8 @@ import { cn } from '../lib/cn'
 import { z } from '../theme/elevation'
 
 const tabs = [
-  { to: ROUTE_APP_TODAY, label: 'Сегодня', Icon: Home },
-  { to: ROUTE_APP_CALENDAR, label: 'Календарь', Icon: CalendarDays },
+  { to: ROUTE_APP_TODAY, label: 'Главная', Icon: Home },
+  { to: ROUTE_APP_CALENDAR, label: 'Записи', Icon: CalendarDays },
   { to: ROUTE_APP_CLIENTS, label: 'Клиенты', Icon: Users },
   { to: ROUTE_APP_MONEY, label: 'Деньги', Icon: CreditCard },
   { to: ROUTE_APP_SETTINGS, label: 'Настройки', Icon: Settings },

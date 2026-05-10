@@ -261,7 +261,7 @@ export function Settings() {
           className="mb-8"
         >
           <div className="lumi-page-title">Настройки</div>
-          <p className="mt-2 max-w-[34ch] text-[14px] leading-relaxed text-ink-700/60">
+          <p className="mt-2 text-[13px] leading-relaxed text-ink-700/60 sm:text-[14px]">
             Управление аккаунтом и приложением.
           </p>
         </motion.div>

@@ -45,8 +45,8 @@ export function RoleLanding() {
       <div
         className="lumi-app-page-wrap mx-auto flex min-h-[100svh] flex-col"
         style={{
-          paddingTop: 'calc(var(--safe-top, 0px) + 1.75rem)',
-          paddingBottom: 'calc(1.25rem + env(safe-area-inset-bottom))',
+          paddingTop: 'calc(var(--safe-top, 0px) + 1.25rem)',
+          paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))',
         }}
       >
         <motion.div
@@ -56,7 +56,7 @@ export function RoleLanding() {
             duration: motionTokens.duration.slow,
             ease: motionTokens.ease.out,
           }}
-          className="flex min-w-0 flex-1 flex-col items-center justify-center px-0 pt-2"
+          className="flex min-w-0 shrink-0 flex-col items-center px-0"
         >
           <div className="flex w-full max-w-full justify-center">
             {logoOk ? (
@@ -77,12 +77,18 @@ export function RoleLanding() {
             )}
           </div>
 
-          <p className="mt-8 max-w-[26rem] text-center text-[16px] leading-[1.6] text-ink-900/72">
+          <p
+            className="max-w-[26rem] text-center text-[16px] leading-[1.6] text-ink-900/72"
+            style={{ marginTop: 'clamp(28px, 8vw, 36px)' }}
+          >
             Запись для мастеров и клиентов — без суеты и лишних экранов.
           </p>
         </motion.div>
 
-        <div className="mt-10 w-full min-w-0 space-y-3">
+        <div
+          className="w-full min-w-0 space-y-3.5"
+          style={{ marginTop: 'clamp(56px, 14vw, 72px)' }}
+        >
           <LumiButton
             type="button"
             variant="primary"
@@ -103,10 +109,6 @@ export function RoleLanding() {
           >
             Я мастер — управление записью
           </LumiButton>
-
-          <p className="pt-8 text-center text-[11px] font-semibold uppercase tracking-[0.14em] text-gold-600/90">
-            ONBOARDING UPDATED
-          </p>
         </div>
       </div>
     </div>

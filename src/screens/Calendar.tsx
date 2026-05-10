@@ -110,7 +110,7 @@ export function Calendar() {
           transition={{ type: 'spring', stiffness: 520, damping: 44 }}
           className="mb-6"
         >
-          <div className="lumi-page-title">Календарь</div>
+          <div className="lumi-page-title">Записи</div>
         </motion.div>
 
         <GlassCard materialTier="interactive" className="p-6 sm:p-7">
@@ -226,9 +226,23 @@ export function Calendar() {
           </div>
         </GlassCard>
 
+        <div style={{ marginTop: 'clamp(12px, 3vw, 16px)' }}>
+          <LumiButton
+            type="button"
+            onClick={() =>
+              nav(`${ROUTE_APP_CALENDAR_NEW}?date=${encodeURIComponent(dateISO)}`)
+            }
+          >
+            Создать запись
+          </LumiButton>
+        </div>
+
         <div
-          className="mt-11 flex flex-col border-t border-white/25 pt-9"
-          style={{ gap: 'var(--cognitive-inline-stack)' }}
+          className="flex flex-col border-t border-white/25 pt-5"
+          style={{
+            marginTop: 'clamp(16px, 4vw, 20px)',
+            gap: 'var(--cognitive-inline-stack)',
+          }}
         >
           {showAmbientHints ? (
             <GlassCard materialTier="ambient" className="p-4">
@@ -292,17 +306,6 @@ export function Calendar() {
                 </div>
               </div>
             )}
-
-            <div className="mt-6">
-              <LumiButton
-                type="button"
-                onClick={() =>
-                  nav(`${ROUTE_APP_CALENDAR_NEW}?date=${encodeURIComponent(dateISO)}`)
-                }
-              >
-                Создать запись
-              </LumiButton>
-            </div>
           </GlassCard>
         </div>
       </div>
