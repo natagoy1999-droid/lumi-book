@@ -76,10 +76,12 @@ function Page({ children }: { children: ReactNode }) {
 function RequireAuth({ children }: { children: ReactNode }) {
   const initializing = useAuthStore((s) => s.initializing)
   const mode = useAuthStore((s) => s.mode)
+  const hasUser = useAuthStore((s) => Boolean(s.user))
 
   // Avoid redirect flicker while restoreSession() is running.
   if (initializing) return null
-  if (mode !== 'auth') return <Navigate to="/auth" replace />
+  console.log('AUTH STORE MODE', mode)
+  if (mode !== 'auth' || !hasUser) return <Navigate to="/auth" replace />
   return <>{children}</>
 }
 

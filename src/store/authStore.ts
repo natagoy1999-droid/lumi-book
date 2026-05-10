@@ -19,7 +19,11 @@ export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   session: null,
 
-  setSnapshot: (snap) => set({ ...snap }),
+  setSnapshot: (snap) =>
+    set(() => {
+      console.log('AUTH STORE MODE', snap.mode)
+      return { ...snap }
+    }),
 
   bootstrap: async () => {
     set({ initializing: true })
@@ -35,11 +39,9 @@ export const useAuthStore = create<AuthState>((set) => ({
     if (!hasSupabaseEnv()) return
     try {
       const unsub = onAuthStateChange((_event, session) => {
-        set({
-          mode: session?.user ? 'auth' : 'demo',
-          user: session?.user ?? null,
-          session: session ?? null,
-        })
+        const mode = session?.user ? 'auth' : 'demo'
+        console.log('AUTH STORE MODE', mode)
+        set({ mode, user: session?.user ?? null, session: session ?? null })
       })
 
       // Ensure unsubscribe on hot reload scenarios.

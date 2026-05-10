@@ -10,6 +10,7 @@ type SignupErr = {
   message: string
   status?: number | string
   code?: string
+  showOpenInBrowser?: boolean
 }
 
 export function Signup() {
@@ -63,16 +64,27 @@ export function Signup() {
         password,
         displayName: nameTrim,
       })
-      if (snap.mode !== 'auth') setErrDetail({ message: 'Не удалось создать аккаунт.' })
-      else nav(ROUTE_APP_TODAY, { replace: true })
+      if (snap.session?.user) {
+        useAuthStore.getState().setSnapshot(snap)
+        nav(ROUTE_APP_TODAY, { replace: true })
+      } else {
+        setErrDetail({ message: 'Аккаунт создан. Теперь войдите.' })
+      }
     } catch (error: unknown) {
       console.error('SIGNUP ERROR', error)
       const e = error as SignUpThrownError
       const anyE = error as any
+      const msg =
+        (typeof e?.message === 'string' && e.message.trim()) || 'Не удалось создать аккаунт.'
+      const showOpenInBrowser =
+        anyE?.status === 0 ||
+        String(anyE?.code || '') === 'network_webview' ||
+        String(msg).includes('Откройте Lumi Book')
       setErrDetail({
-        message: (typeof e?.message === 'string' && e.message.trim()) || 'Не удалось создать аккаунт.',
+        message: msg,
         status: anyE?.status ?? anyE?.statusCode,
         code: anyE?.code != null ? String(anyE.code) : undefined,
+        showOpenInBrowser,
       })
     } finally {
       setBusy(false)
@@ -129,18 +141,33 @@ export function Signup() {
             </div>
           ) : null}
 
+          {errDetail?.showOpenInBrowser ? (
+            <button
+              type="button"
+              onClick={() => window.open(window.location.href, '_blank')}
+              className="w-full lumi-card px-4 py-3 text-[13px] font-semibold text-ink-950"
+            >
+              Открыть в браузере
+            </button>
+          ) : null}
+
           <button
             type="submit"
-            disabled={busy || !hasSupabaseEnv()}
+            disabled={busy}
             onClick={() => console.log('SIGNUP CLICKED')}
-            className="w-full rounded-3xl bg-ink-950 px-5 py-4 text-[15px] font-medium text-paper-50 shadow-glowGold disabled:opacity-70"
+            onTouchStart={() => console.log('AUTH BUTTON TOUCH/CLICK')}
+            className="w-full touch-manipulation rounded-3xl bg-ink-950 px-5 py-4 text-[15px] font-medium text-paper-50 shadow-glowGold disabled:opacity-70"
           >
             Создать аккаунт
           </button>
 
           <button
             type="button"
-            onClick={() => nav('/auth')}
+            onClick={() => {
+              console.log('AUTH BUTTON TOUCH/CLICK')
+              nav('/auth')
+            }}
+            onTouchStart={() => console.log('AUTH BUTTON TOUCH/CLICK')}
             className="w-full lumi-card px-4 py-3 text-[13px] font-semibold text-ink-950"
           >
             Назад

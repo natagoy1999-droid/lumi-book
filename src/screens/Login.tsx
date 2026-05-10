@@ -12,7 +12,7 @@ export function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<{ message: string; showOpenInBrowser?: boolean } | null>(null)
 
   useEffect(() => {
     if (mode === 'auth') nav(ROUTE_APP_TODAY, { replace: true })
@@ -25,32 +25,39 @@ export function Login() {
     setError(null)
     try {
       if (!hasSupabaseEnv()) {
-        setError('Supabase ENV missing')
+        setError({ message: 'Supabase ENV missing' })
         return
       }
       const cleanEmail = email.trim()
       if (!cleanEmail) {
-        setError('Введите email')
+        setError({ message: 'Введите email' })
         return
       }
       if (!cleanEmail.includes('@')) {
-        setError('Введите корректный email')
+        setError({ message: 'Введите корректный email' })
         return
       }
       if (!password) {
-        setError('Введите пароль')
+        setError({ message: 'Введите пароль' })
         return
       }
       if (password.length < 6) {
-        setError('Пароль должен быть не короче 6 символов')
+        setError({ message: 'Пароль должен быть не короче 6 символов' })
         return
       }
       const snap = await signInWithEmail({ email: cleanEmail, password })
-      if (snap.mode !== 'auth') setError('Не удалось войти. Проверьте email/пароль.')
-      else nav(ROUTE_APP_TODAY, { replace: true })
+      if (snap.session?.user) {
+        useAuthStore.getState().setSnapshot(snap)
+        nav(ROUTE_APP_TODAY, { replace: true })
+      } else {
+        setError({ message: 'Не удалось войти. Проверьте email/пароль.' })
+      }
     } catch (error) {
       console.error('LOGIN ERROR', error)
-      setError((error as any)?.message || 'Не удалось войти.')
+      const msg = (error as any)?.message || 'Не удалось войти.'
+      const showOpenInBrowser =
+        (error as any)?.status === 0 || String((error as any)?.code || '') === 'network_webview' || String(msg).includes('Откройте Lumi Book')
+      setError({ message: msg, showOpenInBrowser })
     } finally {
       setBusy(false)
     }
@@ -83,15 +90,26 @@ export function Login() {
 
           {error ? (
             <div className="lumi-card px-4 py-3 text-[12px] text-ink-700/65">
-              {error}
+              {error.message}
             </div>
+          ) : null}
+
+          {error?.showOpenInBrowser ? (
+            <button
+              type="button"
+              onClick={() => window.open(window.location.href, '_blank')}
+              className="w-full lumi-card px-4 py-3 text-[13px] font-semibold text-ink-950"
+            >
+              Открыть в браузере
+            </button>
           ) : null}
 
           <button
             type="submit"
-            disabled={busy || !hasSupabaseEnv()}
+            disabled={busy}
             onClick={() => console.log('LOGIN CLICKED')}
-            className="w-full rounded-3xl bg-ink-950 px-5 py-4 text-[15px] font-medium text-paper-50 shadow-glowGold disabled:opacity-70"
+            onTouchStart={() => console.log('AUTH BUTTON TOUCH/CLICK')}
+            className="w-full touch-manipulation rounded-3xl bg-ink-950 px-5 py-4 text-[15px] font-medium text-paper-50 shadow-glowGold disabled:opacity-70"
           >
             Войти
           </button>
@@ -104,7 +122,11 @@ export function Login() {
 
           <button
             type="button"
-            onClick={() => nav('/auth')}
+            onClick={() => {
+              console.log('AUTH BUTTON TOUCH/CLICK')
+              nav('/auth')
+            }}
+            onTouchStart={() => console.log('AUTH BUTTON TOUCH/CLICK')}
             className="w-full lumi-card px-4 py-3 text-[13px] font-semibold text-ink-950"
           >
             Назад

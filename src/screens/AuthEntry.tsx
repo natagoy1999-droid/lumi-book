@@ -29,9 +29,11 @@ export function AuthEntry() {
             <button
               type="button"
               onClick={() => {
+                console.log('AUTH BUTTON TOUCH/CLICK')
                 dispatch({ type: 'finishOnboarding' })
                 nav(ROUTE_APP_TODAY, { replace: true })
               }}
+              onTouchStart={() => console.log('AUTH BUTTON TOUCH/CLICK')}
               className="w-full rounded-3xl bg-ink-950 px-5 py-4 text-[15px] font-medium text-paper-50 shadow-glowGold"
             >
               Продолжить в демо-режиме
@@ -43,14 +45,22 @@ export function AuthEntry() {
 
           <button
             type="button"
-            onClick={() => nav('/login')}
+            onClick={() => {
+              console.log('AUTH BUTTON TOUCH/CLICK')
+              nav('/login')
+            }}
+            onTouchStart={() => console.log('AUTH BUTTON TOUCH/CLICK')}
             className="w-full lumi-card bg-white/60 px-5 py-4 text-[15px] font-semibold text-ink-950"
           >
             Войти
           </button>
           <button
             type="button"
-            onClick={() => nav('/signup')}
+            onClick={() => {
+              console.log('AUTH BUTTON TOUCH/CLICK')
+              nav('/signup')
+            }}
+            onTouchStart={() => console.log('AUTH BUTTON TOUCH/CLICK')}
             className="w-full lumi-card px-5 py-4 text-[15px] font-semibold text-ink-950"
           >
             Создать аккаунт

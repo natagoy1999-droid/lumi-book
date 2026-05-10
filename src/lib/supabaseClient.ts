@@ -19,10 +19,10 @@ export function getSupabaseClient(): SupabaseClient {
   }
   _client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: {
-      // IMPORTANT: no auth integration yet
-      persistSession: false,
-      autoRefreshToken: false,
-      detectSessionInUrl: false,
+      // Mobile webview requires persisted sessions (otherwise auth "succeeds" but app stays guest).
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
     },
   })
   if (import.meta.env.DEV) {

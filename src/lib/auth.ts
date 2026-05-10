@@ -7,6 +7,36 @@ export type SignUpThrownError = Error & {
   code?: string
 }
 
+function isWebviewNetworkFailure(err: unknown): boolean {
+  const anyE = err as any
+  const status = anyE?.status ?? anyE?.statusCode
+  if (status === 0 || status === '0') return true
+  const msg = String(anyE?.message ?? anyE?.error_description ?? '').toLowerCase()
+  return (
+    msg.includes('load failed') ||
+    msg.includes('failed to fetch') ||
+    msg.includes('fetch failed') ||
+    msg.includes('network request failed') ||
+    msg.includes('networkerror') ||
+    msg.includes('typeerror: failed to fetch')
+  )
+}
+
+function webviewNetworkUserMessage(): string {
+  return 'Не удалось подключиться к серверу регистрации. Проверьте интернет или откройте сайт в другом браузере.'
+}
+
+function logSupabaseNetworkError(error: unknown) {
+  const anyE = error as any
+  console.error('SUPABASE NETWORK ERROR', {
+    message: anyE?.message,
+    status: anyE?.status ?? anyE?.statusCode,
+    code: anyE?.code,
+    supabaseUrl: (import.meta as any).env?.VITE_SUPABASE_URL,
+    hasAnonKey: Boolean((import.meta as any).env?.VITE_SUPABASE_ANON_KEY),
+  })
+}
+
 /** Reads display name from Supabase Auth `user_metadata` (signup / dashboard). */
 export function getAuthDisplayName(user: User | null | undefined): string | null {
   if (!user?.user_metadata || typeof user.user_metadata !== 'object') return null
@@ -31,6 +61,12 @@ export type AuthSnapshot = {
   mode: 'demo' | 'auth'
   user: User | null
   session: Session | null
+}
+
+function snapFromSession(session: Session | null | undefined): AuthSnapshot {
+  const s = session ?? null
+  const u = s?.user ?? null
+  return { mode: u ? 'auth' : 'demo', user: u, session: s }
 }
 
 export async function getCurrentUser(): Promise<User | null> {
@@ -63,17 +99,46 @@ export async function signInWithEmail(args: {
   email: string
   password: string
 }): Promise<AuthSnapshot> {
-  if (!hasSupabaseEnv()) return { mode: 'demo', user: null, session: null }
+  if (!hasSupabaseEnv()) {
+    throw new Error('Supabase ENV missing')
+  }
   try {
     const sb = getSupabaseClient()
     const { data, error } = await sb.auth.signInWithPassword({
       email: args.email,
       password: args.password,
     })
-    if (error) return { mode: 'demo', user: null, session: null }
-    return { mode: data.user ? 'auth' : 'demo', user: data.user ?? null, session: data.session ?? null }
-  } catch {
-    return { mode: 'demo', user: null, session: null }
+    if (error) {
+      if (isWebviewNetworkFailure(error)) {
+        logSupabaseNetworkError(error)
+        const wrapped = Object.assign(new Error(webviewNetworkUserMessage()), {
+          status: 0,
+          code: 'network_webview',
+        }) as SignUpThrownError
+        throw wrapped
+      }
+      throw error
+    }
+    console.log('AUTH SESSION AFTER LOGIN', data.session)
+    return snapFromSession(data.session)
+  } catch (error: unknown) {
+    if (isWebviewNetworkFailure(error)) {
+      logSupabaseNetworkError(error)
+      const wrapped = Object.assign(new Error(webviewNetworkUserMessage()), {
+        status: 0,
+        code: 'network_webview',
+      }) as SignUpThrownError
+      throw wrapped
+    }
+    const anyE = error as any
+    const msg =
+      (typeof anyE?.message === 'string' && anyE.message.trim()) ||
+      (typeof anyE?.error_description === 'string' && anyE.error_description.trim()) ||
+      'Не удалось войти'
+    const status = anyE?.status ?? anyE?.statusCode
+    const code = anyE?.code != null ? String(anyE.code) : undefined
+    const wrapped = Object.assign(new Error(msg), { status, code }) as SignUpThrownError
+    throw wrapped
   }
 }
 
@@ -119,10 +184,20 @@ export async function signUpWithEmail(args: {
         : { email, password },
     )
     if (error) throw error
-    return { mode: data.user ? 'auth' : 'demo', user: data.user ?? null, session: data.session ?? null }
+    console.log('AUTH SESSION AFTER SIGNUP', data.session)
+    return snapFromSession(data.session)
   } catch (error: unknown) {
     console.error('SIGNUP FULL ERROR', JSON.stringify(error, null, 2))
     console.error('SIGNUP RAW ERROR', error)
+
+    if (isWebviewNetworkFailure(error)) {
+      logSupabaseNetworkError(error)
+      const wrapped = Object.assign(new Error(webviewNetworkUserMessage()), {
+        status: 0,
+        code: 'network_webview',
+      }) as SignUpThrownError
+      throw wrapped
+    }
 
     const anyE = error as any
     const msg =
@@ -168,9 +243,7 @@ export async function restoreSession(): Promise<AuthSnapshot> {
   try {
     const sb = getSupabaseClient()
     const { data } = await sb.auth.getSession()
-    const session = data.session ?? null
-    const user = session?.user ?? null
-    return { mode: user ? 'auth' : 'demo', user, session }
+    return snapFromSession(data.session)
   } catch {
     return { mode: 'demo', user: null, session: null }
   }
