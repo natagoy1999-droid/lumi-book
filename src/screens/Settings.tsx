@@ -249,10 +249,9 @@ export function Settings() {
 
   return (
     <div
-      className="w-full max-w-[520px] mx-auto px-5 pb-32 overflow-x-hidden box-border"
+      className="lumi-app-page-wrap pb-32"
       style={{
         paddingTop: 'calc(1.75rem * (0.94 + var(--global-rhythm, 1) * 0.06))',
-        background: 'rgba(255,0,0,0.04)',
       }}
     >
         <motion.div
@@ -270,7 +269,7 @@ export function Settings() {
         <div className="min-w-0 space-y-8">
           <section className="min-w-0">
             <SectionLabel>Аккаунт</SectionLabel>
-            <GlassCard className="min-w-0 p-6">
+            <GlassCard className="w-full max-w-full min-w-0 p-6">
               <div className="flex min-w-0 gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-white/55 shadow-sm">
                   <UserRound size={22} strokeWidth={1.6} className="text-ink-800/65" />
@@ -321,7 +320,7 @@ export function Settings() {
           <section className="min-w-0">
             <SectionLabel>Тариф</SectionLabel>
             <GlassCard
-              className="min-w-0 cursor-pointer p-6 transition hover:bg-white/25"
+              className="w-full max-w-full min-w-0 cursor-pointer p-6 transition hover:bg-white/25"
               onClick={() => nav('/pricing')}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -350,7 +349,7 @@ export function Settings() {
 
           <section className="min-w-0">
             <SectionLabel>Планирование</SectionLabel>
-            <GlassCard className={cn('min-w-0 overflow-hidden p-0', 'divide-y divide-white/25')}>
+            <GlassCard className={cn('w-full max-w-full min-w-0 overflow-hidden p-0', 'divide-y divide-white/25')}>
               <SettingsRow
                 icon={Clock}
                 title="Рабочие часы"
@@ -374,7 +373,7 @@ export function Settings() {
 
           <section className="min-w-0">
             <SectionLabel>Коммуникации</SectionLabel>
-            <GlassCard className={cn('min-w-0 overflow-hidden p-0', 'divide-y divide-white/25')}>
+            <GlassCard className={cn('w-full max-w-full min-w-0 overflow-hidden p-0', 'divide-y divide-white/25')}>
               <SettingsRow
                 icon={MessageSquare}
                 title="SMS, WhatsApp, Max"
@@ -404,7 +403,7 @@ export function Settings() {
 
           <section className="min-w-0">
             <SectionLabel>Помощь</SectionLabel>
-            <GlassCard className="min-w-0 p-6">
+            <GlassCard className="w-full max-w-full min-w-0 p-6">
               <div className="flex min-w-0 gap-3">
                 <HelpCircle size={22} strokeWidth={1.6} className="mt-0.5 shrink-0 text-ink-800/55" />
                 <div className="min-w-0 flex-1">

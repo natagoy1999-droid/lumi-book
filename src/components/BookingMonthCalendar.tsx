@@ -37,12 +37,20 @@ function ymOrder(y: number, m: number): number {
   return y * 12 + m
 }
 
+const MASTER_YEAR_MIN = 1900
+const MASTER_YEAR_MAX = 2100
+
 type Props = {
   /** «Сегодня» для окна записи и подсветки текущего дня */
   anchorTodayISO: string
   selectedDateISO: string
   onSelectDate: (iso: string) => void
   className?: string
+  /**
+   * `clientWindow` — только окно [сегодня … +30 дней], как у клиента.
+   * `master` — любые месяцы и даты (форма мастера).
+   */
+  variant?: 'clientWindow' | 'master'
 }
 
 export function BookingMonthCalendar({
@@ -50,8 +58,13 @@ export function BookingMonthCalendar({
   selectedDateISO,
   onSelectDate,
   className,
+  variant = 'clientWindow',
 }: Props) {
-  const maxISO = useMemo(() => maxBookableDateISO(anchorTodayISO), [anchorTodayISO])
+  const isMaster = variant === 'master'
+  const maxISO = useMemo(
+    () => (isMaster ? null : maxBookableDateISO(anchorTodayISO)),
+    [anchorTodayISO, isMaster],
+  )
   const todayParts = useMemo(() => parseISOToParts(anchorTodayISO), [anchorTodayISO])
 
   const [viewY, setViewY] = useState(() => parseISOToParts(selectedDateISO).y)
@@ -71,13 +84,17 @@ export function BookingMonthCalendar({
     return raw.charAt(0).toUpperCase() + raw.slice(1)
   }, [viewY, viewM])
 
-  const canGoPrev = ymOrder(viewY, viewM) > ymOrder(todayParts.y, todayParts.m)
+  const canGoPrev = isMaster
+    ? !(viewY === MASTER_YEAR_MIN && viewM === 0)
+    : ymOrder(viewY, viewM) > ymOrder(todayParts.y, todayParts.m)
 
   const firstNextMonthISO = useMemo(
     () => firstDayISOOfNextMonth(viewY, viewM),
     [viewY, viewM],
   )
-  const canGoNext = firstNextMonthISO <= maxISO
+  const canGoNext = isMaster
+    ? !(viewY === MASTER_YEAR_MAX && viewM === 11)
+    : maxISO != null && firstNextMonthISO <= maxISO
 
   const cells = useMemo(() => {
     const { daysInMonth, mondayOffset } = monthMeta(viewY, viewM)
@@ -110,7 +127,11 @@ export function BookingMonthCalendar({
 
   return (
     <div
-      className={cn('mx-auto w-full max-w-[340px] lumi-card p-4 rounded-[24px]', className)}
+      className={cn(
+        'mx-auto w-full min-w-0 lumi-card p-4 rounded-[24px]',
+        !isMaster && 'max-w-[340px]',
+        className,
+      )}
     >
       <div className="flex items-center justify-between gap-2">
         <button
@@ -149,7 +170,7 @@ export function BookingMonthCalendar({
       </div>
 
       <div
-        className="mt-4 grid grid-cols-7 gap-y-1 gap-x-0.5 text-center"
+        className="mt-4 grid min-w-0 grid-cols-7 gap-x-0.5 gap-y-1 text-center sm:gap-x-1"
         role="grid"
         aria-label="Календарь"
       >
@@ -167,7 +188,7 @@ export function BookingMonthCalendar({
             return <div key={`e-${idx}`} className="min-h-[44px]" aria-hidden />
           }
           const iso = toDateISO(viewY, viewM, day)
-          const inWindow = isISOInClientBookingWindow(iso, anchorTodayISO)
+          const inWindow = isMaster || isISOInClientBookingWindow(iso, anchorTodayISO)
           const isToday = iso === anchorTodayISO
           const isSelected = iso === selectedDateISO
 
@@ -192,14 +213,16 @@ export function BookingMonthCalendar({
               aria-label={`${day}, ${iso}`}
               onClick={() => onSelectDate(iso)}
               className={cn(
-                'flex min-h-[44px] touch-manipulation items-center justify-center rounded-xl text-[14px] font-medium transition-[transform,box-shadow,background-color,border-color] duration-200',
+                'flex min-h-[44px] min-w-0 touch-manipulation items-center justify-center rounded-xl px-0.5 text-[13px] font-medium transition-[transform,box-shadow,background-color,border-color] duration-200 sm:text-[14px]',
                 isSelected &&
                   'border-[1.5px] border-gold-400/65 bg-gradient-to-b from-gold-200/42 to-[var(--lumi-surface)] text-ink-950 shadow-[0_10px_28px_rgba(198,161,91,0.22)]',
                 !isSelected &&
                   'border border-transparent bg-white/35 text-ink-950 hover:border-white/50 hover:bg-white/65 active:scale-[var(--press-scale,0.98)]',
                 isToday &&
                   !isSelected &&
-                  'ring-2 ring-gold-400/48 ring-offset-2 ring-offset-[var(--lumi-surface)]',
+                  (isMaster
+                    ? 'border border-gold-400/38 bg-white/40 shadow-none ring-0'
+                    : 'ring-2 ring-gold-400/48 ring-offset-2 ring-offset-[var(--lumi-surface)]'),
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-300/45 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--lumi-surface)]',
               )}
             >

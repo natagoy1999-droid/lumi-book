@@ -299,9 +299,9 @@ body {
 }
 
 /**
- * Tabbed app screens: one centered column (520px), horizontal inset, bottom clearance for BottomTabs.
+ * Page column aligned with BottomTabs: nav max-w 520px + px-3, inner row px-1.5 (same total inset as tabs).
  */
-.lumi-page-shell {
+.lumi-app-page-wrap {
   box-sizing: border-box;
   width: 100%;
   max-width: 520px;
@@ -309,9 +309,8 @@ body {
   margin-right: auto;
   min-width: 0;
   overflow-x: hidden;
-  padding-left: 20px;
-  padding-right: 20px;
-  padding-bottom: var(--app-bottom-pad, calc(116px + env(safe-area-inset-bottom)));
+  padding-left: calc(0.75rem + 0.375rem);
+  padding-right: calc(0.75rem + 0.375rem);
 }
 
 .app-preparing {

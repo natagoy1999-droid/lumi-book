@@ -86,10 +86,9 @@ export function Money() {
 
   return (
     <div
-      className="w-full max-w-[520px] mx-auto px-5 pb-32 overflow-x-hidden box-border"
+      className="lumi-app-page-wrap pb-32"
       style={{
         paddingTop: 'calc(1.75rem * (0.94 + var(--global-rhythm, 1) * 0.06))',
-        background: 'rgba(255,0,0,0.04)',
       }}
     >
         <motion.div
@@ -106,7 +105,7 @@ export function Money() {
           className="grid min-w-0 grid-cols-[repeat(2,minmax(0,1fr))]"
           style={{ gap: 'var(--cognitive-grid-gap)' }}
         >
-          <GlassCard className="min-w-0 p-5">
+          <GlassCard className="w-full max-w-full min-w-0 p-5">
             <div className="text-[12px] font-medium text-ink-700/70">Сегодня</div>
             <div className="mt-2 text-[26px] font-semibold tracking-tightish text-ink-950">
               {money(day)} ₽
@@ -117,7 +116,7 @@ export function Money() {
             </div>
           </GlassCard>
 
-          <GlassCard className="min-w-0 p-5">
+          <GlassCard className="w-full max-w-full min-w-0 p-5">
             <div className="text-[12px] font-medium text-ink-700/70">Средний чек</div>
             <div className="mt-2 text-[26px] font-semibold tracking-tightish text-ink-950">
               {money(Math.round(avg))} ₽
@@ -130,14 +129,14 @@ export function Money() {
           className="mt-3 grid min-w-0 grid-cols-[repeat(2,minmax(0,1fr))]"
           style={{ gap: 'var(--cognitive-grid-gap)' }}
         >
-          <GlassCard className="min-w-0 p-5">
+          <GlassCard className="w-full max-w-full min-w-0 p-5">
             <div className="text-[12px] font-medium text-ink-700/70">Неделя</div>
             <div className="mt-2 text-[22px] font-semibold tracking-tightish text-ink-950">
               {money(week)} ₽
             </div>
             <div className="mt-1 text-[12px] text-ink-700/60">Прогноз</div>
           </GlassCard>
-          <GlassCard className="min-w-0 p-5">
+          <GlassCard className="w-full max-w-full min-w-0 p-5">
             <div className="text-[12px] font-medium text-ink-700/70">Месяц</div>
             <div className="mt-2 text-[22px] font-semibold tracking-tightish text-ink-950">
               {money(month)} ₽
@@ -148,7 +147,7 @@ export function Money() {
 
         <div className="mt-3 flex min-w-0 flex-col" style={{ gap: 'var(--cognitive-inline-stack)' }}>
           {hasAnalytics ? (
-            <GlassCard className="min-w-0 p-5">
+            <GlassCard className="w-full max-w-full min-w-0 p-5">
               <div className="inline-flex items-center gap-2 text-[12px] font-medium text-ink-700/70">
                 {showAmbientHints ? <Sparkles size={16} className="text-gold-400" /> : null}
                 Популярные услуги
@@ -162,10 +161,10 @@ export function Money() {
                 {top.map((s) => (
                   <div
                     key={s.id}
-                    className="lumi-card px-4 py-3"
+                    className="lumi-card w-full max-w-full min-w-0 px-4 py-3"
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="text-[14px] font-semibold tracking-tightish text-ink-950">
+                    <div className="flex min-w-0 items-center justify-between gap-2">
+                      <div className="min-w-0 text-[14px] font-semibold tracking-tightish text-ink-950">
                         {s.name}
                       </div>
                       <div className="shrink-0 text-[12px] font-medium text-ink-700/65">

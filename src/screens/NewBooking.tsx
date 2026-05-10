@@ -3,11 +3,11 @@ import { Check, ChevronLeft, Sparkles } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
+import { BookingMonthCalendar } from '../components/BookingMonthCalendar'
 import { GlassCard } from '../components/GlassCard'
 import { Sheet } from '../components/Sheet'
 import { SwipeBack } from '../components/SwipeBack'
 import { ROUTE_APP_CALENDAR, ROUTE_APP_TODAY } from '../lib/appRoutes'
-import { cn } from '../lib/cn'
 import { LumiButton } from '../components/ui/LumiButton'
 import { LumiInput } from '../components/ui/LumiInput'
 import { LumiModal } from '../components/ui/LumiModal'
@@ -15,22 +15,6 @@ import { LumiTextarea } from '../components/ui/LumiTextarea'
 import { useCognitiveUI } from '../state/cognitiveUI'
 import { todayISO, useStore, type Client, type Service } from '../state/store'
 import { uid as uidMsg, useMessaging } from '../state/messaging'
-
-function addDaysISO(iso: string, delta: number) {
-  const [y, m, d] = iso.split('-').map(Number)
-  const dt = new Date(y, m - 1, d)
-  dt.setDate(dt.getDate() + delta)
-  const yy = dt.getFullYear()
-  const mm = String(dt.getMonth() + 1).padStart(2, '0')
-  const dd = String(dt.getDate()).padStart(2, '0')
-  return `${yy}-${mm}-${dd}`
-}
-
-function weekday(iso: string) {
-  const [y, m, d] = iso.split('-').map(Number)
-  const dt = new Date(y, m - 1, d)
-  return dt.toLocaleDateString('ru-RU', { weekday: 'long', day: '2-digit', month: 'short' })
-}
 
 function uid() {
   return Math.random().toString(16).slice(2) + Date.now().toString(16)
@@ -58,10 +42,6 @@ export function NewBooking() {
   const [openClient, setOpenClient] = useState(false)
   const [openSuccess, setOpenSuccess] = useState(false)
 
-  const days = useMemo(
-    () => Array.from({ length: 8 }, (_, i) => addDaysISO(todayISO(), i)),
-    [],
-  )
   const slots = freeSlots(dateISO, master.id)
 
   useEffect(() => {
@@ -114,36 +94,19 @@ export function NewBooking() {
               </GlassCard>
             ) : null}
 
-            <GlassCard className="p-5">
+            <GlassCard className="min-w-0 overflow-hidden p-5">
               <div className="text-[12px] font-medium text-ink-700/70">Дата</div>
-              <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [-webkit-overflow-scrolling:touch]">
-                {days.map((d) => {
-                  const active = d === dateISO
-                  return (
-                    <button
-                      key={d}
-                      type="button"
-                      onClick={() => {
-                        setDateISO(d)
-                        setOpenTime(true)
-                      }}
-                      className={cn(
-                        'min-w-[150px] lumi-card px-4 py-3 text-left transition',
-                        active
-                          ? 'ring-1 ring-gold-400/28 bg-white/70'
-                          : 'opacity-[0.97] hover:bg-white/60',
-                      )}
-                    >
-                      <div className="text-[12px] font-medium text-ink-700/70">
-                        {weekday(d)}
-                      </div>
-                      <div className="mt-1 text-[14px] font-semibold tracking-tightish text-ink-950">
-                        {active ? 'Выбрано' : 'Выбрать'}
-                      </div>
-                    </button>
-                  )
-                })}
-              </div>
+              <BookingMonthCalendar
+                variant="master"
+                className="mt-3 max-w-full"
+                anchorTodayISO={todayISO()}
+                selectedDateISO={dateISO}
+                onSelectDate={(d) => {
+                  setDateISO(d)
+                  setTime(null)
+                  setOpenTime(true)
+                }}
+              />
             </GlassCard>
 
             <GlassCard className="p-5">

@@ -95,10 +95,9 @@ export function Clients() {
 
   return (
     <div
-      className="w-full max-w-[520px] mx-auto px-5 pb-32 overflow-x-hidden box-border"
+      className="lumi-app-page-wrap pb-32"
       style={{
         paddingTop: 'calc(1.75rem * (0.94 + var(--global-rhythm, 1) * 0.06))',
-        background: 'rgba(255,0,0,0.04)',
       }}
     >
         <motion.div
@@ -111,7 +110,7 @@ export function Clients() {
           <div className="lumi-page-title">История клиентов</div>
         </motion.div>
 
-        <GlassCard className="min-w-0 p-4">
+        <GlassCard className="w-full max-w-full min-w-0 p-4">
           <div className="flex min-w-0 items-center gap-2">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/60 shadow-soft">
               <Search size={18} className="text-ink-800/75" />
@@ -175,7 +174,7 @@ export function Clients() {
                   }}
                 >
                   <GlassCard
-                    className="min-w-0 p-4"
+                    className="w-full max-w-full min-w-0 p-4"
                     style={{
                       opacity: `calc(0.94 + var(--client-card-calm, 0.48) * 0.06 * ${card.calm.toFixed(3)})`,
                     }}
