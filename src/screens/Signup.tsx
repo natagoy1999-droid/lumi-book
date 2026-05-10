@@ -2,17 +2,24 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { ROUTE_APP_TODAY } from '../lib/appRoutes'
-import { signUpWithEmail } from '../lib/auth'
+import { signUpWithEmail, type SignUpThrownError } from '../lib/auth'
 import { hasSupabaseEnv } from '../lib/supabaseClient'
 import { useAuthStore } from '../store/authStore'
+
+type SignupErr = {
+  message: string
+  status?: number | string
+  code?: string
+}
 
 export function Signup() {
   const nav = useNavigate()
   const mode = useAuthStore((s) => s.mode)
+  const [displayName, setDisplayName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [errDetail, setErrDetail] = useState<SignupErr | null>(null)
 
   useEffect(() => {
     if (mode === 'auth') nav(ROUTE_APP_TODAY, { replace: true })
@@ -29,6 +36,13 @@ export function Signup() {
 
         <div className="mt-4 space-y-2">
           <input
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            placeholder="Имя"
+            autoComplete="name"
+            className="w-full lumi-card bg-white/60 px-4 py-3 text-[15px] text-ink-950 outline-none placeholder:text-ink-700/35"
+          />
+          <input
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             inputMode="email"
@@ -43,9 +57,21 @@ export function Signup() {
             className="w-full lumi-card bg-white/60 px-4 py-3 text-[15px] text-ink-950 outline-none placeholder:text-ink-700/35"
           />
 
-          {error ? (
-            <div className="lumi-card px-4 py-3 text-[12px] text-ink-700/65">
-              {error}
+          {!hasSupabaseEnv() ? (
+            <div className="lumi-card border border-gold-400/40 bg-white/75 px-4 py-3 text-[13px] font-semibold text-ink-950 shadow-soft">
+              Supabase ENV missing
+            </div>
+          ) : null}
+
+          {errDetail ? (
+            <div className="lumi-card space-y-1.5 px-4 py-3 text-[12px] text-ink-700/65">
+              <div>{errDetail.message}</div>
+              {errDetail.status != null && errDetail.status !== '' ? (
+                <div className="tabular-nums text-ink-700/55">status: {String(errDetail.status)}</div>
+              ) : null}
+              {errDetail.code ? (
+                <div className="text-ink-700/55">code: {errDetail.code}</div>
+              ) : null}
             </div>
           ) : null}
 
@@ -54,14 +80,39 @@ export function Signup() {
             disabled={busy || !hasSupabaseEnv()}
             onClick={async () => {
               setBusy(true)
-              setError(null)
+              setErrDetail(null)
               try {
-                const snap = await signUpWithEmail({ email: email.trim(), password })
-                if (snap.mode !== 'auth') {
-                  setError('Не удалось создать аккаунт. Попробуйте другой email или пароль.')
-                } else {
-                  nav(ROUTE_APP_TODAY, { replace: true })
+                if (!hasSupabaseEnv()) {
+                  setErrDetail({ message: 'Supabase ENV missing' })
+                  return
                 }
+                const cleanEmail = email.trim()
+                const nameTrim = displayName.trim()
+                console.log('SIGNUP PAYLOAD', {
+                  email: cleanEmail,
+                  passwordLength: password?.length,
+                  displayNameLength: nameTrim.length,
+                })
+                const snap = await signUpWithEmail({
+                  email: cleanEmail,
+                  password,
+                  displayName: nameTrim || undefined,
+                })
+                if (snap.mode !== 'auth')
+                  setErrDetail({ message: 'Не удалось создать аккаунт.' })
+                else nav(ROUTE_APP_TODAY, { replace: true })
+              } catch (error: unknown) {
+                console.error('SIGNUP FULL ERROR', JSON.stringify(error, null, 2))
+                console.error('SIGNUP RAW ERROR', error)
+                const e = error as SignUpThrownError
+                const anyE = error as any
+                setErrDetail({
+                  message:
+                    (typeof e?.message === 'string' && e.message.trim()) ||
+                    'Не удалось создать аккаунт.',
+                  status: anyE?.status ?? anyE?.statusCode,
+                  code: anyE?.code != null ? String(anyE.code) : undefined,
+                })
               } finally {
                 setBusy(false)
               }
@@ -70,12 +121,6 @@ export function Signup() {
           >
             Создать аккаунт
           </button>
-
-          {!hasSupabaseEnv() ? (
-            <div className="text-[12px] leading-5 text-ink-700/60">
-              Облако не подключено — регистрация временно недоступна. Можно продолжить в демо-режиме.
-            </div>
-          ) : null}
 
           <button
             type="button"

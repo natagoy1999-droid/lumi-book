@@ -16,6 +16,7 @@ import {
   ROUTE_APP_CLIENTS,
   ROUTE_APP_RESCHEDULE,
 } from '../lib/appRoutes'
+import { getHomeGreetingTitle } from '../lib/auth'
 import { cn } from '../lib/cn'
 import { buildFocusCard, buildWidgets, computeHomeMode } from '../lib/homeEngine'
 import { kickMotionDecay } from '../lib/motionDecay'
@@ -23,6 +24,7 @@ import { useMessaging } from '../state/messaging'
 import { useCognitiveUI } from '../state/cognitiveUI'
 import { useInteractionTelemetry } from '../state/interactionTelemetry'
 import { useMaterialScroll } from '../state/materialScroll'
+import { useAuthStore } from '../store/authStore'
 import { todayISO, useStore } from '../state/store'
 function money(n: number) {
   return new Intl.NumberFormat('ru-RU').format(n)
@@ -33,6 +35,9 @@ export function Today() {
   const { state, getClient, getMaster, getService, moneyForDay, freeSlots } = useStore()
   const sent = useMessaging((s) => s.sent)
   const dateISO = todayISO()
+  const user = useAuthStore((s) => s.user)
+  const greetingTitle = useMemo(() => getHomeGreetingTitle(user), [user])
+
   const [logoOk, setLogoOk] = useState(true)
   const dateLabel = useMemo(() => {
     return new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' }).format(new Date())
@@ -154,9 +159,7 @@ export function Today() {
             </div>
 
             <div className="w-full text-center">
-              <div className="lumi-page-title">
-                Привет, {master.name}
-              </div>
+              <div className="lumi-page-title">{greetingTitle}</div>
               <div className="mx-auto mt-3 max-w-[28ch] text-[15px] font-medium leading-snug tracking-tight text-ink-700/72">
                 Сегодня • {dateLabel}
               </div>

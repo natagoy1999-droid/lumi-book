@@ -2,6 +2,31 @@ import type { User, Session, AuthChangeEvent } from '@supabase/supabase-js'
 
 import { hasSupabaseEnv, getSupabaseClient } from './supabaseClient'
 
+export type SignUpThrownError = Error & {
+  status?: number | string
+  code?: string
+}
+
+/** Reads display name from Supabase Auth `user_metadata` (signup / dashboard). */
+export function getAuthDisplayName(user: User | null | undefined): string | null {
+  if (!user?.user_metadata || typeof user.user_metadata !== 'object') return null
+  const m = user.user_metadata as Record<string, unknown>
+  for (const key of ['full_name', 'display_name', 'name'] as const) {
+    const v = m[key]
+    if (typeof v === 'string') {
+      const t = v.trim()
+      if (t) return t
+    }
+  }
+  return null
+}
+
+/** Today hero: «Привет, {имя}» or «Привет». */
+export function getHomeGreetingTitle(user: User | null | undefined): string {
+  const name = getAuthDisplayName(user ?? null)
+  return name ? `Привет, ${name}` : 'Привет'
+}
+
 export type AuthSnapshot = {
   mode: 'demo' | 'auth'
   user: User | null
@@ -55,18 +80,63 @@ export async function signInWithEmail(args: {
 export async function signUpWithEmail(args: {
   email: string
   password: string
+  /** Saved as `user_metadata.full_name` and `user_metadata.display_name` when non-empty. */
+  displayName?: string
 }): Promise<AuthSnapshot> {
-  if (!hasSupabaseEnv()) return { mode: 'demo', user: null, session: null }
+  if (!hasSupabaseEnv()) {
+    throw new Error('Supabase ENV missing')
+  }
+  const email = (args.email ?? '').trim()
+  const password = args.password ?? ''
+  const displayName = (args.displayName ?? '').trim()
+
+  // Guardrails: Supabase returns 422 on invalid payloads; fail early with a readable message.
+  if (!email) throw new Error('Введите email')
+  if (!email.includes('@')) throw new Error('Введите корректный email')
+  if (!password) throw new Error('Введите пароль')
+  if (password.length < 6) throw new Error('Пароль должен быть не короче 6 символов')
+
+  console.log('SIGNUP PAYLOAD', {
+    email,
+    passwordLength: password?.length,
+    displayNameLength: displayName.length,
+  })
+
   try {
     const sb = getSupabaseClient()
-    const { data, error } = await sb.auth.signUp({
-      email: args.email,
-      password: args.password,
-    })
-    if (error) return { mode: 'demo', user: null, session: null }
+    const { data, error } = await sb.auth.signUp(
+      displayName
+        ? {
+            email,
+            password,
+            options: {
+              data: {
+                full_name: displayName,
+                display_name: displayName,
+              },
+            },
+          }
+        : { email, password },
+    )
+    if (error) throw error
     return { mode: data.user ? 'auth' : 'demo', user: data.user ?? null, session: data.session ?? null }
-  } catch {
-    return { mode: 'demo', user: null, session: null }
+  } catch (error: unknown) {
+    console.error('SIGNUP FULL ERROR', JSON.stringify(error, null, 2))
+    console.error('SIGNUP RAW ERROR', error)
+
+    const anyE = error as any
+    const msg =
+      (typeof anyE?.message === 'string' && anyE.message.trim()) ||
+      (typeof anyE?.error_description === 'string' && anyE.error_description.trim()) ||
+      'Не удалось создать аккаунт'
+    const status = anyE?.status ?? anyE?.statusCode
+    const code = anyE?.code != null ? String(anyE.code) : undefined
+
+    const wrapped = Object.assign(new Error(msg), {
+      status,
+      code,
+    }) as SignUpThrownError
+    throw wrapped
   }
 }
 
