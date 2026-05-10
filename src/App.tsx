@@ -37,6 +37,7 @@ import { Login } from './screens/Login'
 import { Signup } from './screens/Signup'
 import { AuthEntry } from './screens/AuthEntry'
 import { Workspace } from './screens/Workspace'
+import { useAuthStore } from './store/authStore'
 import {
   ROUTE_APP_CALENDAR,
   ROUTE_APP_CALENDAR_NEW,
@@ -70,6 +71,16 @@ function Page({ children }: { children: ReactNode }) {
       {children}
     </motion.main>
   )
+}
+
+function RequireAuth({ children }: { children: ReactNode }) {
+  const initializing = useAuthStore((s) => s.initializing)
+  const mode = useAuthStore((s) => s.mode)
+
+  // Avoid redirect flicker while restoreSession() is running.
+  if (initializing) return null
+  if (mode !== 'auth') return <Navigate to="/auth" replace />
+  return <>{children}</>
 }
 
 function GlobalMaterialSync() {
@@ -146,19 +157,23 @@ function GlobalMaterialSync() {
   }, [markInstalled, setDeferred])
 
   useEffect(() => {
-    applyMaterialFromStore({
-      pathname: loc.pathname,
-      scrollY,
-      bookings: state.bookings,
-      clients: state.clients,
-      events: state.events,
-      services: state.services,
-      masters: state.masters,
-      sent,
-      activeRecoveryChains: activeChains,
-      freeSlotsToday: slots,
-      incomeToday: income,
-    })
+    try {
+      applyMaterialFromStore({
+        pathname: loc.pathname,
+        scrollY,
+        bookings: state.bookings,
+        clients: state.clients,
+        events: state.events,
+        services: state.services,
+        masters: state.masters,
+        sent,
+        activeRecoveryChains: activeChains,
+        freeSlotsToday: slots,
+        incomeToday: income,
+      })
+    } catch (e) {
+      console.error('[material] applyMaterialFromStore failed', e)
+    }
 
     if (!ready) {
       // Strict gate: material applied + 2 animation frames.
@@ -299,7 +314,9 @@ function Shell() {
             path={ROUTE_APP_TODAY}
             element={
               <Page>
-                <Today />
+                <RequireAuth>
+                  <Today />
+                </RequireAuth>
               </Page>
             }
           />
@@ -307,7 +324,9 @@ function Shell() {
             path={ROUTE_APP_CALENDAR}
             element={
               <Page>
-                <Calendar />
+                <RequireAuth>
+                  <Calendar />
+                </RequireAuth>
               </Page>
             }
           />
@@ -315,7 +334,9 @@ function Shell() {
             path={ROUTE_APP_CALENDAR_NEW}
             element={
               <Page>
-                <NewBooking />
+                <RequireAuth>
+                  <NewBooking />
+                </RequireAuth>
               </Page>
             }
           />
@@ -323,7 +344,9 @@ function Shell() {
             path={ROUTE_APP_RESCHEDULE}
             element={
               <Page>
-                <Reschedule />
+                <RequireAuth>
+                  <Reschedule />
+                </RequireAuth>
               </Page>
             }
           />
@@ -331,7 +354,9 @@ function Shell() {
             path={ROUTE_APP_CLIENTS}
             element={
               <Page>
-                <Clients />
+                <RequireAuth>
+                  <Clients />
+                </RequireAuth>
               </Page>
             }
           />
@@ -339,7 +364,9 @@ function Shell() {
             path={ROUTE_APP_MONEY}
             element={
               <Page>
-                <Money />
+                <RequireAuth>
+                  <Money />
+                </RequireAuth>
               </Page>
             }
           />
@@ -347,7 +374,9 @@ function Shell() {
             path={ROUTE_APP_SETTINGS}
             element={
               <Page>
-                <Settings />
+                <RequireAuth>
+                  <Settings />
+                </RequireAuth>
               </Page>
             }
           />

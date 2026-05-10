@@ -25,6 +25,60 @@ export function Signup() {
     if (mode === 'auth') nav(ROUTE_APP_TODAY, { replace: true })
   }, [mode, nav])
 
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const nameTrim = displayName.trim()
+    const cleanEmail = email.trim()
+    console.log('SIGNUP SUBMIT', { name: nameTrim, email: cleanEmail, passwordLength: password?.length })
+    setBusy(true)
+    setErrDetail(null)
+    try {
+      if (!hasSupabaseEnv()) {
+        setErrDetail({ message: 'Supabase ENV missing' })
+        return
+      }
+      if (!nameTrim) {
+        setErrDetail({ message: 'Введите имя' })
+        return
+      }
+      if (!cleanEmail) {
+        setErrDetail({ message: 'Введите email' })
+        return
+      }
+      if (!cleanEmail.includes('@')) {
+        setErrDetail({ message: 'Введите корректный email' })
+        return
+      }
+      if (!password) {
+        setErrDetail({ message: 'Введите пароль' })
+        return
+      }
+      if (password.length < 6) {
+        setErrDetail({ message: 'Пароль должен быть не короче 6 символов' })
+        return
+      }
+
+      const snap = await signUpWithEmail({
+        email: cleanEmail,
+        password,
+        displayName: nameTrim,
+      })
+      if (snap.mode !== 'auth') setErrDetail({ message: 'Не удалось создать аккаунт.' })
+      else nav(ROUTE_APP_TODAY, { replace: true })
+    } catch (error: unknown) {
+      console.error('SIGNUP ERROR', error)
+      const e = error as SignUpThrownError
+      const anyE = error as any
+      setErrDetail({
+        message: (typeof e?.message === 'string' && e.message.trim()) || 'Не удалось создать аккаунт.',
+        status: anyE?.status ?? anyE?.statusCode,
+        code: anyE?.code != null ? String(anyE.code) : undefined,
+      })
+    } finally {
+      setBusy(false)
+    }
+  }
+
   return (
     <div className="px-5" style={{ paddingTop: 'calc(1.75rem * (0.94 + var(--global-rhythm, 1) * 0.06))' }}>
       <div className="mx-auto max-w-[520px]">
@@ -34,7 +88,7 @@ export function Signup() {
           Начните спокойно — аккаунт отделяет ваши данные в облаке от учебного режима на устройстве.
         </div>
 
-        <div className="mt-4 space-y-2">
+        <form className="mt-4 space-y-2" onSubmit={handleSignup}>
           <input
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
@@ -76,47 +130,9 @@ export function Signup() {
           ) : null}
 
           <button
-            type="button"
+            type="submit"
             disabled={busy || !hasSupabaseEnv()}
-            onClick={async () => {
-              setBusy(true)
-              setErrDetail(null)
-              try {
-                if (!hasSupabaseEnv()) {
-                  setErrDetail({ message: 'Supabase ENV missing' })
-                  return
-                }
-                const cleanEmail = email.trim()
-                const nameTrim = displayName.trim()
-                console.log('SIGNUP PAYLOAD', {
-                  email: cleanEmail,
-                  passwordLength: password?.length,
-                  displayNameLength: nameTrim.length,
-                })
-                const snap = await signUpWithEmail({
-                  email: cleanEmail,
-                  password,
-                  displayName: nameTrim || undefined,
-                })
-                if (snap.mode !== 'auth')
-                  setErrDetail({ message: 'Не удалось создать аккаунт.' })
-                else nav(ROUTE_APP_TODAY, { replace: true })
-              } catch (error: unknown) {
-                console.error('SIGNUP FULL ERROR', JSON.stringify(error, null, 2))
-                console.error('SIGNUP RAW ERROR', error)
-                const e = error as SignUpThrownError
-                const anyE = error as any
-                setErrDetail({
-                  message:
-                    (typeof e?.message === 'string' && e.message.trim()) ||
-                    'Не удалось создать аккаунт.',
-                  status: anyE?.status ?? anyE?.statusCode,
-                  code: anyE?.code != null ? String(anyE.code) : undefined,
-                })
-              } finally {
-                setBusy(false)
-              }
-            }}
+            onClick={() => console.log('SIGNUP CLICKED')}
             className="w-full rounded-3xl bg-ink-950 px-5 py-4 text-[15px] font-medium text-paper-50 shadow-glowGold disabled:opacity-70"
           >
             Создать аккаунт
@@ -129,7 +145,7 @@ export function Signup() {
           >
             Назад
           </button>
-        </div>
+        </form>
       </div>
     </div>
   )
