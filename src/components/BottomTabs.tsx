@@ -68,7 +68,12 @@ export function BottomTabs() {
                         strokeWidth={2}
                       />
                     </div>
-                    <span className={cn('leading-none', isActive && 'font-semibold text-ink-950')}>
+                    <span
+                      className={cn(
+                        'whitespace-nowrap text-center leading-none',
+                        isActive && 'font-semibold text-ink-950',
+                      )}
+                    >
                       {label}
                     </span>
                   </>

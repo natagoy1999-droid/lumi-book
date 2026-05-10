@@ -7,7 +7,6 @@ import { GlassCard } from '../components/GlassCard'
 import { ROUTE_APP_CALENDAR_NEW } from '../lib/appRoutes'
 import { cn } from '../lib/cn'
 import { LumiButton } from '../components/ui/LumiButton'
-import { useCognitiveUI } from '../state/cognitiveUI'
 import { todayISO, useStore } from '../state/store'
 
 const WEEKDAYS_MON_FIRST = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'] as const
@@ -34,7 +33,6 @@ function monthGridCells(year: number, monthIndex: number) {
 
 export function Calendar() {
   const nav = useNavigate()
-  const showAmbientHints = useCognitiveUI((s) => s.policy.showAmbientHints)
   const { state, getClient, getService } = useStore()
   const [dateISO, setDateISO] = useState(todayISO())
   const master = state.masters[0]
@@ -94,8 +92,6 @@ export function Calendar() {
     .filter((b) => b.dateISO === dateISO && b.masterId === master.id)
     .sort((a, b) => a.time.localeCompare(b.time))
 
-  const gridGap = 'clamp(0.55rem, 2.2vw, 0.78rem)'
-
   return (
     <div
       className="px-5"
@@ -103,7 +99,7 @@ export function Calendar() {
         paddingTop: 'calc(1.75rem * (0.94 + var(--global-rhythm, 1) * 0.06))',
       }}
     >
-      <div className="mx-auto max-w-[520px]">
+      <div className="mx-auto w-full max-w-[520px] min-w-0">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -113,7 +109,7 @@ export function Calendar() {
           <div className="lumi-page-title">Записи</div>
         </motion.div>
 
-        <GlassCard materialTier="interactive" className="p-6 sm:p-7">
+        <GlassCard materialTier="interactive" className="w-full max-w-full box-border p-6">
           <div className="flex items-center justify-between gap-3 pb-8 pt-0.5">
             <button
               type="button"
@@ -129,7 +125,7 @@ export function Calendar() {
               <ChevronLeft size={16} strokeWidth={1.65} />
             </button>
             <div className="min-w-0 flex-1 text-center">
-              <div className="text-[1.38rem] font-semibold leading-[1.15] tracking-[-0.03em] text-ink-950 sm:text-[1.48rem]">
+              <div className="text-[1.42rem] font-semibold leading-[1.15] tracking-[-0.03em] text-ink-950">
                 {monthTitle}
               </div>
             </div>
@@ -148,16 +144,11 @@ export function Calendar() {
             </button>
           </div>
 
-          <div
-            className="grid grid-cols-7 text-center"
-            style={{ gap: gridGap }}
-            role="grid"
-            aria-label="Календарь"
-          >
+          <div className="grid grid-cols-7 gap-2 text-center min-w-0" role="grid" aria-label="Календарь">
             {WEEKDAYS_MON_FIRST.map((w) => (
               <div
                 key={w}
-                className="pb-2.5 text-[8.5px] font-normal uppercase tracking-[0.18em] text-ink-700/28 sm:text-[9.5px]"
+                className="pb-2.5 text-[9px] font-normal uppercase tracking-[0.18em] text-ink-700/28"
               >
                 {w}
               </div>
@@ -185,7 +176,7 @@ export function Calendar() {
                   aria-current={isTodayCell ? 'date' : undefined}
                   onClick={() => setDateISO(iso)}
                   className={cn(
-                    'relative flex aspect-square min-h-[3rem] touch-manipulation flex-col items-center justify-center rounded-[14px] border transition-[background-color,border-color,box-shadow,transform] duration-200 ease-out',
+                    'relative flex aspect-square min-h-[3rem] min-w-0 touch-manipulation flex-col items-center justify-center rounded-[14px] border transition-[background-color,border-color,box-shadow,transform] duration-200 ease-out',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--lumi-bg)]',
                     active
                       ? cn(
@@ -204,7 +195,7 @@ export function Calendar() {
                 >
                   <span
                     className={cn(
-                      'text-[15px] font-semibold tabular-nums tracking-[-0.02em] sm:text-[16px]',
+                      'text-[15px] font-semibold tabular-nums tracking-[-0.02em]',
                       active ? 'text-ink-950' : 'text-ink-950/[0.88]',
                     )}
                   >
@@ -226,7 +217,7 @@ export function Calendar() {
           </div>
         </GlassCard>
 
-        <div style={{ marginTop: 'clamp(12px, 3vw, 16px)' }}>
+        <div className="mt-3">
           <LumiButton
             type="button"
             onClick={() =>
@@ -238,22 +229,16 @@ export function Calendar() {
         </div>
 
         <div
-          className="flex flex-col border-t border-white/25 pt-5"
-          style={{
-            marginTop: 'clamp(16px, 4vw, 20px)',
-            gap: 'var(--cognitive-inline-stack)',
-          }}
+          className="mt-4 flex flex-col gap-4 border-t border-white/25 pt-5"
         >
-          {showAmbientHints ? (
-            <GlassCard materialTier="ambient" className="p-4">
-              <div className="inline-flex items-center gap-2.5 text-[12px] font-medium leading-snug text-ink-700/62">
-                <Sparkles size={15} className="shrink-0 text-gold-400/90" strokeWidth={1.75} />
-                Выберите дату — и Lumi сама откроет окна времени
-              </div>
-            </GlassCard>
-          ) : null}
+          <GlassCard materialTier="ambient" className="w-full max-w-full box-border p-4">
+            <div className="inline-flex items-center gap-2.5 text-[12px] font-medium leading-snug text-ink-700/62">
+              <Sparkles size={15} className="shrink-0 text-gold-400/90" strokeWidth={1.75} />
+              Выберите дату — и Lumi сама откроет окна времени
+            </div>
+          </GlassCard>
 
-          <GlassCard materialTier="ambient" className="p-5">
+          <GlassCard materialTier="ambient" className="w-full max-w-full box-border p-5">
             <div className="text-[10px] font-medium uppercase tracking-[0.08em] text-ink-700/40">
               Расписание
             </div>
