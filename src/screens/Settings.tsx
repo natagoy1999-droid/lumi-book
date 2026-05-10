@@ -249,10 +249,12 @@ export function Settings() {
 
   return (
     <div
-      className="lumi-page lumi-page-shell"
-      style={{ paddingTop: 'calc(1.75rem * (0.94 + var(--global-rhythm, 1) * 0.06))' }}
+      className="w-full max-w-[520px] mx-auto px-5 pb-32 overflow-x-hidden box-border"
+      style={{
+        paddingTop: 'calc(1.75rem * (0.94 + var(--global-rhythm, 1) * 0.06))',
+        background: 'rgba(255,0,0,0.04)',
+      }}
     >
-      <div className="mx-auto w-full min-w-0 max-w-[520px]">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -442,7 +444,6 @@ export function Settings() {
             </GlassCard>
           </section>
         </div>
-      </div>
 
       <LumiModal
         open={activePanel === 'workHours'}

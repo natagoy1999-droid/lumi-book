@@ -299,16 +299,18 @@ body {
 }
 
 /**
- * Shared horizontal inset + bottom clearance for tabbed app screens (matches Today/Calendar px-5 + BottomTabs).
+ * Tabbed app screens: one centered column (520px), horizontal inset, bottom clearance for BottomTabs.
  */
 .lumi-page-shell {
   box-sizing: border-box;
   width: 100%;
-  max-width: 100%;
+  max-width: 520px;
+  margin-left: auto;
+  margin-right: auto;
   min-width: 0;
   overflow-x: hidden;
-  padding-left: 1.25rem;
-  padding-right: 1.25rem;
+  padding-left: 20px;
+  padding-right: 20px;
   padding-bottom: var(--app-bottom-pad, calc(116px + env(safe-area-inset-bottom)));
 }
 
