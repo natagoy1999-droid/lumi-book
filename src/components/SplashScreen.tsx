@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
+import { Sparkles } from 'lucide-react'
 import { useState } from 'react'
 
 export function SplashScreen({ active }: { active: boolean }) {
@@ -8,8 +9,8 @@ export function SplashScreen({ active }: { active: boolean }) {
     <AnimatePresence>
       {active ? (
         <motion.div
-          className="fixed inset-0 grid place-items-center px-6"
-          style={{ background: 'linear-gradient(180deg, #FFFDF8 0%, #FAF7EF 100%)', zIndex: 9990 }}
+          className="fixed inset-0 z-[9990] flex flex-col items-center justify-center px-6"
+          style={{ background: 'linear-gradient(180deg, #FFFDF8 0%, #FAF7EF 100%)' }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -20,25 +21,23 @@ export function SplashScreen({ active }: { active: boolean }) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.992 }}
             transition={{ duration: 0.46, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full max-w-[420px] rounded-[34px] border p-7 shadow-lift ring-1 ring-black/5"
-            style={{ backgroundColor: '#FFFDF8', borderColor: 'rgba(20,20,20,0.07)' }}
+            className="flex w-full max-w-[min(88vw,280px)] flex-col items-center"
           >
-            <div className="grid place-items-center text-center">
-              {logoOk ? (
-                <img
-                  src="/lumi-logo-transparent.png"
-                  alt="LUMI BOOK"
-                  className="h-auto object-contain"
-                  style={{ width: 180, maxWidth: '70vw' }}
-                  draggable={false}
-                  onError={() => setLogoOk(false)}
-                />
-              ) : (
-                <div className="text-[22px] font-semibold tracking-tightish text-ink-950">LUMI BOOK</div>
-              )}
-              <div className="mt-5 text-[12px] font-medium tracking-wide text-ink-900/62">
-                Ещё мгновение…
+            {logoOk ? (
+              <img
+                src="/lumi-logo-transparent.png"
+                alt=""
+                className="h-auto max-h-[min(36vh,260px)] w-full object-contain"
+                draggable={false}
+                onError={() => setLogoOk(false)}
+              />
+            ) : (
+              <div className="flex h-32 w-full items-center justify-center" aria-hidden>
+                <Sparkles className="text-gold-400/75" size={64} strokeWidth={1.35} />
               </div>
+            )}
+            <div className="mt-6 text-[12px] font-medium tracking-wide text-ink-900/62">
+              Ещё мгновение…
             </div>
           </motion.div>
         </motion.div>
@@ -46,4 +45,3 @@ export function SplashScreen({ active }: { active: boolean }) {
     </AnimatePresence>
   )
 }
-

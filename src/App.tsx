@@ -26,7 +26,7 @@ import { Calendar } from './screens/Calendar'
 import { Clients } from './screens/Clients'
 import { Money } from './screens/Money'
 import { NewBooking } from './screens/NewBooking'
-import { Onboarding } from './screens/Onboarding'
+import { RoleLanding } from './screens/RoleLanding'
 import { Reschedule } from './screens/Reschedule'
 import { Settings } from './screens/Settings'
 import { Today } from './screens/Today'
@@ -230,12 +230,19 @@ function Shell() {
           <AnimatePresence mode="wait" initial={false}>
           <ErrorBoundary key={`${loc.pathname}${loc.search}`} layout="embedded">
           <Routes location={loc} key={loc.pathname + loc.search}>
-          <Route path="/" element={<Navigate to={ROUTE_BOOK} replace />} />
+          <Route
+            path="/"
+            element={
+              <Page>
+                <RoleLanding />
+              </Page>
+            }
+          />
           <Route
             path="/onboarding"
             element={
               <Page>
-                <Onboarding />
+                <RoleLanding />
               </Page>
             }
           />
@@ -360,7 +367,7 @@ function Shell() {
           <Route path="/money" element={<Navigate to={ROUTE_APP_MONEY} replace />} />
           <Route path="/settings" element={<Navigate to={ROUTE_APP_SETTINGS} replace />} />
           <Route path="/client-booking" element={<Navigate to={ROUTE_BOOK} replace />} />
-          <Route path="*" element={<Navigate to={ROUTE_BOOK} replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
           </ErrorBoundary>
           </AnimatePresence>
