@@ -13,7 +13,7 @@ import {
   UserRound,
   Users,
 } from 'lucide-react'
-import { useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { GlassCard } from '../components/GlassCard'
@@ -241,6 +241,10 @@ export function Settings() {
   const accountEmail =
     authMode === 'auth' ? authUser?.email?.trim() || authUser?.phone?.trim() || null : null
 
+  useEffect(() => {
+    console.log('FLOW OK: SETTINGS')
+  }, [])
+
   const openPanel = (
     panel: NonNullable<typeof activePanel>,
     refreshDraft?: boolean,
@@ -323,6 +327,7 @@ export function Settings() {
                       clearLocalMasterAuth()
                       await signOut()
                       console.log('AUTH LOGOUT')
+                      console.log('FLOW OK: LOGOUT')
                       useAuthStore.getState().setSnapshot({ mode: 'guest', user: null, session: null })
                       nav('/auth')
                     }}

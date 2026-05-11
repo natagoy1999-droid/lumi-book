@@ -1,12 +1,11 @@
 import { motion } from 'framer-motion'
 import { Plus, Sparkles, Search, Trash2, Users } from 'lucide-react'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { GlassCard } from '../components/GlassCard'
 import { cn } from '../lib/cn'
 import { deriveClientCardSurface } from '../lib/clientCardSoftness'
 import { LumiButton } from '../components/ui/LumiButton'
-import { lumiPrimaryActionSm } from '../lib/lumiActionStyles'
 import { LumiEmptyState } from '../components/ui/LumiEmptyState'
 import { LumiInput } from '../components/ui/LumiInput'
 import { LumiModal } from '../components/ui/LumiModal'
@@ -37,7 +36,12 @@ export function Clients() {
   const socialQuietness = useCommunicationCalmIntel((s) => s.snapshot?.socialQuietness ?? 0.35)
   const sent = useMessaging((s) => s.sent)
   const { state, dispatch } = useStore()
-  const [q, setQ] = useState('')
+  const [qInput, setQInput] = useState('')
+  const [qApplied, setQApplied] = useState('')
+
+  useEffect(() => {
+    console.log('FLOW OK: CLIENTS')
+  }, [])
 
   const [openEdit, setOpenEdit] = useState(false)
   const [draft, setDraft] = useState<Client | null>(null)
@@ -84,14 +88,14 @@ export function Clients() {
   const modalOpen = openEdit && Boolean(draft)
 
   const list = useMemo(() => {
-    const t = q.trim().toLowerCase()
+    const t = qApplied.trim().toLowerCase()
     if (!t) return state.clients
     return state.clients.filter((c) => {
       const name = (c.name ?? '').toLowerCase()
       const phone = (c.phone ?? '').toLowerCase()
       return name.includes(t) || phone.includes(t)
     })
-  }, [q, state.clients])
+  }, [qApplied, state.clients])
 
   return (
     <div
@@ -111,29 +115,44 @@ export function Clients() {
         </motion.div>
 
         <GlassCard className="w-full max-w-full min-w-0 p-4">
-          <div className="flex min-w-0 items-center gap-2">
+          <form
+            className="flex min-w-0 items-center gap-2"
+            onSubmit={(e) => {
+              e.preventDefault()
+              setQApplied(qInput)
+            }}
+          >
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/60 shadow-soft">
               <Search size={18} className="text-ink-800/75" />
             </div>
             <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
+              value={qInput}
+              onChange={(e) => setQInput(e.target.value)}
               placeholder="Поиск по имени или телефону"
               className="h-10 min-w-0 flex-1 rounded-2xl border border-white/60 bg-white/60 px-4 text-[15px] text-ink-950 shadow-soft outline-none placeholder:text-ink-700/35"
             />
             <button
-              type="button"
-              onClick={handleAddClient}
+              type="submit"
               className={cn(
-                'inline-flex h-10 shrink-0 items-center gap-2 !rounded-2xl px-4 text-[14px]',
-                lumiPrimaryActionSm,
+                'inline-flex h-10 shrink-0 items-center gap-2 rounded-2xl border border-white/60 px-4 text-[14px] font-semibold shadow-soft',
+                'bg-[color-mix(in_srgb,var(--lumi-surface)_76%,var(--lumi-bg))] text-ink-950',
+                'hover:bg-[color-mix(in_srgb,var(--lumi-surface)_86%,white)]',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--lumi-bg)]',
               )}
+              style={{ touchAction: 'manipulation' }}
             >
-              <Plus size={18} />
-              Добавить
+              <Search size={16} className="text-ink-950/80" />
+              Найти
             </button>
-          </div>
+          </form>
         </GlassCard>
+
+        <div className="mt-4 mb-6">
+          <LumiButton variant="primary" onClick={handleAddClient}>
+            <Plus size={18} />
+            Добавить клиента
+          </LumiButton>
+        </div>
 
         <motion.div
           initial="hidden"

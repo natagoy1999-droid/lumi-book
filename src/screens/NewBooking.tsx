@@ -45,6 +45,7 @@ export function NewBooking() {
   const slots = freeSlots(dateISO, master.id)
 
   useEffect(() => {
+    console.log('FLOW OK: NEW BOOKING')
     if (qDate) setOpenTime(true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

@@ -38,6 +38,10 @@ export function Today() {
   const user = useAuthStore((s) => s.user)
   const greetingTitle = useMemo(() => getHomeGreetingTitle(user), [user])
 
+  useEffect(() => {
+    console.log('FLOW OK: TODAY')
+  }, [])
+
   const [logoOk, setLogoOk] = useState(true)
   const dateLabel = useMemo(() => {
     return new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' }).format(new Date())

@@ -37,6 +37,10 @@ export function Calendar() {
   const [dateISO, setDateISO] = useState(todayISO())
   const master = state.masters[0]
 
+  useEffect(() => {
+    console.log('FLOW OK: CALENDAR')
+  }, [])
+
   const [viewY, setViewY] = useState(() => parseParts(todayISO()).y)
   const [viewM, setViewM] = useState(() => parseParts(todayISO()).m)
 

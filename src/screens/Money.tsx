@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { ArrowUpRight, Sparkles } from 'lucide-react'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import { GlassCard } from '../components/GlassCard'
 import { LumiEmptyState } from '../components/ui/LumiEmptyState'
@@ -38,6 +38,10 @@ export function Money() {
   const showAmbientHints = useCognitiveUI((s) => s.policy.showAmbientHints)
   const { state, moneyForDay } = useStore()
   const today = todayISO()
+
+  useEffect(() => {
+    console.log('FLOW OK: MONEY')
+  }, [])
 
   const day = moneyForDay(today)
   const week = useMemo(() => {
