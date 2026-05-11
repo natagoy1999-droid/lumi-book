@@ -53,6 +53,15 @@ export function Clients() {
     setSaveError(null)
   }, [])
 
+  const handleSearch = useCallback(
+    (event: React.FormEvent) => {
+      event.preventDefault()
+      console.log('CLIENT SEARCH', qInput)
+      setQApplied(qInput.trim())
+    },
+    [qInput],
+  )
+
   const handleAddClient = useCallback(() => {
     setSaveError(null)
     setDraft({
@@ -117,14 +126,8 @@ export function Clients() {
         <GlassCard className="w-full max-w-full min-w-0 p-4">
           <form
             className="flex min-w-0 items-center gap-2"
-            onSubmit={(e) => {
-              e.preventDefault()
-              setQApplied(qInput)
-            }}
+            onSubmit={handleSearch}
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/60 shadow-soft">
-              <Search size={18} className="text-ink-800/75" />
-            </div>
             <input
               value={qInput}
               onChange={(e) => setQInput(e.target.value)}
@@ -250,9 +253,6 @@ export function Clients() {
               title="Пока пусто"
               desc="Клиенты появятся автоматически после первых записей — без ручного ввода."
               icon={<Users size={18} className="text-gold-400" />}
-              actionLabel="Добавить клиента"
-              actionVariant="primary"
-              onAction={handleAddClient}
             />
           )}
         </motion.div>
