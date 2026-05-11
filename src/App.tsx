@@ -37,6 +37,7 @@ import { Login } from './screens/Login'
 import { Signup } from './screens/Signup'
 import { AuthEntry } from './screens/AuthEntry'
 import { Workspace } from './screens/Workspace'
+import { isLocalMasterAuthed } from './lib/localMasterAuth'
 import { useAuthStore } from './store/authStore'
 import {
   ROUTE_APP_CALENDAR,
@@ -81,6 +82,7 @@ function RequireAuth({ children }: { children: ReactNode }) {
   // Avoid redirect flicker while restoreSession() is running.
   if (initializing) return null
   console.log('AUTH STORE MODE', mode)
+  if (isLocalMasterAuthed()) return <>{children}</>
   if (mode !== 'auth' || !hasUser) return <Navigate to="/auth" replace />
   return <>{children}</>
 }

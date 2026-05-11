@@ -3,6 +3,11 @@ import { useNavigate } from 'react-router-dom'
 
 import { ROUTE_APP_TODAY } from '../lib/appRoutes'
 import { signInWithEmail } from '../lib/auth'
+import {
+  clearLocalMasterAuth,
+  isSupabaseNetworkFallbackError,
+  localMasterSnapshot,
+} from '../lib/localMasterAuth'
 import { hasSupabaseEnv } from '../lib/supabaseClient'
 import { useAuthStore } from '../store/authStore'
 
@@ -12,7 +17,12 @@ export function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<{ message: string; showOpenInBrowser?: boolean } | null>(null)
+  const [localName, setLocalName] = useState('')
+  const [error, setError] = useState<{
+    message: string
+    showOpenInBrowser?: boolean
+    showLocalFallback?: boolean
+  } | null>(null)
 
   useEffect(() => {
     if (mode === 'auth') nav(ROUTE_APP_TODAY, { replace: true })
@@ -47,6 +57,7 @@ export function Login() {
       }
       const snap = await signInWithEmail({ email: cleanEmail, password })
       if (snap.session?.user) {
+        clearLocalMasterAuth()
         useAuthStore.getState().setSnapshot(snap)
         nav(ROUTE_APP_TODAY, { replace: true })
       } else {
@@ -55,9 +66,12 @@ export function Login() {
     } catch (error) {
       console.error('LOGIN ERROR', error)
       const msg = (error as any)?.message || 'Не удалось войти.'
+      const showLocalFallback = isSupabaseNetworkFallbackError(error)
       const showOpenInBrowser =
-        (error as any)?.status === 0 || String((error as any)?.code || '') === 'network_webview' || String(msg).includes('Откройте Lumi Book')
-      setError({ message: msg, showOpenInBrowser })
+        showLocalFallback ||
+        String((error as any)?.code || '') === 'network_webview' ||
+        String(msg).includes('Откройте Lumi Book')
+      setError({ message: msg, showOpenInBrowser, showLocalFallback })
     } finally {
       setBusy(false)
     }
@@ -102,6 +116,30 @@ export function Login() {
             >
               Открыть в браузере
             </button>
+          ) : null}
+
+          {error?.showLocalFallback ? (
+            <>
+              <input
+                value={localName}
+                onChange={(e) => setLocalName(e.target.value)}
+                placeholder="Имя мастера"
+                autoComplete="name"
+                className="w-full lumi-card bg-white/60 px-4 py-3 text-[15px] text-ink-950 outline-none placeholder:text-ink-700/35"
+                style={{ touchAction: 'manipulation' }}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  const snap = localMasterSnapshot(email.trim() || undefined, localName.trim() || 'Мастер')
+                  useAuthStore.getState().setSnapshot(snap)
+                  nav(ROUTE_APP_TODAY, { replace: true })
+                }}
+                className="w-full touch-manipulation lumi-card px-4 py-3 text-[13px] font-semibold text-ink-950"
+              >
+                Войти в локальный режим
+              </button>
+            </>
           ) : null}
 
           <button

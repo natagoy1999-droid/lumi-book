@@ -31,6 +31,8 @@ import {
   type Service,
   type SubscriptionState,
 } from '../state/store'
+import { signOut } from '../lib/auth'
+import { clearLocalMasterAuth } from '../lib/localMasterAuth'
 import { useDemoMode } from '../state/demoMode'
 import { useAuthStore } from '../store/authStore'
 
@@ -313,7 +315,22 @@ export function Settings() {
                     Подключить аккаунт
                   </button>
                 </div>
-              ) : null}
+              ) : (
+                <div className="mt-6">
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      clearLocalMasterAuth()
+                      await signOut()
+                      useAuthStore.getState().setSnapshot({ mode: 'demo', user: null, session: null })
+                      nav('/auth')
+                    }}
+                    className="w-full rounded-full border border-gold-300/30 bg-white/65 px-5 py-3 text-[13px] font-semibold text-ink-950 shadow-soft transition hover:border-gold-300/45 hover:bg-white/80"
+                  >
+                    Выйти
+                  </button>
+                </div>
+              )}
             </GlassCard>
           </section>
 

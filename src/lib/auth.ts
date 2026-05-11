@@ -1,5 +1,6 @@
 import type { User, Session, AuthChangeEvent } from '@supabase/supabase-js'
 
+import { getLocalMasterName, isLocalMasterAuthed } from './localMasterAuth'
 import { hasSupabaseEnv, getSupabaseClient } from './supabaseClient'
 
 export type SignUpThrownError = Error & {
@@ -53,6 +54,9 @@ export function getAuthDisplayName(user: User | null | undefined): string | null
 
 /** Today hero: «Привет, {имя}» or «Привет». */
 export function getHomeGreetingTitle(user: User | null | undefined): string {
+  if (typeof window !== 'undefined' && isLocalMasterAuthed()) {
+    return `Привет, ${getLocalMasterName()}`
+  }
   const name = getAuthDisplayName(user ?? null)
   return name ? `Привет, ${name}` : 'Привет'
 }

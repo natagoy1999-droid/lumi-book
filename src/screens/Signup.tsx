@@ -3,6 +3,11 @@ import { useNavigate } from 'react-router-dom'
 
 import { ROUTE_APP_TODAY } from '../lib/appRoutes'
 import { signUpWithEmail, type SignUpThrownError } from '../lib/auth'
+import {
+  clearLocalMasterAuth,
+  isSupabaseNetworkFallbackError,
+  localMasterSnapshot,
+} from '../lib/localMasterAuth'
 import { hasSupabaseEnv } from '../lib/supabaseClient'
 import { useAuthStore } from '../store/authStore'
 
@@ -11,6 +16,7 @@ type SignupErr = {
   status?: number | string
   code?: string
   showOpenInBrowser?: boolean
+  showLocalFallback?: boolean
 }
 
 export function Signup() {
@@ -65,6 +71,7 @@ export function Signup() {
         displayName: nameTrim,
       })
       if (snap.session?.user) {
+        clearLocalMasterAuth()
         useAuthStore.getState().setSnapshot(snap)
         nav(ROUTE_APP_TODAY, { replace: true })
       } else {
@@ -76,8 +83,9 @@ export function Signup() {
       const anyE = error as any
       const msg =
         (typeof e?.message === 'string' && e.message.trim()) || 'Не удалось создать аккаунт.'
+      const showLocalFallback = isSupabaseNetworkFallbackError(error)
       const showOpenInBrowser =
-        anyE?.status === 0 ||
+        showLocalFallback ||
         String(anyE?.code || '') === 'network_webview' ||
         String(msg).includes('Откройте Lumi Book')
       setErrDetail({
@@ -85,6 +93,7 @@ export function Signup() {
         status: anyE?.status ?? anyE?.statusCode,
         code: anyE?.code != null ? String(anyE.code) : undefined,
         showOpenInBrowser,
+        showLocalFallback,
       })
     } finally {
       setBusy(false)
@@ -148,6 +157,20 @@ export function Signup() {
               className="w-full lumi-card px-4 py-3 text-[13px] font-semibold text-ink-950"
             >
               Открыть в браузере
+            </button>
+          ) : null}
+
+          {errDetail?.showLocalFallback ? (
+            <button
+              type="button"
+              onClick={() => {
+                const snap = localMasterSnapshot(email.trim() || undefined, displayName.trim() || 'Мастер')
+                useAuthStore.getState().setSnapshot(snap)
+                nav(ROUTE_APP_TODAY, { replace: true })
+              }}
+              className="w-full touch-manipulation lumi-card px-4 py-3 text-[13px] font-semibold text-ink-950"
+            >
+              Войти в локальный режим
             </button>
           ) : null}
 
