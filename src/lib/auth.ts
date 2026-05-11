@@ -62,7 +62,7 @@ export function getHomeGreetingTitle(user: User | null | undefined): string {
 }
 
 export type AuthSnapshot = {
-  mode: 'demo' | 'auth'
+  mode: 'guest' | 'auth'
   user: User | null
   session: Session | null
 }
@@ -70,7 +70,7 @@ export type AuthSnapshot = {
 function snapFromSession(session: Session | null | undefined): AuthSnapshot {
   const s = session ?? null
   const u = s?.user ?? null
-  return { mode: u ? 'auth' : 'demo', user: u, session: s }
+  return { mode: u ? 'auth' : 'guest', user: u, session: s }
 }
 
 export async function getCurrentUser(): Promise<User | null> {
@@ -88,14 +88,14 @@ export async function getCurrentUser(): Promise<User | null> {
 export async function signInAnonymously(): Promise<AuthSnapshot> {
   // Temporary demo-safe mode: anonymous auth if Supabase is available,
   // otherwise remain in demo/local mode.
-  if (!hasSupabaseEnv()) return { mode: 'demo', user: null, session: null }
+  if (!hasSupabaseEnv()) return { mode: 'guest', user: null, session: null }
   try {
     const sb = getSupabaseClient()
     const { data, error } = await sb.auth.signInAnonymously()
-    if (error) return { mode: 'demo', user: null, session: null }
-    return { mode: data.user ? 'auth' : 'demo', user: data.user ?? null, session: data.session ?? null }
+    if (error) return { mode: 'guest', user: null, session: null }
+    return { mode: data.user ? 'auth' : 'guest', user: data.user ?? null, session: data.session ?? null }
   } catch {
-    return { mode: 'demo', user: null, session: null }
+    return { mode: 'guest', user: null, session: null }
   }
 }
 
@@ -243,13 +243,13 @@ export function onAuthStateChange(
 }
 
 export async function restoreSession(): Promise<AuthSnapshot> {
-  if (!hasSupabaseEnv()) return { mode: 'demo', user: null, session: null }
+  if (!hasSupabaseEnv()) return { mode: 'guest', user: null, session: null }
   try {
     const sb = getSupabaseClient()
     const { data } = await sb.auth.getSession()
     return snapFromSession(data.session)
   } catch {
-    return { mode: 'demo', user: null, session: null }
+    return { mode: 'guest', user: null, session: null }
   }
 }
 

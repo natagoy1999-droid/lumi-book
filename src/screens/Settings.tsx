@@ -322,7 +322,8 @@ export function Settings() {
                     onClick={async () => {
                       clearLocalMasterAuth()
                       await signOut()
-                      useAuthStore.getState().setSnapshot({ mode: 'demo', user: null, session: null })
+                      console.log('AUTH LOGOUT')
+                      useAuthStore.getState().setSnapshot({ mode: 'guest', user: null, session: null })
                       nav('/auth')
                     }}
                     className="w-full rounded-full border border-gold-300/30 bg-white/65 px-5 py-3 text-[13px] font-semibold text-ink-950 shadow-soft transition hover:border-gold-300/45 hover:bg-white/80"

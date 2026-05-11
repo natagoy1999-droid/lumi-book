@@ -102,92 +102,97 @@ export function Pricing() {
 
   return (
     <div
-      className="lumi-page"
+      className="lumi-app-page-wrap pb-32"
       style={{ paddingTop: 'calc(1.75rem * (0.94 + var(--global-rhythm, 1) * 0.06))' }}
     >
-      <div className="mx-auto max-w-[520px]">
-        <div className="mb-4 space-y-1">
-          <div className="lumi-section-title">Тарифы</div>
-          <div className="lumi-page-title">Тарифы LUMI BOOK</div>
-          <div className="mt-1 lumi-secondary">
-            Выберите формат, который подходит вашему ритму работы
-          </div>
-          {badge ? (
-            <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/70 px-3 py-1 text-[12px] font-medium text-ink-800/75 shadow-soft">
-              <Sparkles size={16} className="text-gold-400" />
-              {badge}
-            </div>
-          ) : null}
-          <div className="mt-3 text-[12px] text-ink-700/55">
-            Текущий статус:{' '}
-            <span className="font-semibold text-ink-950">{subscriptionStatusRu(sub.status)}</span> •{' '}
-            <span className="font-semibold text-ink-950">{planLabel(sub.plan)}</span>
-          </div>
+      <div className="mb-4 space-y-1">
+        <div className="lumi-section-title">Тарифы</div>
+        <div className="lumi-page-title">Тарифы LUMI BOOK</div>
+        <div className="mt-1 lumi-secondary">
+          Выберите формат, который подходит вашему ритму работы
         </div>
-
-        <div className="flex flex-col" style={{ gap: 12 }}>
-          {plans.map((p) => {
-            const active = sub.plan === p.id && sub.status === 'active'
-            return (
-              <GlassCard
-                key={p.id}
-                className={cn('p-5', p.recommended && 'ring-1 ring-gold-200/60 shadow-glowGold')}
-                style={{ backgroundColor: '#FFFDF8', borderColor: 'rgba(20,20,20,0.08)' }}
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <div className="inline-flex items-center gap-2 text-[12px] font-medium text-ink-700/70">
-                      {p.recommended ? <Crown size={16} className="text-gold-400" /> : <Sparkles size={16} className="text-gold-400" />}
-                      {p.name}
-                      {p.recommended ? (
-                        <span className="ml-1 rounded-full border border-gold-200/60 bg-white/70 px-2 py-0.5 text-[11px] font-semibold text-ink-800/75">
-                          рекомендован
-                        </span>
-                      ) : null}
-                      {active ? (
-                        <span className="ml-1 rounded-full border border-white/60 bg-white/70 px-2 py-0.5 text-[11px] font-semibold text-ink-800/75">
-                          активен
-                        </span>
-                      ) : null}
-                    </div>
-                    <div className="mt-2 text-[22px] font-semibold tracking-tightish text-ink-950">{p.price}</div>
-                    <div className="mt-1 text-[12px] text-ink-700/65">{p.desc}</div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setPick(p)}
-                    className={cn(
-                      'rounded-3xl bg-ink-950 px-4 py-3 text-[13px] font-semibold text-paper-50 shadow-glowGold',
-                      active && 'opacity-80',
-                    )}
-                  >
-                    Выбрать тариф
-                  </button>
-                </div>
-
-                <div className="mt-4 space-y-2">
-                  {p.features.map((f) => (
-                    <div key={f} className="flex items-start gap-2 text-[12px] leading-5 text-ink-700/70">
-                      <div className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full border border-white/60 bg-white/70">
-                        <Check size={12} className="text-ink-950" />
-                      </div>
-                      <div>{f}</div>
-                    </div>
-                  ))}
-                </div>
-              </GlassCard>
-            )
-          })}
+        {badge ? (
+          <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/70 px-3 py-1 text-[12px] font-medium text-ink-800/75 shadow-soft">
+            <Sparkles size={16} className="text-gold-400" />
+            {badge}
+          </div>
+        ) : null}
+        <div className="mt-3 text-[12px] text-ink-700/55">
+          Текущий статус:{' '}
+          <span className="font-semibold text-ink-950">{subscriptionStatusRu(sub.status)}</span> •{' '}
+          <span className="font-semibold text-ink-950">{planLabel(sub.plan)}</span>
         </div>
-
-        <button
-          type="button"
-          onClick={() => nav(ROUTE_APP_SETTINGS)}
-          className="mt-4 w-full lumi-card px-4 py-3 text-[13px] font-semibold text-ink-950"
-        >
-          Назад в настройки
-        </button>
       </div>
+
+      <div className="flex min-w-0 flex-col" style={{ gap: 12 }}>
+        {plans.map((p) => {
+          const active = sub.plan === p.id && sub.status === 'active'
+          return (
+            <GlassCard
+              key={p.id}
+              className={cn(
+                'w-full max-w-full min-w-0 box-border p-5',
+                p.recommended && 'ring-1 ring-gold-200/60 shadow-glowGold',
+              )}
+              style={{ backgroundColor: '#FFFDF8', borderColor: 'rgba(20,20,20,0.08)' }}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <div className="inline-flex items-center gap-2 text-[12px] font-medium text-ink-700/70">
+                    {p.recommended ? (
+                      <Crown size={16} className="text-gold-400" />
+                    ) : (
+                      <Sparkles size={16} className="text-gold-400" />
+                    )}
+                    {p.name}
+                    {p.recommended ? (
+                      <span className="ml-1 rounded-full border border-gold-200/60 bg-white/70 px-2 py-0.5 text-[11px] font-semibold text-ink-800/75">
+                        рекомендован
+                      </span>
+                    ) : null}
+                    {active ? (
+                      <span className="ml-1 rounded-full border border-white/60 bg-white/70 px-2 py-0.5 text-[11px] font-semibold text-ink-800/75">
+                        активен
+                      </span>
+                    ) : null}
+                  </div>
+                  <div className="mt-2 text-[22px] font-semibold tracking-tightish text-ink-950">{p.price}</div>
+                  <div className="mt-1 text-[12px] text-ink-700/65">{p.desc}</div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPick(p)}
+                  className={cn(
+                    'shrink-0 rounded-3xl bg-ink-950 px-4 py-3 text-[13px] font-semibold text-paper-50 shadow-glowGold',
+                    active && 'opacity-80',
+                  )}
+                >
+                  Выбрать тариф
+                </button>
+              </div>
+
+              <div className="mt-4 space-y-2">
+                {p.features.map((f) => (
+                  <div key={f} className="flex items-start gap-2 text-[12px] leading-5 text-ink-700/70">
+                    <div className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full border border-white/60 bg-white/70">
+                      <Check size={12} className="text-ink-950" />
+                    </div>
+                    <div className="min-w-0">{f}</div>
+                  </div>
+                ))}
+              </div>
+            </GlassCard>
+          )
+        })}
+      </div>
+
+      <button
+        type="button"
+        onClick={() => nav(ROUTE_APP_SETTINGS)}
+        className="mt-4 w-full max-w-full box-border lumi-card px-4 py-3 text-[13px] font-semibold text-ink-950"
+      >
+        Назад в настройки
+      </button>
 
       <Sheet
         open={Boolean(pick)}

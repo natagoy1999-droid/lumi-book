@@ -232,6 +232,7 @@ export function Clients() {
               desc="Клиенты появятся автоматически после первых записей — без ручного ввода."
               icon={<Users size={18} className="text-gold-400" />}
               actionLabel="Добавить клиента"
+              actionVariant="primary"
               onAction={handleAddClient}
             />
           )}

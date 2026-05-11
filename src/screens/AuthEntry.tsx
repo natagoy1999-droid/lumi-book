@@ -81,6 +81,7 @@ export function AuthEntry() {
               type="button"
               onClick={() => {
                 console.log('AUTH BUTTON TOUCH/CLICK')
+                console.log('LOCAL AUTH LOGIN')
                 const snap = localMasterSnapshot(undefined, localEntryName.trim() || 'Мастер')
                 useAuthStore.getState().setSnapshot(snap)
                 nav(ROUTE_APP_TODAY, { replace: true })

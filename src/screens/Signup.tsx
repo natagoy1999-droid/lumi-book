@@ -164,6 +164,7 @@ export function Signup() {
             <button
               type="button"
               onClick={() => {
+                console.log('LOCAL AUTH LOGIN')
                 const snap = localMasterSnapshot(email.trim() || undefined, displayName.trim() || 'Мастер')
                 useAuthStore.getState().setSnapshot(snap)
                 nav(ROUTE_APP_TODAY, { replace: true })

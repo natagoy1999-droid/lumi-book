@@ -6,16 +6,16 @@ import { buildLocalMasterUser, getLocalMasterName, isLocalMasterAuthed } from '.
 import { hasSupabaseEnv } from '../lib/supabaseClient'
 
 type AuthState = {
-  mode: 'demo' | 'auth'
+  mode: 'guest' | 'auth'
   initializing: boolean
   user: User | null
   session: Session | null
-  setSnapshot: (snap: { mode: 'demo' | 'auth'; user: User | null; session: Session | null }) => void
+  setSnapshot: (snap: { mode: 'guest' | 'auth'; user: User | null; session: Session | null }) => void
   bootstrap: () => Promise<void>
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  mode: 'demo',
+  mode: 'guest',
   initializing: true,
   user: null,
   session: null,
@@ -27,19 +27,22 @@ export const useAuthStore = create<AuthState>((set) => ({
     }),
 
   bootstrap: async () => {
+    console.log('AUTH INIT')
     set({ initializing: true })
     try {
       if (typeof window !== 'undefined' && isLocalMasterAuthed()) {
         const name = getLocalMasterName()
         const user = buildLocalMasterUser(undefined, name)
+        console.log('LOCAL AUTH RESTORED')
         set({ mode: 'auth', user, session: null, initializing: false })
       } else {
         const snap = await restoreSession()
+        if (snap.session?.user) console.log('SUPABASE SESSION RESTORED')
         set({ ...snap, initializing: false })
       }
     } catch (e) {
       console.error('[auth] bootstrap restoreSession failed', e)
-      set({ mode: 'demo', user: null, session: null, initializing: false })
+      set({ mode: 'guest', user: null, session: null, initializing: false })
     }
 
     // Listen only if Supabase is configured.
@@ -52,7 +55,7 @@ export const useAuthStore = create<AuthState>((set) => ({
           set({ mode: 'auth', user, session: null })
           return
         }
-        const mode = session?.user ? 'auth' : 'demo'
+        const mode = session?.user ? 'auth' : 'guest'
         console.log('AUTH STORE MODE', mode)
         set({ mode, user: session?.user ?? null, session: session ?? null })
       })

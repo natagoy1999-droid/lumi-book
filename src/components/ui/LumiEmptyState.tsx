@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 import { cn } from '../../lib/cn'
 import { GlassCard } from '../GlassCard'
-import { LumiButton } from './LumiButton'
+import { LumiButton, type LumiButtonVariant } from './LumiButton'
 
 type Props = {
   title: string
@@ -10,6 +10,7 @@ type Props = {
   icon?: ReactNode
   actionLabel?: string
   onAction?: () => void
+  actionVariant?: LumiButtonVariant
   className?: string
 }
 
@@ -19,6 +20,7 @@ export function LumiEmptyState({
   icon,
   actionLabel,
   onAction,
+  actionVariant = 'secondary',
   className,
 }: Props) {
   return (
@@ -34,7 +36,7 @@ export function LumiEmptyState({
           {desc ? <div className="mt-1 lumi-secondary">{desc}</div> : null}
           {actionLabel && onAction ? (
             <div className="mt-4">
-              <LumiButton variant="secondary" size="sm" onClick={onAction}>
+              <LumiButton variant={actionVariant} size="sm" onClick={onAction}>
                 {actionLabel}
               </LumiButton>
             </div>
