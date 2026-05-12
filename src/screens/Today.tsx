@@ -47,15 +47,16 @@ export function Today() {
     return new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' }).format(new Date())
   }, [])
 
-  const master = state.masters[0]
-  const slots = freeSlots(dateISO, master.id)
+  const masterId = state.masters[0]?.id ?? ''
+  const slots = masterId ? freeSlots(dateISO, masterId) : []
 
   const nextBooking = useMemo(() => {
+    if (!masterId) return undefined
     const b = state.bookings
-      .filter((x) => x.dateISO === dateISO && x.masterId === master.id)
+      .filter((x) => x.dateISO === dateISO && x.masterId === masterId)
       .sort((a, b) => a.time.localeCompare(b.time))[0]
     return b
-  }, [dateISO, master.id, state.bookings])
+  }, [dateISO, masterId, state.bookings])
 
   const bookingsToday = state.bookings.filter((b) => b.dateISO === dateISO)
   const income = moneyForDay(dateISO)
@@ -81,11 +82,11 @@ export function Today() {
       services: state.services,
       events: state.events,
       sent,
-      masterId: master.id,
+      masterId,
       freeSlotsToday: slots,
       incomeToday: income,
     })
-  }, [income, master.id, sent, slots, state.bookings, state.clients, state.events, state.services])
+  }, [income, masterId, sent, slots, state.bookings, state.clients, state.events, state.services])
 
   const widgets = useMemo(() => {
     return buildWidgets({
@@ -353,7 +354,11 @@ export function Today() {
                 </div>
               ))}
               {slots.length === 0 ? (
-                <div className="text-[13px] text-ink-700/65">Всё занято</div>
+                <div className="text-[13px] text-ink-700/65">
+                  {!masterId
+                    ? 'Пока нет мастера в данных — добавьте в настройках, чтобы увидеть окна.'
+                    : 'Всё занято'}
+                </div>
               ) : null}
             </div>
           </GlassCard>

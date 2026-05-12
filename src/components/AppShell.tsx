@@ -15,7 +15,6 @@ import { useAppHydration } from '../state/appHydration'
 import { useDemoMode } from '../state/demoMode'
 import { ROUTE_APP_CALENDAR_NEW, isMasterTodayPath } from '../lib/appRoutes'
 import { useMessaging } from '../state/messaging'
-import { useAuthStore } from '../store/authStore'
 
 function SafeMessageComposerSheet() {
   const composer = useMessaging((s) => s.composer)
@@ -28,11 +27,9 @@ function SafeMessageComposerSheet() {
   )
 }
 
-/** If shell/auth still blocked after 1s (Safari / slow network), offer reload. */
+/** Если hydration не отметил ready — предложить перезагрузку (без привязки к auth). */
 function SafariStuckFallback() {
-  const loc = useLocation()
   const ready = useAppHydration((s) => s.ready)
-  const authInitializing = useAuthStore((s) => s.initializing)
   const [armed, setArmed] = useState(false)
 
   useEffect(() => {
@@ -40,8 +37,7 @@ function SafariStuckFallback() {
     return () => window.clearTimeout(t)
   }, [])
 
-  const onApp = loc.pathname.startsWith('/app/')
-  const stuck = armed && (!ready || (onApp && authInitializing))
+  const stuck = armed && !ready
   if (!stuck) return null
 
   return (

@@ -19,7 +19,8 @@ type AuthState = {
 
 export const useAuthStore = create<AuthState>((set) => ({
   mode: 'guest',
-  initializing: true,
+  /** Старт без «ожидания сессии» — UI не должен зависеть от этого флага. */
+  initializing: false,
   user: null,
   session: null,
 
@@ -31,7 +32,6 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   bootstrap: async () => {
     console.log('AUTH INIT')
-    set({ initializing: true })
     try {
       if (typeof window !== 'undefined' && isLocalMasterAuthed()) {
         const name = getLocalMasterName()
