@@ -3,7 +3,10 @@ import { create } from 'zustand'
 
 import { onAuthStateChange, restoreSession } from '../lib/auth'
 import { buildLocalMasterUser, getLocalMasterName, isLocalMasterAuthed } from '../lib/localMasterAuth'
+import { withTimeout } from '../lib/withTimeout'
 import { hasSupabaseEnv } from '../lib/supabaseClient'
+
+const RESTORE_SESSION_MS = 4000
 
 type AuthState = {
   mode: 'guest' | 'auth'
@@ -36,7 +39,11 @@ export const useAuthStore = create<AuthState>((set) => ({
         console.log('LOCAL AUTH RESTORED')
         set({ mode: 'auth', user, session: null, initializing: false })
       } else {
-        const snap = await restoreSession()
+        const snap = await withTimeout(
+          restoreSession(),
+          RESTORE_SESSION_MS,
+          { mode: 'guest' as const, user: null, session: null },
+        )
         if (snap.session?.user) console.log('SUPABASE SESSION RESTORED')
         set({ ...snap, initializing: false })
       }

@@ -15,6 +15,7 @@ import { useAppHydration } from '../state/appHydration'
 import { useDemoMode } from '../state/demoMode'
 import { ROUTE_APP_CALENDAR_NEW, isMasterTodayPath } from '../lib/appRoutes'
 import { useMessaging } from '../state/messaging'
+import { useAuthStore } from '../store/authStore'
 
 function SafeMessageComposerSheet() {
   const composer = useMessaging((s) => s.composer)
@@ -24,6 +25,44 @@ function SafeMessageComposerSheet() {
     <ErrorBoundary key={k} layout="embedded" recoverSilently>
       <MessageComposerSheet />
     </ErrorBoundary>
+  )
+}
+
+/** If shell/auth still blocked after 1s (Safari / slow network), offer reload. */
+function SafariStuckFallback() {
+  const loc = useLocation()
+  const ready = useAppHydration((s) => s.ready)
+  const authInitializing = useAuthStore((s) => s.initializing)
+  const [armed, setArmed] = useState(false)
+
+  useEffect(() => {
+    const t = window.setTimeout(() => setArmed(true), 1000)
+    return () => window.clearTimeout(t)
+  }, [])
+
+  const onApp = loc.pathname.startsWith('/app/')
+  const stuck = armed && (!ready || (onApp && authInitializing))
+  if (!stuck) return null
+
+  return (
+    <div
+      className="fixed inset-0 z-[20000] flex flex-col items-center justify-center gap-4 px-6 text-center"
+      style={{
+        background: 'color-mix(in srgb, var(--lumi-bg) 92%, white)',
+        WebkitBackdropFilter: 'blur(10px)',
+        backdropFilter: 'blur(10px)',
+      }}
+    >
+      <div className="text-[16px] font-semibold tracking-tight text-ink-950">LUMI BOOK загружается…</div>
+      <button
+        type="button"
+        onClick={() => window.location.reload()}
+        className="rounded-3xl bg-ink-950 px-6 py-3 text-[14px] font-semibold text-paper-50 shadow-glowGold"
+        style={{ touchAction: 'manipulation' }}
+      >
+        Обновить страницу
+      </button>
+    </div>
   )
 }
 
@@ -49,18 +88,6 @@ export function AppShell({
   modalLayer?: ReactNode
 }) {
   const loc = useLocation()
-  const ready = useAppHydration((s) => s.ready)
-  const firstPaintDone = useAppHydration((s) => s.firstPaintDone)
-  const [showSplash, setShowSplash] = useState(false)
-
-  useEffect(() => {
-    if (!ready) return
-    setShowSplash(true)
-    const holdMs = 760
-    const exitBudgetMs = 420
-    const t = window.setTimeout(() => setShowSplash(false), holdMs + exitBudgetMs)
-    return () => window.clearTimeout(t)
-  }, [ready])
 
   const hideTabs =
     loc.pathname.startsWith('/onboarding') ||
@@ -83,10 +110,11 @@ export function AppShell({
           hideTabs ? '0px' : 'calc(116px + env(safe-area-inset-bottom))',
       }}
     >
-      <AppBootOverlay active={!ready} />
-      <SplashScreen active={ready && showSplash} />
-      <div className={ready ? 'app-ready' : 'app-preparing'}>
-        <MotionConfig reducedMotion={firstPaintDone ? 'never' : 'always'}>
+      {/* Temporarily off: boot overlay + splash hid the app on some mobile Safari / webview cases */}
+      <AppBootOverlay active={false} />
+      <SplashScreen active={false} />
+      <div className="app-ready">
+        <MotionConfig reducedMotion="always">
           {topArea}
           <div>{screenContent}</div>
           <div className="mt-3">
@@ -106,6 +134,7 @@ export function AppShell({
           <SafeDemoWalkthrough />
         </MotionConfig>
       </div>
+      <SafariStuckFallback />
     </div>
   )
 }

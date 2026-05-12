@@ -11,8 +11,11 @@ import { ErrorBoundary } from './components/ErrorBoundary'
 // Auth bootstrap (demo-safe): does nothing without Supabase env.
 void useAuthStore.getState().bootstrap()
 
-/** workbox-window: discover updates early; SW uses skipWaiting + clientsClaim (see vite.config). */
-void registerSW({ immediate: true })
+/** Temporarily off: service worker + precache caused blank / stale shells on some mobile Safari. Re-enable after stability pass. */
+const LUMI_ENABLE_SERVICE_WORKER = false
+if (LUMI_ENABLE_SERVICE_WORKER) {
+  void registerSW({ immediate: true })
+}
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

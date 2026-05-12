@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence } from 'framer-motion'
 import type { ReactNode } from 'react'
 import { useEffect, useMemo, useRef } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
@@ -51,26 +51,19 @@ import {
   isMasterTodayPath,
 } from './lib/appRoutes'
 import { StoreProvider, todayISO, useStore } from './state/store'
-import { motion as motionTokens } from './theme/motion'
-
 function Page({ children }: { children: ReactNode }) {
-  const firstPaintDone = useAppHydration((s) => s.firstPaintDone)
   // keep reading cognitive policy so UI density stays correct; no motion coupling here
   useCognitiveUI((s) => s.policy.load)
 
   return (
-    <motion.main
+    <main
       className="min-h-[100dvh] min-h-[100svh]"
-      initial={firstPaintDone ? { opacity: 0, y: 4 } : false}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -3 }}
-      transition={{ duration: motionTokens.duration.slow, ease: motionTokens.ease.out }}
       style={{
         paddingBottom: 'var(--app-bottom-pad, 0px)',
       }}
     >
       {children}
-    </motion.main>
+    </main>
   )
 }
 
@@ -79,8 +72,14 @@ function RequireAuth({ children }: { children: ReactNode }) {
   const mode = useAuthStore((s) => s.mode)
   const hasUser = useAuthStore((s) => Boolean(s.user))
 
-  // Avoid redirect flicker while restoreSession() is running.
-  if (initializing) return null
+  // Avoid blank screen on Safari while auth restores (never hang forever — bootstrap uses timeout).
+  if (initializing) {
+    return (
+      <div className="px-5 pt-10 text-center text-[14px] font-medium text-ink-700/70">
+        Загрузка…
+      </div>
+    )
+  }
   console.log('AUTH STORE MODE', mode)
   if (isLocalMasterAuthed()) return <>{children}</>
   if (mode !== 'auth' || !hasUser) return <Navigate to="/auth" replace />
@@ -97,9 +96,14 @@ function GlobalMaterialSync() {
   const activeChains = useRecovery((s) => s.chains.filter((c) => c.status === 'active').length)
   const setDeferred = useInstall((s) => s.setDeferred)
   const markInstalled = useInstall((s) => s.markInstalled)
-  const ready = useAppHydration((s) => s.ready)
   const setReady = useAppHydration((s) => s.setReady)
   const setFirstPaintDone = useAppHydration((s) => s.setFirstPaintDone)
+
+  // Safari / mobile: do not keep the app at opacity:0 behind "app-preparing" waiting for rAF/material.
+  useEffect(() => {
+    setReady(true)
+    setFirstPaintDone(true)
+  }, [setReady, setFirstPaintDone])
 
   const masterId = state.masters[0]?.id ?? ''
   const dateISO = todayISO()
@@ -178,18 +182,6 @@ function GlobalMaterialSync() {
     } catch (e) {
       console.error('[material] applyMaterialFromStore failed', e)
     }
-
-    if (!ready) {
-      // Strict gate: material applied + 2 animation frames.
-      const raf1 = requestAnimationFrame(() => {
-        const raf2 = requestAnimationFrame(() => {
-          setReady(true)
-          setFirstPaintDone(true)
-        })
-        return () => cancelAnimationFrame(raf2)
-      })
-      return () => cancelAnimationFrame(raf1)
-    }
   }, [
     activeChains,
     income,
@@ -202,9 +194,6 @@ function GlobalMaterialSync() {
     state.events,
     state.masters,
     state.services,
-    ready,
-    setReady,
-    setFirstPaintDone,
   ])
 
   return null
