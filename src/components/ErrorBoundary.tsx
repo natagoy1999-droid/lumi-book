@@ -20,6 +20,51 @@ type State = {
   errorInfo: ErrorInfo | null
 }
 
+/** Минимальный fallback без сторонних UI-компонентов (на случай ошибки внутри них). */
+function EmergencyErrorFallback({ onReload }: { onReload: () => void }) {
+  return (
+    <div
+      role="alert"
+      style={{
+        boxSizing: 'border-box',
+        minHeight: '50vh',
+        padding: 'max(2rem, env(safe-area-inset-top)) 1.25rem max(2rem, env(safe-area-inset-bottom))',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        fontFamily:
+          'ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif',
+        background: '#fbf6ec',
+        color: '#171717',
+      }}
+    >
+      <p style={{ margin: 0, fontSize: '17px', lineHeight: 1.5, maxWidth: 320 }}>
+        LUMI BOOK загружается. Обновите страницу.
+      </p>
+      <button
+        type="button"
+        onClick={onReload}
+        style={{
+          marginTop: '1.25rem',
+          padding: '12px 22px',
+          fontSize: '16px',
+          fontWeight: 600,
+          border: 'none',
+          borderRadius: 9999,
+          background: '#171717',
+          color: '#fffdf8',
+          cursor: 'pointer',
+          WebkitTapHighlightColor: 'transparent',
+        }}
+      >
+        Обновить
+      </button>
+    </div>
+  )
+}
+
 export class ErrorBoundary extends Component<Props, State> {
   override state: State = { hasError: false, error: null, errorInfo: null }
 
@@ -42,6 +87,17 @@ export class ErrorBoundary extends Component<Props, State> {
 
     if (recoverSilently) return null
 
+    if (layout === 'page') {
+      return (
+        <EmergencyErrorFallback
+          onReload={() => {
+            this.setState({ hasError: false, error: null, errorInfo: null })
+            window.location.reload()
+          }}
+        />
+      )
+    }
+
     const message = error?.message ?? 'Неизвестная ошибка'
     const stack = error?.stack ?? ''
     const componentStack = errorInfo?.componentStack ?? ''
@@ -53,10 +109,8 @@ export class ErrorBoundary extends Component<Props, State> {
     ].join('')
 
     const shell = (
-      <GlassCard className={layout === 'embedded' ? 'p-4' : 'p-5'}>
-        <div className={layout === 'embedded' ? 'lumi-secondary text-[13px]' : 'lumi-card-title'}>
-          {layout === 'embedded' ? 'Не удалось показать этот экран.' : 'Что-то пошло не так.'}
-        </div>
+      <GlassCard className="p-4">
+        <div className="lumi-secondary text-[13px]">Не удалось показать этот экран.</div>
         <div className="mt-1 text-[13px] leading-5 text-ink-700/70">
           Попробуйте ещё раз — обычно всё возвращается на место.
         </div>
@@ -92,17 +146,9 @@ export class ErrorBoundary extends Component<Props, State> {
       </GlassCard>
     )
 
-    if (layout === 'embedded') {
-      return (
-        <div className="px-3 pb-4 pt-2" role="alert">
-          {shell}
-        </div>
-      )
-    }
-
     return (
-      <div className="lumi-page" style={{ paddingTop: 'calc(1.75rem * (0.94 + var(--global-rhythm, 1) * 0.06))' }}>
-        <div className="mx-auto max-w-[520px]">{shell}</div>
+      <div className="px-3 pb-4 pt-2" role="alert">
+        {shell}
       </div>
     )
   }

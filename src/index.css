@@ -264,14 +264,10 @@
 }
 
 html,
-body {
-  height: 100%;
-}
-
-html,
 body,
 #root {
   min-height: 100%;
+  min-height: -webkit-fill-available;
   background-color: var(--lumi-bg);
   background-image:
     radial-gradient(ellipse 115% 72% at 50% -18%, rgba(232, 212, 167, 0.42) 0%, transparent 52%),
@@ -280,6 +276,8 @@ body,
 
 body {
   margin: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
   font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Display",
     "SF Pro Text", "Segoe UI", Inter, Roboto, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -294,7 +292,7 @@ body {
 }
 
 .lumi-page {
-  min-height: 100%;
+  min-height: auto;
   color: var(--lumi-ink);
 }
 
@@ -314,14 +312,18 @@ body {
 }
 
 .app-preparing {
-  opacity: 0;
-  transition: opacity 380ms cubic-bezier(0.22, 1, 0.36, 1);
-  pointer-events: none;
+  opacity: 1;
+  transition: none;
+  pointer-events: auto;
 }
 
 .app-ready {
   opacity: 1;
-  transition: opacity 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: none;
+}
+
+#root {
+  opacity: 1;
 }
 
 ::selection {
