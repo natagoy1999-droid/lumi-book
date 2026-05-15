@@ -1,11 +1,29 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { registerSW } from 'virtual:pwa-register'
 
 import './index.css'
 import './lib/supabaseClient'
 import { useAuthStore } from './store/authStore'
 import App from './App.tsx'
 import { ErrorBoundary } from './components/ErrorBoundary'
+
+function hidePwaStaticFallback() {
+  const el = document.getElementById('pwa-static-fallback')
+  if (!el) return
+  el.hidden = true
+  el.setAttribute('aria-hidden', 'true')
+}
+
+registerSW({
+  immediate: true,
+  onOfflineReady() {
+    console.log('PWA READY')
+  },
+  onRegisteredSW() {
+    console.log('SERVICE WORKER READY')
+  },
+})
 
 /** Не блокируем первый кадр: сессия восстанавливается после paint (Safari / мобильные). */
 function scheduleAuthBootstrap() {
@@ -20,6 +38,8 @@ function scheduleAuthBootstrap() {
 }
 scheduleAuthBootstrap()
 
+hidePwaStaticFallback()
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary>
@@ -27,3 +47,5 @@ createRoot(document.getElementById('root')!).render(
     </ErrorBoundary>
   </StrictMode>,
 )
+
+requestAnimationFrame(() => hidePwaStaticFallback())

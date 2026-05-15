@@ -18,6 +18,10 @@ function lumiBuildCacheKey(buildId: string): Plugin {
       handler(html) {
         let out = html.replace(/href="([^"]*manifest\.webmanifest)"/, `href="$1?v=${v}"`)
         out = out.replace(/href="\/lumi-icon\.svg"/g, `href="/lumi-icon.svg?v=${v}"`)
+        out = out.replace(
+          /href="\/icons\/apple-touch-icon\.png"/g,
+          `href="/icons/apple-touch-icon.png?v=${v}"`,
+        )
         out = out.replace('</head>', `  <meta name="lumi-build-id" content="${metaSafe}" />\n</head>`)
         return out
       },
@@ -37,21 +41,45 @@ export default defineConfig({
       registerType: 'autoUpdate',
       /** Use `virtual:pwa-register` in main.tsx — inline/script stubs skip workbox-window and never auto-reload. */
       injectRegister: false,
-      includeAssets: ['favicon.svg', 'lumi-icon.svg', 'lumi-icon-maskable.svg', 'lumi-logo-transparent.png'],
+      includeAssets: [
+        'favicon.svg',
+        'lumi-icon.svg',
+        'lumi-icon-maskable.svg',
+        'icons/icon-192.png',
+        'icons/icon-512.png',
+        'icons/icon-maskable-512.png',
+        'icons/apple-touch-icon.png',
+      ],
       manifest: {
         name: 'LUMI BOOK',
         short_name: 'LUMI',
-        description: 'Спокойная система записи для мастеров.',
+        description: 'Онлайн-запись для мастеров и клиентов',
+        lang: 'ru',
         start_url: '/',
         scope: '/',
         display: 'standalone',
-        display_override: ['standalone', 'minimal-ui'],
-        background_color: '#FBF6EC',
-        theme_color: '#FBF6EC',
+        display_override: ['standalone', 'minimal-ui', 'browser'],
+        background_color: '#F6F2EA',
+        theme_color: '#E8C86A',
         orientation: 'portrait',
         icons: [
-          { src: '/lumi-icon.svg', sizes: 'any', type: 'image/svg+xml' },
-          { src: '/lumi-icon-maskable.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'maskable' },
+          {
+            src: '/icons/icon-192.png',
+            sizes: '192x192',
+            type: 'image/png',
+          },
+          {
+            src: '/icons/icon-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+          },
+          {
+            src: '/icons/icon-maskable-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
+          },
+          { src: '/lumi-icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
         ],
       },
       workbox: {

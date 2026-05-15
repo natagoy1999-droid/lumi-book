@@ -36,7 +36,7 @@ function EmergencyErrorFallback({ onReload }: { onReload: () => void }) {
         textAlign: 'center',
         fontFamily:
           'ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif',
-        background: '#fbf6ec',
+        background: '#f6f2ea',
         color: '#171717',
       }}
     >

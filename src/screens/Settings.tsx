@@ -4,6 +4,7 @@ import {
   ChevronRight,
   Clock,
   CreditCard,
+  Download,
   HelpCircle,
   Plus,
   MessageSquare,
@@ -33,7 +34,9 @@ import {
 } from '../state/store'
 import { signOut } from '../lib/auth'
 import { clearLocalMasterAuth } from '../lib/localMasterAuth'
+import { isStandalone } from '../lib/installPrompt'
 import { useDemoMode } from '../state/demoMode'
+import { useInstall } from '../state/install'
 import { useAuthStore } from '../store/authStore'
 
 function paidPlanTitle(plan: SubscriptionState['plan']) {
@@ -176,6 +179,9 @@ export function Settings() {
   const { state, dispatch } = useStore()
   const authMode = useAuthStore((s) => s.mode)
   const authUser = useAuthStore((s) => s.user)
+  const installDeferred = useInstall((s) => s.deferred)
+  const installInstalled = useInstall((s) => s.installed)
+  const markInstalled = useInstall((s) => s.markInstalled)
   const mastersCountHint = useMemo(() => `${state.masters.length} мастера`, [state.masters.length])
   const servicesCountHint = useMemo(() => `${state.services.length} услуги`, [state.services.length])
 
@@ -207,6 +213,8 @@ export function Settings() {
     minutes: 60,
     price: 2000,
   }))
+
+  const [installBusy, setInstallBusy] = useState(false)
 
   const sub = state.subscription
   const { primary: tariffPrimary, secondary: tariffSecondary } = useMemo(() => tariffLines(sub), [sub])
@@ -240,6 +248,8 @@ export function Settings() {
 
   const accountEmail =
     authMode === 'auth' ? authUser?.email?.trim() || authUser?.phone?.trim() || null : null
+
+  const pwaOnHomeScreen = installInstalled || isStandalone()
 
   useEffect(() => {
     console.log('FLOW OK: SETTINGS')
@@ -337,6 +347,51 @@ export function Settings() {
                   </button>
                 </div>
               )}
+            </GlassCard>
+          </section>
+
+          <section className="min-w-0">
+            <SectionLabel>Приложение</SectionLabel>
+            <GlassCard className="w-full max-w-full min-w-0 p-6">
+              <div className="flex min-w-0 items-start gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/50 shadow-sm">
+                  <Download size={18} strokeWidth={1.75} className="text-ink-800/70" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[16px] font-medium tracking-tight text-ink-950">Установить приложение</div>
+                  <p className="mt-1 text-[13px] leading-relaxed text-ink-700/55">
+                    {pwaOnHomeScreen
+                      ? 'Уже добавлено на экран домой.'
+                      : installDeferred
+                        ? 'Откроется системное окно установки (Chrome / Edge / Android).'
+                        : 'Если кнопка неактивна: iPhone — «Поделиться» → «На экран Домой»; внутри мессенджеров установка может быть недоступна.'}
+                  </p>
+                  {!pwaOnHomeScreen ? (
+                    <button
+                      type="button"
+                      disabled={!installDeferred || installBusy}
+                      onClick={async () => {
+                        if (!installDeferred) return
+                        setInstallBusy(true)
+                        try {
+                          await installDeferred.prompt()
+                          const choice = await installDeferred.userChoice
+                          if (choice.outcome === 'accepted') markInstalled()
+                        } finally {
+                          setInstallBusy(false)
+                        }
+                      }}
+                      className={cn(
+                        lumiPrimaryActionSm,
+                        'mt-4 w-full rounded-full px-5 py-3 text-[13px]',
+                        (!installDeferred || installBusy) && 'pointer-events-none opacity-45',
+                      )}
+                    >
+                      {installBusy ? 'Подождите…' : 'Установить'}
+                    </button>
+                  ) : null}
+                </div>
+              </div>
             </GlassCard>
           </section>
 

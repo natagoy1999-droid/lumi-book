@@ -131,6 +131,7 @@ function GlobalMaterialSync() {
   useEffect(() => {
     const onBeforeInstallPrompt = (e: Event) => {
       e.preventDefault()
+      console.log('INSTALL PROMPT READY')
       setDeferred(e as never)
     }
     const onInstalled = () => markInstalled()

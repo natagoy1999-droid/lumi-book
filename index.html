@@ -3,24 +3,106 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/lumi-icon.svg" />
-    <link rel="apple-touch-icon" href="/lumi-icon.svg" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" sizes="180x180" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content" />
+
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"
-    />
-    <meta name="theme-color" content="#FBF6EC" />
+    <meta name="apple-mobile-web-app-title" content="LUMI" />
+
+    <meta name="theme-color" content="#E8C86A" />
     <meta name="application-name" content="LUMI BOOK" />
-    <meta name="apple-mobile-web-app-title" content="LUMI BOOK" />
-    <meta name="description" content="Спокойная система записи для мастеров." />
+    <meta name="description" content="Онлайн-запись для мастеров и клиентов" />
 
     <meta property="og:title" content="LUMI BOOK" />
-    <meta property="og:description" content="Спокойная система записи для мастеров." />
+    <meta property="og:description" content="Онлайн-запись для мастеров и клиентов" />
     <meta property="og:type" content="website" />
+
     <title>LUMI BOOK</title>
+
+    <style>
+      #pwa-static-fallback {
+        box-sizing: border-box;
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 2147483000;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: max(1.5rem, env(safe-area-inset-top)) 1.25rem max(1.5rem, env(safe-area-inset-bottom));
+        text-align: center;
+        font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        background: #f6f2ea;
+        color: #171717;
+      }
+      #pwa-static-fallback:not([hidden]) {
+        display: flex;
+      }
+      #pwa-static-fallback img {
+        width: 96px;
+        height: 96px;
+        border-radius: 22px;
+      }
+      #pwa-static-fallback h1 {
+        margin: 0;
+        font-size: 1.125rem;
+        font-weight: 600;
+      }
+      #pwa-static-fallback p {
+        margin: 0;
+        max-width: 320px;
+        font-size: 0.875rem;
+        line-height: 1.55;
+        opacity: 0.72;
+      }
+      #pwa-static-fallback button {
+        margin-top: 0.25rem;
+        padding: 0.75rem 1.35rem;
+        border: none;
+        border-radius: 9999px;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        background: #171717;
+        color: #fffdf8;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+      }
+    </style>
   </head>
   <body>
+    <div id="pwa-static-fallback" hidden aria-hidden="true">
+      <img src="/icons/icon-192.png" alt="" width="96" height="96" decoding="async" />
+      <h1>LUMI BOOK</h1>
+      <p>Не удалось загрузить приложение. Проверьте сеть и попробуйте снова.</p>
+      <button type="button" onclick="window.location.reload()">Обновить</button>
+    </div>
+    <script>
+      ;(function () {
+        var fb = document.getElementById('pwa-static-fallback')
+        function show() {
+          if (!fb) return
+          fb.removeAttribute('hidden')
+          fb.setAttribute('aria-hidden', 'false')
+        }
+        window.addEventListener(
+          'error',
+          function (e) {
+            var t = e && e.target
+            if (
+              t &&
+              ((t.tagName === 'SCRIPT' && t.src) || (t.tagName === 'LINK' && t.rel === 'stylesheet' && t.href))
+            ) {
+              show()
+            }
+          },
+          true,
+        )
+      })()
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

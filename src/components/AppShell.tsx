@@ -7,13 +7,12 @@ import { ErrorBoundary } from './ErrorBoundary'
 import { AppBootOverlay } from './AppBootOverlay'
 import { BottomTabs } from './BottomTabs'
 import { DemoWalkthrough } from './DemoWalkthrough'
-import { InstallPromptCard } from './InstallPromptCard'
 import { MessageComposerSheet } from './MessageComposerSheet'
 import { SplashScreen } from './SplashScreen'
 import { OfflineNotice } from './OfflineNotice'
 import { useAppHydration } from '../state/appHydration'
 import { useDemoMode } from '../state/demoMode'
-import { ROUTE_APP_CALENDAR_NEW, isMasterTodayPath } from '../lib/appRoutes'
+import { ROUTE_APP_CALENDAR_NEW } from '../lib/appRoutes'
 import { useMessaging } from '../state/messaging'
 
 function SafeMessageComposerSheet() {
@@ -124,7 +123,6 @@ export function AppShell({
           {modalLayer}
 
           {/* Global built-in layers (kept isolated) */}
-          {isMasterTodayPath(loc.pathname) ? <InstallPromptCard /> : null}
           {hideTabs ? null : <BottomTabs />}
           <SafeMessageComposerSheet />
           <SafeDemoWalkthrough />
