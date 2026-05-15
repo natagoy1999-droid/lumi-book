@@ -13,6 +13,7 @@ export async function initCapacitorNative() {
 
   if (Capacitor.getPlatform() === 'android') {
     console.log('ANDROID PLATFORM READY')
+    console.log('ANDROID APK READY')
   }
 
   try {
