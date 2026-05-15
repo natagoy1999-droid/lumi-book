@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { registerSW } from 'virtual:pwa-register'
 
 import './index.css'
+import { initCapacitorNative } from './lib/capacitorInit'
 import './lib/supabaseClient'
 import { useAuthStore } from './store/authStore'
 import App from './App.tsx'
@@ -37,6 +38,8 @@ function scheduleAuthBootstrap() {
   }
 }
 scheduleAuthBootstrap()
+
+void initCapacitorNative()
 
 hidePwaStaticFallback()
 
