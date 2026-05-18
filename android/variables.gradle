@@ -1,7 +1,7 @@
 ext {
-    /** Capacitor 8 — align with current stable Play / AGP toolchain (API 35). */
+    /** Capacitor 8 — compileSdk 36 required by androidx.activity:activity:1.11.0+ */
     minSdkVersion = 24
-    compileSdkVersion = 35
+    compileSdkVersion = 36
     targetSdkVersion = 35
     androidxActivityVersion = '1.11.0'
     androidxAppCompatVersion = '1.7.1'
