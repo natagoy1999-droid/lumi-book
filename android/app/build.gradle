@@ -48,12 +48,11 @@ dependencies {
 
 apply from: 'capacitor.build.gradle'
 
-// Firebase Cloud Messaging — place google-services.json in android/app/ (see google-services.json.example)
-def googleServicesFile = file('google-services.json')
-if (googleServicesFile.exists() && googleServicesFile.length() > 0) {
+if (file('google-services.json').exists()) {
     apply plugin: 'com.google.gms.google-services'
 } else {
-    logger.lifecycle(
-        'google-services.json not found in android/app/. Push notifications require a Firebase Android app config.',
+    logger.warn(
+        'google-services.json not found in android/app/. ' +
+        'Copy from Firebase Console (package com.lumibook.app). Push/FCM disabled until added.'
     )
 }

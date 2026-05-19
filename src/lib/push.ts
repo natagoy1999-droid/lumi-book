@@ -1,127 +1,186 @@
 import { Capacitor } from '@capacitor/core'
 import {
   PushNotifications,
+  type ActionPerformed,
   type PermissionStatus,
   type PushNotificationSchema,
+  type Token,
 } from '@capacitor/push-notifications'
-import { getApps, initializeApp, type FirebaseApp } from 'firebase/app'
+import { initializeApp, type FirebaseApp } from 'firebase/app'
+import { create } from 'zustand'
 
-import { usePushStore, type PushPermissionStatus } from '../state/push'
+const PUSH_CHANNEL_ID = 'lumi_book_default'
 
-export const LUMI_PUSH_CHANNEL_ID = 'lumi_book_default'
+export type PushPermissionState = PermissionStatus['receive'] | 'unsupported' | 'unknown'
+
+type PushStoreState = {
+  ready: boolean
+  supported: boolean
+  permission: PushPermissionState
+  token: string | null
+  lastError: string | null
+}
+
+export const usePushStore = create<PushStoreState>(() => ({
+  ready: false,
+  supported: false,
+  permission: 'unknown',
+  token: null,
+  lastError: null,
+}))
 
 let listenersAttached = false
-let initStarted = false
 let firebaseApp: FirebaseApp | null = null
 
-function mapPermission(receive: PermissionStatus['receive']): PushPermissionStatus {
-  if (receive === 'granted' || receive === 'denied') return receive
-  if (receive === 'prompt-with-rationale') return 'prompt-with-rationale'
-  if (receive === 'prompt') return 'prompt'
-  return 'unsupported'
+function isAndroidNative(): boolean {
+  return Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android'
 }
 
-/** Firebase JS SDK — optional; native FCM token comes from Capacitor registration. */
-function initFirebaseIfConfigured() {
-  if (firebaseApp || getApps().length > 0) return
+/** Optional Firebase JS SDK (web config); native FCM uses Capacitor Push Notifications. */
+function ensureFirebaseApp(): FirebaseApp | null {
+  if (firebaseApp) return firebaseApp
+
   const apiKey = import.meta.env.VITE_FIREBASE_API_KEY as string | undefined
+  const authDomain = import.meta.env.VITE_FIREBASE_AUTH_DOMAIN as string | undefined
   const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID as string | undefined
+  const storageBucket = import.meta.env.VITE_FIREBASE_STORAGE_BUCKET as string | undefined
+  const messagingSenderId = import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID as string | undefined
   const appId = import.meta.env.VITE_FIREBASE_APP_ID as string | undefined
-  if (!apiKey || !projectId || !appId) return
 
-  firebaseApp = initializeApp({
-    apiKey,
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN as string | undefined,
-    projectId,
-    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET as string | undefined,
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID as string | undefined,
-    appId,
-  })
+  if (!apiKey || !projectId || !appId) return null
+
+  try {
+    firebaseApp = initializeApp({
+      apiKey,
+      authDomain,
+      projectId,
+      storageBucket,
+      messagingSenderId,
+      appId,
+    })
+    return firebaseApp
+  } catch (e) {
+    console.warn('[push] Firebase initializeApp skipped', e)
+    return null
+  }
 }
 
-function attachPushListeners() {
+async function attachPushListeners(): Promise<void> {
   if (listenersAttached) return
   listenersAttached = true
 
-  void PushNotifications.addListener('registration', (token) => {
+  await PushNotifications.addListener('registration', (token: Token) => {
     console.log('FCM TOKEN', token.value)
-    usePushStore.getState().setToken(token.value)
+    usePushStore.setState({ token: token.value, lastError: null })
   })
 
-  void PushNotifications.addListener('registrationError', (err) => {
-    console.error('[push] registrationError', err)
-    usePushStore.getState().setError(err.error ?? 'registration failed')
+  await PushNotifications.addListener('registrationError', (err) => {
+    const message = err?.error ?? 'registration failed'
+    console.error('[push] registrationError', message)
+    usePushStore.setState({ lastError: message })
   })
 
-  void PushNotifications.addListener('pushNotificationReceived', (notification: PushNotificationSchema) => {
+  await PushNotifications.addListener('pushNotificationReceived', (notification: PushNotificationSchema) => {
     console.log('PUSH RECEIVED', notification)
-    usePushStore.getState().noteReceived()
   })
 
-  void PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
-    console.log('[push] actionPerformed', action)
-  })
+  await PushNotifications.addListener(
+    'pushNotificationActionPerformed',
+    (action: ActionPerformed) => {
+      console.log('[push] actionPerformed', action)
+    },
+  )
 }
 
-async function ensureAndroidChannel() {
-  if (Capacitor.getPlatform() !== 'android') return
+async function ensureAndroidChannel(): Promise<void> {
   try {
     await PushNotifications.createChannel({
-      id: LUMI_PUSH_CHANNEL_ID,
+      id: PUSH_CHANNEL_ID,
       name: 'LUMI BOOK',
       description: 'Записи и напоминания',
       importance: 4,
       visibility: 1,
       vibration: true,
     })
-  } catch (e) {
-    console.warn('[push] createChannel', e)
+  } catch {
+    // channel may already exist
   }
 }
 
-export function isPushSupported() {
-  return Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android'
-}
-
-export async function refreshPushPermissionStatus() {
-  if (!isPushSupported()) {
-    usePushStore.getState().setPermission('unsupported')
-    return usePushStore.getState().permission
+export async function refreshPushPermissionStatus(): Promise<PushPermissionState> {
+  if (!isAndroidNative()) {
+    usePushStore.setState({ supported: false, permission: 'unsupported' })
+    return 'unsupported'
   }
+
   const status = await PushNotifications.checkPermissions()
-  const permission = mapPermission(status.receive)
-  usePushStore.getState().setPermission(permission)
-  return permission
+  usePushStore.setState({ permission: status.receive, supported: true })
+  return status.receive
 }
 
-export async function requestPushPermission() {
-  if (!isPushSupported()) return usePushStore.getState().permission
+/** Register with FCM when permission already granted. */
+export async function registerPushDevice(): Promise<void> {
+  if (!isAndroidNative()) return
+  const { permission } = usePushStore.getState()
+  const current =
+    permission === 'unknown' ? await refreshPushPermissionStatus() : permission
+  if (current !== 'granted') return
+  await PushNotifications.register()
+}
 
-  const status = await PushNotifications.requestPermissions()
-  const permission = mapPermission(status.receive)
-  usePushStore.getState().setPermission(permission)
+export async function requestPushPermissions(): Promise<PushPermissionState> {
+  if (!isAndroidNative()) {
+    usePushStore.setState({ permission: 'unsupported', supported: false })
+    return 'unsupported'
+  }
 
-  if (permission === 'granted') {
+  const result = await PushNotifications.requestPermissions()
+  usePushStore.setState({ permission: result.receive, supported: true })
+
+  if (result.receive === 'granted') {
     await PushNotifications.register()
   }
 
-  return permission
+  return result.receive
 }
 
-/** Call once after auth bootstrap — registers listeners and optionally registers device. */
-export async function initPushAfterAuth() {
-  if (!isPushSupported() || initStarted) return
-  initStarted = true
+/** Request permission + register (Settings CTA). */
+export async function requestPushPermissionsAndRegister(): Promise<void> {
+  await requestPushPermissions()
+}
 
-  initFirebaseIfConfigured()
-  attachPushListeners()
+export function pushPermissionLabel(permission: PushPermissionState): string {
+  switch (permission) {
+    case 'granted':
+      return 'Разрешены'
+    case 'denied':
+      return 'Запрещены'
+    case 'prompt':
+    case 'prompt-with-rationale':
+      return 'Нужно разрешение'
+    case 'unsupported':
+      return 'Только в Android-приложении'
+    default:
+      return 'Не проверено'
+  }
+}
+
+/**
+ * Called after auth bootstrap / login — attaches listeners, checks permission, registers if allowed.
+ */
+export async function initPushAfterAuth(): Promise<void> {
+  if (!isAndroidNative()) return
+
+  ensureFirebaseApp()
+  await attachPushListeners()
   await ensureAndroidChannel()
 
   const permission = await refreshPushPermissionStatus()
-  usePushStore.getState().setReady(true)
-  console.log('PUSH READY')
 
   if (permission === 'granted') {
-    await PushNotifications.register()
+    await registerPushDevice()
   }
+
+  usePushStore.setState({ ready: true })
+  console.log('PUSH READY')
 }

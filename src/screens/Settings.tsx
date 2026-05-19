@@ -36,9 +36,13 @@ import { signOut } from '../lib/auth'
 import { clearLocalMasterAuth } from '../lib/localMasterAuth'
 import { isStandalone } from '../lib/installPrompt'
 import { useDemoMode } from '../state/demoMode'
-import { isPushSupported, refreshPushPermissionStatus, requestPushPermission } from '../lib/push'
 import { useInstall } from '../state/install'
-import { usePushStore } from '../state/push'
+import {
+  pushPermissionLabel,
+  requestPushPermissionsAndRegister,
+  refreshPushPermissionStatus,
+  usePushStore,
+} from '../lib/push'
 import { useAuthStore } from '../store/authStore'
 
 function paidPlanTitle(plan: SubscriptionState['plan']) {
@@ -218,10 +222,9 @@ export function Settings() {
 
   const [installBusy, setInstallBusy] = useState(false)
   const [pushBusy, setPushBusy] = useState(false)
-
   const pushPermission = usePushStore((s) => s.permission)
+  const pushSupported = usePushStore((s) => s.supported)
   const pushReady = usePushStore((s) => s.ready)
-  const pushSupported = isPushSupported()
 
   const sub = state.subscription
   const { primary: tariffPrimary, secondary: tariffSecondary } = useMemo(() => tariffLines(sub), [sub])
@@ -263,18 +266,8 @@ export function Settings() {
   }, [])
 
   useEffect(() => {
-    if (pushSupported) void refreshPushPermissionStatus()
-  }, [pushSupported])
-
-  const pushStatusLabel = useMemo(() => {
-    if (!pushSupported) return 'Доступно в Android-приложении'
-    if (!pushReady) return 'Подключаем…'
-    if (pushPermission === 'granted') return 'Разрешены'
-    if (pushPermission === 'denied') return 'Запрещены в системе'
-    if (pushPermission === 'prompt-with-rationale') return 'Нужно разрешение'
-    if (pushPermission === 'prompt') return 'Не запрошены'
-    return 'Недоступны'
-  }, [pushPermission, pushReady, pushSupported])
+    void refreshPushPermissionStatus()
+  }, [])
 
   const openPanel = (
     panel: NonNullable<typeof activePanel>,
@@ -423,56 +416,53 @@ export function Settings() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ type: 'spring', stiffness: 520, damping: 44 }}
+                className="flex min-w-0 items-start gap-3"
               >
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ type: 'spring', stiffness: 520, damping: 44 }}
-                  className="flex min-w-0 items-start gap-3"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/50 shadow-sm"
                 >
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ type: 'spring', stiffness: 520, damping: 44 }}
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/50 shadow-sm"
-                  >
-                    <Bell size={18} strokeWidth={1.75} className="text-ink-800/70" />
-                  </motion.div>
-                  <div className="min-w-0 flex-1">
-                    <div className="text-[16px] font-medium tracking-tight text-ink-950">
-                      Push-уведомления
-                    </div>
-                    <p className="mt-1 text-[13px] leading-relaxed text-ink-700/55">
-                      Статус: {pushStatusLabel}
-                    </p>
-                    {pushSupported && pushPermission !== 'granted' ? (
-                      <button
-                        type="button"
-                        disabled={pushBusy}
-                        onClick={async () => {
-                          setPushBusy(true)
-                          try {
-                            await requestPushPermission()
-                          } finally {
-                            setPushBusy(false)
-                          }
-                        }}
-                        className={cn(
-                          lumiPrimaryActionSm,
-                          'mt-4 w-full rounded-full px-5 py-3 text-[13px]',
-                          pushBusy && 'pointer-events-none opacity-45',
-                        )}
-                      >
-                        {pushBusy ? 'Подождите…' : 'Разрешить уведомления'}
-                      </button>
-                    ) : null}
-                    {!pushSupported ? (
-                      <p className="mt-2 text-[12px] leading-relaxed text-ink-700/50">
-                        В браузере и PWA push настраивается отдельно. В APK — через Firebase.
-                      </p>
-                    ) : null}
-                  </div>
+                  <Bell size={18} strokeWidth={1.75} className="text-ink-800/70" />
                 </motion.div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[16px] font-medium tracking-tight text-ink-950">Push-уведомления</div>
+                  <p className="mt-1 text-[13px] leading-relaxed text-ink-700/55">
+                    Статус:{' '}
+                    <span className="font-medium text-ink-800/80">
+                      {pushReady || pushSupported
+                        ? pushPermissionLabel(pushPermission)
+                        : pushPermissionLabel('unsupported')}
+                    </span>
+                  </p>
+                  {pushPermission !== 'granted' && pushSupported ? (
+                    <button
+                      type="button"
+                      disabled={pushBusy}
+                      onClick={async () => {
+                        setPushBusy(true)
+                        try {
+                          await requestPushPermissionsAndRegister()
+                        } finally {
+                          setPushBusy(false)
+                        }
+                      }}
+                      className={cn(
+                        lumiPrimaryActionSm,
+                        'mt-4 w-full rounded-full px-5 py-3 text-[13px]',
+                        pushBusy && 'pointer-events-none opacity-45',
+                      )}
+                    >
+                      {pushBusy ? 'Подождите…' : 'Разрешить уведомления'}
+                    </button>
+                  ) : null}
+                  {!pushSupported ? (
+                    <p className="mt-2 text-[12px] leading-relaxed text-ink-700/50">
+                      Доступно в установленном Android-приложении (не в браузере).
+                    </p>
+                  ) : null}
+                </div>
               </motion.div>
             </GlassCard>
           </section>

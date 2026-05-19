@@ -18,7 +18,7 @@ type AuthState = {
   bootstrap: () => Promise<void>
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   mode: 'guest',
   /** Старт без «ожидания сессии» — UI не должен зависеть от этого флага. */
   initializing: false,
@@ -28,6 +28,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   setSnapshot: (snap) =>
     set(() => {
       console.log('AUTH STORE MODE', snap.mode)
+      if (snap.mode === 'auth') void initPushAfterAuth()
       return { ...snap }
     }),
 
@@ -53,7 +54,6 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({ mode: 'guest', user: null, session: null, initializing: false })
     }
 
-    // Listen only if Supabase is configured.
     if (hasSupabaseEnv()) {
       try {
         const unsub = onAuthStateChange((_event, session) => {
@@ -61,14 +61,15 @@ export const useAuthStore = create<AuthState>((set) => ({
             const user = buildLocalMasterUser(undefined, getLocalMasterName())
             console.log('AUTH STORE MODE', 'auth')
             set({ mode: 'auth', user, session: null })
+            void initPushAfterAuth()
             return
           }
           const mode = session?.user ? 'auth' : 'guest'
           console.log('AUTH STORE MODE', mode)
           set({ mode, user: session?.user ?? null, session: session ?? null })
+          if (mode === 'auth') void initPushAfterAuth()
         })
 
-        // Ensure unsubscribe on hot reload scenarios.
         ;(window as any).__lumi_auth_unsub?.()
         ;(window as any).__lumi_auth_unsub = unsub
       } catch (e) {
@@ -76,7 +77,9 @@ export const useAuthStore = create<AuthState>((set) => ({
       }
     }
 
-    void initPushAfterAuth()
+    if (typeof window !== 'undefined' && get().mode === 'auth') {
+      void initPushAfterAuth()
+    }
   },
 }))
 
