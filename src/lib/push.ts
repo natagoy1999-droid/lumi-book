@@ -32,6 +32,7 @@ export const usePushStore = create<PushStoreState>(() => ({
 let listenersAttached = false
 let firebaseApp: FirebaseApp | null = null
 
+/** Push/FCM — только нативное Android-приложение (не PWA / браузер). */
 function isAndroidNative(): boolean {
   return Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android'
 }
@@ -58,6 +59,7 @@ function ensureFirebaseApp(): FirebaseApp | null {
       messagingSenderId,
       appId,
     })
+    console.log('[push] Firebase JS initialized', projectId)
     return firebaseApp
   } catch (e) {
     console.warn('[push] Firebase initializeApp skipped', e)
@@ -76,7 +78,7 @@ async function attachPushListeners(): Promise<void> {
 
   await PushNotifications.addListener('registrationError', (err) => {
     const message = err?.error ?? 'registration failed'
-    console.error('[push] registrationError', message)
+    console.error('PUSH REGISTRATION ERROR', message)
     usePushStore.setState({ lastError: message })
   })
 
@@ -87,7 +89,7 @@ async function attachPushListeners(): Promise<void> {
   await PushNotifications.addListener(
     'pushNotificationActionPerformed',
     (action: ActionPerformed) => {
-      console.log('[push] actionPerformed', action)
+      console.log('PUSH ACTION', action)
     },
   )
 }
@@ -169,7 +171,7 @@ export function pushPermissionLabel(permission: PushPermissionState): string {
  * Called after auth bootstrap / login — attaches listeners, checks permission, registers if allowed.
  */
 export async function initPushAfterAuth(): Promise<void> {
-  if (!isAndroidNative()) return
+  if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== 'android') return
 
   ensureFirebaseApp()
   await attachPushListeners()
