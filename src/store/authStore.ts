@@ -4,6 +4,7 @@ import { create } from 'zustand'
 import { onAuthStateChange, restoreSession } from '../lib/auth'
 import { buildLocalMasterUser, getLocalMasterName, isLocalMasterAuthed } from '../lib/localMasterAuth'
 import { withTimeout } from '../lib/withTimeout'
+import { initPushAfterAuth } from '../lib/push'
 import { hasSupabaseEnv } from '../lib/supabaseClient'
 
 const RESTORE_SESSION_MS = 4000
@@ -53,26 +54,29 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
 
     // Listen only if Supabase is configured.
-    if (!hasSupabaseEnv()) return
-    try {
-      const unsub = onAuthStateChange((_event, session) => {
-        if (typeof window !== 'undefined' && isLocalMasterAuthed()) {
-          const user = buildLocalMasterUser(undefined, getLocalMasterName())
-          console.log('AUTH STORE MODE', 'auth')
-          set({ mode: 'auth', user, session: null })
-          return
-        }
-        const mode = session?.user ? 'auth' : 'guest'
-        console.log('AUTH STORE MODE', mode)
-        set({ mode, user: session?.user ?? null, session: session ?? null })
-      })
+    if (hasSupabaseEnv()) {
+      try {
+        const unsub = onAuthStateChange((_event, session) => {
+          if (typeof window !== 'undefined' && isLocalMasterAuthed()) {
+            const user = buildLocalMasterUser(undefined, getLocalMasterName())
+            console.log('AUTH STORE MODE', 'auth')
+            set({ mode: 'auth', user, session: null })
+            return
+          }
+          const mode = session?.user ? 'auth' : 'guest'
+          console.log('AUTH STORE MODE', mode)
+          set({ mode, user: session?.user ?? null, session: session ?? null })
+        })
 
-      // Ensure unsubscribe on hot reload scenarios.
-      ;(window as any).__lumi_auth_unsub?.()
-      ;(window as any).__lumi_auth_unsub = unsub
-    } catch (e) {
-      console.error('[auth] onAuthStateChange failed', e)
+        // Ensure unsubscribe on hot reload scenarios.
+        ;(window as any).__lumi_auth_unsub?.()
+        ;(window as any).__lumi_auth_unsub = unsub
+      } catch (e) {
+        console.error('[auth] onAuthStateChange failed', e)
+      }
     }
+
+    void initPushAfterAuth()
   },
 }))
 

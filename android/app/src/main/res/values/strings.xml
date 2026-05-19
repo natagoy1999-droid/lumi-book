@@ -4,4 +4,5 @@
     <string name="title_activity_main">LUMI BOOK</string>
     <string name="package_name">com.lumibook.app</string>
     <string name="custom_url_scheme">com.lumibook.app</string>
+    <string name="default_notification_channel_id">lumi_book_default</string>
 </resources>
